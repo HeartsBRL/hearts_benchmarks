@@ -1,0 +1,30 @@
+<launch>
+    <!-- name of $USER's catkin workspace  --> 
+    <arg name="WORKSPACE" value="tb_ws"   />
+
+     <!-- ERL COMPETITION USB memory stick ID - Location of .wav files and destination for the results.txt file --> 
+    <arg name="ERL_USB_MEM" value="03D4-DC4D" />
+
+    <param name='SR_BRL_DATAPATHOUT' value='/home/$(env USER)/Documents/BRL_speech_results/' />
+    <param name='SR_VERBSFILE' value='/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/fbm3_speech_understanding/data_in/TrainingDatasetVerbs.csv' />
+    <param name="SR_GROUNDTRUTHDELIM" value="|" /> 
+    <param name='SR_GROUNDTRUTH' value='/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/fbm3_speech_understanding/data_in/ERLx3_ground_truth.csv' />
+
+    <!-- if SR_ERL_AUDIOPATH is defined then SR_BRL_AUDIO_DIR is ignored.  -->
+    <param name='SR_BRL_AUDIO_DIR' value='/home/$(env USER)/Documents/uwe/' />
+
+    <!-- param name='SR_ERL_AUDIO_DIR' value='/media/$(env USER)/$(arg ERL_USB_MEM)/' -->
+    <param name='SR_ERL_AUDIO_DIR' value='/media/$(env USER)/$(arg ERL_USB_MEM)/' />
+
+    <node name='SR_TH' pkg='fbm3_speech_understanding' type='th.py' output='screen' />
+    <node name='SR_T2CFR' pkg='fbm3_speech_understanding' type='t2cfr.py' output='screen' />
+
+    <include file="$(find hearts_stt)/launch/hearts_stt.launch">
+        <arg name="SR_speechrec_engine" value="google" />
+        <arg name="SR_TH" value="TH" />
+        <arg name="SR_GCP_KEYWORDSFILE" value="/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/hearts_stt/data_in/CFR/xxxBarcelona_2017_all_dicts.txt" />
+        <arg name="SR_ERL_DATAPATHOUT" value="/media/$(env USER)/$(arg ERL_USB_MEM)/" />
+        <arg name="SR_ENERGY_THRESHOLD" value="2000" />
+        <arg name="listen" value="" />
+    </include>
+</launch>

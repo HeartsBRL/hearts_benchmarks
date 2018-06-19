@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Created : 22 Jan 2018
+# Author  : Derek Ripper
+# Purpose : Simulate the TABLET position
+#########################################################################################
+# Updates :
+#
+#########################################################################################
+
+#bed side
+rostopic pub --once   /roah_rsbb/tablet/position geometry_msgs/Pose2D "x: 0.729
+y: -4.94
+theta: 0.0" 
+
+# Sofa side
+# rostopic pub --once   /roah_rsbb/tablet/position geometry_msgs/Pose2D "x: -1.194
+# y: -3.594
+# theta: 0.0" 
+

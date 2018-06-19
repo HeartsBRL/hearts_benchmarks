@@ -1,0 +1,3 @@
+#!/bin/bash
+
+roslaunch fbm3_speech_understanding th.launch

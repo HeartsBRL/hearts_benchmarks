@@ -1,0 +1,1167 @@
+#define DELIMAN_RG_MIN 0.91
+#define DELIMAN_RG_MAX 0.95
+#define DELIMAN_RB_MIN 0.83
+#define DELIMAN_RB_MAX 0.87
+#define DELIMAN_GB_MIN 0.89
+#define DELIMAN_GB_MAX 0.93
+
+
+DELIMAN
+
+--
+
+
+
+min: 0.87
+max: 0.89
+
+min: 0.80
+max: 0.82
+
+min: 0.91
+max: 0.93
+
+--
+
+[ INFO] [1511534609.259304942]: published unknown
+confi_237.031
+
+222.739
+206.124
+181.836
+39.3072
+
+0.88217
+0.816366
+0.925406
+
+[ INFO] [1511534609.389896124]: published unknown
+confi_239.693
+
+222.618
+205.962
+181.318
+38.7742
+
+0.880347
+0.814482
+0.925183
+
+[ INFO] [1511534609.514815135]: published unknown
+confi_209.014
+
+222.582
+205.65
+180.948
+37.3248
+
+0.879883
+0.812949
+0.923928
+
+[ INFO] [1511534609.640543156]: published unknown
+confi_235.588
+
+223.948
+206.516
+181.49
+35.6706
+
+0.878821
+0.810413
+0.92216
+
+[ INFO] [1511534609.770145659]: published unknown
+confi_216.677
+
+223.253
+206.457
+181.372
+35.8051
+
+0.878496
+0.812405
+0.924768
+
+[ INFO] [1511534609.901397468]: published unknown
+confi_261.198
+
+221.875
+204.398
+179.6
+40.0863
+
+0.878679
+0.809466
+0.921231
+
+[ INFO] [1511534610.024275110]: published unknown
+confi_223.436
+
+223.233
+204.661
+180.273
+33.7118
+
+0.880837
+0.807554
+0.916804
+
+[ INFO] [1511534610.151210590]: published unknown
+confi_226.008
+
+224.582
+205.435
+181.018
+33.0486
+
+0.881147
+0.806023
+0.914743
+
+[ INFO] [1511534610.276625791]: published unknown
+confi_257.929
+
+224.894
+206.512
+181.932
+35.034
+
+0.880973
+0.808965
+0.918263
+
+[ INFO] [1511534610.642399658]: published unknown
+confi_241.743
+
+226.024
+206.856
+182.461
+32.6949
+
+0.882071
+0.807265
+0.915193
+
+[ INFO] [1511534610.772908972]: published unknown
+confi_257.694
+
+225.517
+206.825
+182.125
+32.9881
+
+0.880572
+0.807588
+0.917117
+
+[ INFO] [1511534610.901691246]: published unknown
+confi_283.639
+
+225.767
+207.27
+182.359
+33.2255
+
+0.879813
+0.807731
+0.918071
+
+[ INFO] [1511534611.029671249]: published unknown
+confi_290.41
+
+225.812
+207.138
+182.671
+32.8928
+
+0.881878
+0.808951
+0.917304
+
+[ INFO] [1511534611.153737371]: published unknown
+confi_224.448
+
+225.927
+207.503
+182.72
+32.8651
+
+0.880567
+0.808759
+0.918452
+
+[ INFO] [1511534611.275508878]: published unknown
+confi_255.287
+
+226.487
+209.476
+183.989
+35.8466
+
+0.87833
+0.81236
+0.924892
+
+[ INFO] [1511534611.402956067]: published unknown
+confi_245.198
+
+226.335
+208.589
+183.678
+33.9351
+
+0.880573
+0.811532
+0.921595
+
+[ INFO] [1511534611.534077560]: published unknown
+confi_272.082
+
+225.787
+208.097
+183.047
+33.5087
+
+0.879625
+0.810707
+0.921651
+
+[ INFO] [1511534611.665387413]: published unknown
+[INFO] [WallTime: 1511534611.789855] subscribed to topic /hearts/face/user
+confi_260.447
+
+226.191
+208.069
+183.503
+33.3073
+
+0.881934
+0.811272
+0.919879
+
+[ INFO] [1511534611.796869768]: published unknown
+confi_279.337
+
+225.997
+208.304
+183.3
+33.6495
+
+0.879966
+0.811073
+0.921709
+
+[ INFO] [1511534611.928430758]: published unknown
+[INFO] [WallTime: 1511534611.928648] face_callback: unknown
+confi_246.405
+
+225.25
+207.339
+182.543
+32.7851
+
+0.88041
+0.810403
+0.920484
+
+[ INFO] [1511534612.059707398]: published unknown
+[INFO] [WallTime: 1511534612.059913] face_callback: unknown
+confi_229.924
+
+225.098
+208.161
+182.781
+33.99
+
+0.878075
+0.812007
+0.924759
+
+[ INFO] [1511534612.188822260]: published unknown
+[INFO] [WallTime: 1511534612.189062] face_callback: unknown
+confi_266.579
+
+225.288
+208.217
+183.071
+35.2342
+
+0.87923
+0.812608
+0.924227
+
+[ INFO] [1511534612.317238892]: published unknown
+[INFO] [WallTime: 1511534612.317459] face_callback: unknown
+confi_251.9
+
+226.236
+209.318
+184.122
+35.0132
+
+0.879626
+0.813848
+0.925221
+
+[ INFO] [1511534612.489141108]: published unknown
+[INFO] [WallTime: 1511534612.489867] face_callback: unknown
+confi_322.633
+
+227.363
+209.178
+184.514
+33.3681
+
+0.882091
+0.81154
+0.920019
+
+[ INFO] [1511534612.618576525]: published unknown
+[INFO] [WallTime: 1511534612.618827] face_callback: unknown
+confi_295.41
+
+226.343
+207.939
+183.358
+33.8468
+
+0.881788
+0.810088
+0.918688
+
+[ INFO] [1511534612.861929789]: published unknown
+[INFO] [WallTime: 1511534612.862222] face_callback: unknown
+confi_311.888
+
+226.472
+208.731
+184.146
+36.4341
+
+0.882214
+0.813105
+0.921664
+
+[ INFO] [1511534613.079149658]: published unknown
+[INFO] [WallTime: 1511534613.079445] face_callback: unknown
+confi_302.199
+
+224.885
+206.584
+182.387
+35.9687
+
+0.882871
+0.811024
+0.918621
+
+[ INFO] [1511534613.212175575]: published unknown
+[INFO] [WallTime: 1511534613.212371] face_callback: unknown
+confi_303.247
+
+225.078
+206.814
+182.51
+35.9726
+
+0.882481
+0.810875
+0.918858
+
+[ INFO] [1511534613.345379719]: published unknown
+[INFO] [WallTime: 1511534613.345590] face_callback: unknown
+confi_259.919
+
+225.754
+207.127
+182.775
+35.4827
+
+0.882432
+0.809621
+0.917488
+
+[ INFO] [1511534613.469744448]: published unknown
+[INFO] [WallTime: 1511534613.469948] face_callback: unknown
+confi_275.787
+
+225.183
+206.83
+182.396
+36.3702
+
+0.881866
+0.809991
+0.918497
+
+[ INFO] [1511534613.597494778]: published unknown
+[INFO] [WallTime: 1511534613.598175] face_callback: unknown
+confi_255.419
+
+225.111
+206.754
+182.326
+36.041
+
+0.881849
+0.809938
+0.918454
+
+[ INFO] [1511534613.721328126]: published unknown
+[INFO] [WallTime: 1511534613.721638] face_callback: unknown
+confi_248.839
+
+224.198
+206.055
+181.686
+35.3207
+
+0.881733
+0.81038
+0.919077
+
+[ INFO] [1511534613.846630897]: published unknown
+[INFO] [WallTime: 1511534613.846813] face_callback: unknown
+confi_237.604
+
+223.331
+205.837
+181.384
+37.0511
+
+0.881203
+0.812174
+0.921666
+
+[ INFO] [1511534613.974933871]: published unknown
+[INFO] [WallTime: 1511534613.975192] face_callback: unknown
+confi_233.148
+
+223.551
+206.215
+181.681
+36.5532
+
+0.881028
+0.812707
+0.922454
+
+
+
+-- original deliman values
+
+#define DELIMAN_RG_MIN 0.86
+#define DELIMAN_RG_MAX 0.96
+#define DELIMAN_RB_MIN 0.77
+#define DELIMAN_RB_MAX 0.87
+#define DELIMAN_GB_MIN 0.85
+#define DELIMAN_GB_MAX 0.95
+
+--
+
+DELIMAN
+
+--
+
+min: 0.91
+max: 0.93
+
+min: 0.83
+max: 0.84
+
+min: 0.90
+max: 0.91
+
+--
+
+confi_159.165
+
+226.787
+205.696
+188.479
+36.9968
+
+0.916302
+0.831086
+0.906999
+
+confi_199.761
+
+224.26
+203.637
+186.206
+40.6335
+
+0.914405
+0.830314
+0.908037
+
+confi_218.768
+
+218.757
+198.049
+182.545
+38.268
+
+0.921713
+0.834465
+0.905342
+
+
+
+
+JOE
+
+--
+
+min: 0.86
+max: 0.90
+
+min: 0.77
+max: 0.79 - 0.83
+
+min: 0.88
+max: 0.90 - 0.92
+
+--
+
+163.479
+147.022
+126.972
+25.1666
+
+0.863629
+0.776686
+0.899329
+
+[ INFO] [1511519354.326497928]: published deliman
+[INFO] [WallTime: 1511519355.192501] saying "please look towards the camera so that I can recognise you"
+saying please look towards the camera so that I can recognise you
+confi_125.925
+
+168.618
+153.059
+132.028
+27.7926
+
+0.862596
+0.783002
+0.907727
+
+[ INFO] [1511519358.459074509]: published deliman
+confi_101.192
+
+176.786
+158.278
+136.668
+22.4879
+
+0.863471
+0.773071
+0.895306
+
+[ INFO] [1511519358.777261590]: published deliman
+confi_106.578
+
+175.252
+156.802
+135.191
+22.0414
+
+0.862177
+0.77141
+0.894724
+
+[ INFO] [1511519359.020683447]: published deliman
+confi_93.3192
+
+172.439
+153.287
+133.38
+23.5152
+
+0.87013
+0.77349
+0.888936
+
+[ INFO] [1511519359.273463120]: published deliman
+confi_93.7094
+
+168.826
+151.111
+130.854
+26.0985
+
+0.865947
+0.775082
+0.895069
+
+[ INFO] [1511519359.519007019]: published deliman
+confi_115.603
+
+176.215
+157.991
+136.324
+21.6237
+
+0.862859
+0.773621
+0.89658
+
+[ INFO] [1511519359.763280221]: published deliman
+confi_87.2415
+
+177.833
+158.764
+137.124
+21.5009
+
+0.863694
+0.771081
+0.89277
+
+[ INFO] [1511519360.295237264]: published deliman
+confi_96.6797
+
+177.872
+157.873
+139.291
+22.1712
+
+0.882296
+0.783097
+0.887567
+
+[ INFO] [1511519360.636017328]: published deliman
+confi_104.237
+
+178.807
+158.843
+140.083
+22.6968
+
+0.8819
+0.783433
+0.888347
+
+[ INFO] [1511519360.976267285]: published deliman
+[INFO] [WallTime: 1511519361.200239] subscribed to topic /hearts/face/user
+confi_97.6679
+
+178.476
+159.155
+139.755
+22.5076
+
+0.87811
+0.783047
+0.891741
+
+[ INFO] [1511519361.484114427]: published deliman
+[INFO] [WallTime: 1511519361.484344] face_callback: deliman
+confi_125.07
+
+174.656
+157.902
+138.981
+26.9061
+
+0.880172
+0.795743
+0.904076
+
+[ INFO] [1511519362.042285446]: published deliman
+[INFO] [WallTime: 1511519362.042532] face_callback: deliman
+confi_154.448
+
+156.974
+144.393
+129.185
+34.2116
+
+0.894677
+0.82297
+0.919851
+
+[ INFO] [1511519362.293892615]: published deliman
+[INFO] [WallTime: 1511519362.294145] face_callback: deliman
+confi_153.833
+
+163.913
+149.92
+132.987
+33.7865
+
+0.887056
+0.811327
+0.914629
+
+[ INFO] [1511519362.589432534]: published deliman
+[INFO] [WallTime: 1511519362.589886] face_callback: deliman
+confi_156.685
+
+162.727
+149.299
+132.588
+33.7707
+
+0.888068
+0.814791
+0.917486
+
+[ INFO] [1511519363.576959633]: published deliman
+[INFO] [WallTime: 1511519363.577325] face_callback: deliman
+confi_116.78
+
+168.969
+151.518
+133.576
+26.5934
+
+0.88158
+0.790533
+0.896723
+
+[ INFO] [1511519363.818246105]: published deliman
+[INFO] [WallTime: 1511519363.818573] face_callback: deliman
+confi_119.578
+
+171.898
+153.633
+135.224
+25.3879
+
+0.880178
+0.786651
+0.89374
+
+[ INFO] [1511519364.042638396]: published deliman
+[INFO] [WallTime: 1511519364.043021] face_callback: deliman
+confi_115.097
+
+172.631
+154.905
+136.142
+24.7013
+
+0.878875
+0.788632
+0.89732
+
+[ INFO] [1511519364.334106196]: published deliman
+[INFO] [WallTime: 1511519364.334792] face_callback: deliman
+confi_124.546
+
+173.692
+155.622
+137.019
+24.1039
+
+0.880462
+0.788863
+0.895965
+
+[ INFO] [1511519364.614427326]: published deliman
+[INFO] [WallTime: 1511519364.614608] face_callback: deliman
+confi_109.156
+
+171.236
+153.113
+135.054
+25.388
+
+0.882053
+0.788699
+0.894163
+
+[ INFO] [1511519364.775637444]: published deliman
+[INFO] [WallTime: 1511519364.775884] face_callback: deliman
+confi_108.288
+
+169.424
+152.069
+134.068
+26.1351
+
+0.881626
+0.791317
+0.897565
+
+[ INFO] [1511519365.007603080]: published deliman
+[INFO] [WallTime: 1511519365.007949] face_callback: deliman
+confi_145.066
+
+173.875
+156.124
+137.194
+24.2427
+
+0.87875
+0.789038
+0.897909
+
+[ INFO] [1511519365.254361755]: published deliman
+[INFO] [WallTime: 1511519365.254722] face_callback: deliman
+confi_106.027
+
+168.355
+151.218
+133.411
+27.3955
+
+0.882245
+0.792436
+0.898204
+
+[ INFO] [1511519365.720146774]: published deliman
+[INFO] [WallTime: 1511519365.720611] face_callback: deliman
+confi_102.147
+
+168.974
+151.339
+133.527
+26.0801
+
+0.882299
+0.790218
+0.895634
+
+[ INFO] [1511519365.965492847]: published deliman
+[INFO] [WallTime: 1511519365.965767] face_callback: deliman
+confi_102.416
+
+170.416
+152.579
+134.478
+24.73
+
+0.881365
+0.789117
+0.895334
+
+[ INFO] [1511519366.163677621]: published deliman
+[INFO] [WallTime: 1511519366.163985] face_callback: deliman
+confi_116.759
+
+168.649
+150.935
+133.034
+26.2059
+
+0.881403
+0.788823
+0.894963
+
+[ INFO] [1511519366.338720873]: published deliman
+[INFO] [WallTime: 1511519366.339100] face_callback: deliman
+confi_100.793
+
+168.993
+151.075
+133.107
+25.0723
+
+0.881068
+0.787653
+0.893975
+
+[ INFO] [1511519366.516258390]: published deliman
+[INFO] [WallTime: 1511519366.516685] face_callback: deliman
+confi_97.6774
+
+168.91
+151.303
+133.493
+25.6364
+
+0.882287
+0.790319
+0.895763
+
+[ INFO] [1511519366.703768641]: published deliman
+[INFO] [WallTime: 1511519366.703996] face_callback: deliman
+confi_119.459
+
+173.759
+155.72
+136.801
+22.4441
+
+0.878504
+0.787301
+0.896184
+
+[ INFO] [1511519366.942098950]: published deliman
+[INFO] [WallTime: 1511519366.942667] face_callback: deliman
+confi_104.735
+
+173.485
+155.594
+136.805
+22.0387
+
+0.879243
+0.788567
+0.89687
+
+[ INFO] [1511519367.118662255]: published deliman
+[INFO] [WallTime: 1511519367.119019] face_callback: deliman
+confi_134.132
+
+174.898
+155.856
+137.129
+22.3344
+
+0.879842
+0.784049
+0.891125
+
+[ INFO] [1511519367.308452898]: published deliman
+[INFO] [WallTime: 1511519367.308666] face_callback: deliman
+confi_120.056
+
+173.912
+155.364
+136.814
+22.1255
+
+0.8806
+0.786681
+0.893347
+
+[ INFO] [1511519367.549206493]: published deliman
+[INFO] [WallTime: 1511519367.549594] face_callback: deliman
+confi_116.02
+
+174.787
+155.632
+137.207
+22.1342
+
+0.881611
+0.784995
+0.89041
+
+[ INFO] [1511519367.739387883]: published deliman
+[INFO] [WallTime: 1511519367.740865] face_callback: deliman
+confi_106.941
+
+173.424
+155.015
+136.608
+21.8549
+
+0.881258
+0.787714
+0.893852
+
+[ INFO] [1511519367.936390046]: published deliman
+[INFO] [WallTime: 1511519367.937343] face_callback: deliman
+confi_105.09
+
+173.732
+155.304
+136.799
+22.0147
+
+0.880847
+0.787414
+0.893929
+
+[ INFO] [1511519368.143946331]: published deliman
+[INFO] [WallTime: 1511519368.144135] face_callback: deliman
+confi_102.882
+
+172.78
+154.611
+136.251
+22.8424
+
+0.881253
+0.788581
+0.894841
+
+[ INFO] [1511519368.356518563]: published deliman
+[INFO] [WallTime: 1511519368.356858] face_callback: deliman
+confi_116.402
+
+174.748
+155.802
+137.087
+22.0542
+
+0.879885
+0.784485
+0.891577
+
+[ INFO] [1511519368.691535165]: published deliman
+[INFO] [WallTime: 1511519368.691848] face_callback: deliman
+confi_93.1246
+
+173.466
+154.17
+135.912
+21.6097
+
+0.881577
+0.783509
+0.888759
+
+[ INFO] [1511519368.926807328]: published deliman
+[INFO] [WallTime: 1511519368.927226] face_callback: deliman
+confi_91.7135
+
+174.667
+154.684
+136.248
+21.4931
+
+0.880818
+0.780045
+0.885592
+
+[ INFO] [1511519369.239816634]: published deliman
+[INFO] [WallTime: 1511519369.240075] face_callback: deliman
+confi_83.3955
+
+173.399
+153.321
+135.231
+21.3153
+
+0.882007
+0.779882
+0.884213
+
+[ INFO] [1511519369.493903976]: published deliman
+[INFO] [WallTime: 1511519369.494162] face_callback: deliman
+confi_94.0039
+
+172.785
+152.717
+134.823
+21.2164
+
+0.882832
+0.780295
+0.883854
+
+[ INFO] [1511519369.771461888]: published deliman
+[INFO] [WallTime: 1511519369.771945] face_callback: deliman
+confi_95.2999
+
+173.788
+153.995
+135.862
+21.3597
+
+0.882249
+0.781766
+0.886106
+
+[ INFO] [1511519370.013007014]: published deliman
+[INFO] [WallTime: 1511519370.013270] face_callback: deliman
+confi_94.0769
+
+173.841
+153.948
+135.673
+21.4317
+
+0.881288
+0.780445
+0.885573
+
+[ INFO] [1511519370.667263506]: published deliman
+[INFO] [WallTime: 1511519370.667686] face_callback: deliman
+[INFO] [WallTime: 1511519371.211602] unsubscribed from topic /hearts/face/user - votes = 33
+[INFO] [WallTime: 1511519371.212146] Counter({'deliman': 33})
+[INFO] [WallTime: 1511519371.212630] visitor = deliman
+[INFO] [WallTime: 1511519371.213032] detected deliman
+[INFO] [WallTime: 1511519371.213368] saying "I will receive the breakfast, please open the door"
+confi_97.8731
+
+173.113
+153.135
+134.852
+21.3187
+
+0.880606
+0.778983
+0.884598
+
+[ INFO] [1511519372.036711282]: published deliman
+saying I will receive the breakfast, please open the door
+confi_86.9602
+
+171.324
+151.912
+133.774
+20.7111
+
+0.880603
+0.780824
+0.886692
+
+[ INFO] [1511519372.567707869]: published deliman
+confi_96.1623
+
+171.178
+151.837
+133.977
+20.8097
+
+0.882371
+0.782676
+0.887014
+
+[ INFO] [1511519373.035073210]: published deliman
+confi_94.8069
+
+170.27
+151.289
+133.128
+20.9854
+
+0.879959
+0.781865
+0.888525
+
+[ INFO] [1511519373.493214091]: published deliman
+confi_88.7728
+
+169.475
+150.661
+132.394
+20.9342
+
+0.878753
+0.7812
+0.888987
+
+[ INFO] [1511519374.025718387]: published deliman
+confi_91.3782
+
+170.248
+151.43
+132.836
+21.0062
+
+0.877211
+0.78025
+0.889467
+
+[ INFO] [1511519374.477811640]: published deliman
+confi_177.044
+
+166.466
+150.364
+131.59
+28.7737
+
+0.87514
+0.790491
+0.903274
+

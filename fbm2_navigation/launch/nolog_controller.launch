@@ -1,0 +1,15 @@
+<launch>
+
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+  <!-- include file="$(find hearts_navigation)/launch/logger.launch"/ -->
+
+  <node name="hearts_navigator" pkg="hearts_navigation" type="navigator.py" />
+  <node name="hearts_fbm2_controller" pkg="fbm2_navigation" type="fbm2_controller.py" />
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts"/>
+    <param name="robot_name" type="string" value="Tiago"/>
+    <param name="rsbb_key" type="string" value="FJ6LazOM"/>
+    <param name="rsbb_host" type="string" value="10.0.0.1" />
+  </node>
+
+</launch>

@@ -1,0 +1,11 @@
+<launch>
+  <param name='dist_thresh' value='30' /> <!-- 30 -->
+  <param name='maxRangeScale' value='1.2' />
+  <param name='mindist_thresh' value='0.1' />
+  <param name='minHessian' value ='400' />
+  <param name='objects' value='Box' />
+  <param name='trainImgNum' value='1' />
+  <param name='trainPath' value='/home/turtlebot/tb_ws/src/brl-hearts/fbm1_object_perception/data/' />
+  <node name='object_perception_node' pkg='fbm1_object_perception' type='object_perception_node' output='screen' />
+  <!-- <include file="$(find openni2_launch)/launch/openni2.launch" /> -->
+</launch>

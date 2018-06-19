@@ -1,0 +1,22 @@
+type(toothpaste, toothpaste).
+in(toothpaste, kitchen).
+on(toothpaste, kitchen_counter).
+position (toothpaste, [2.54,2.84,0.5]).
+picture(toothpaste, toothpaste.jpg).
+type(plant, plant).
+in(plant, hall).
+type(kitchen_chair, kitchen_chair).
+in(kitchen_chair, living_room).
+type(weetabix, weetabix).
+in(weetabix, dining_room).
+on(weetabix, dining_table).
+position (weetabix, [2.54,2.84,0.5]).
+picture(weetabix, weetabix.jpg).
+type(door_entrance, door).
+connects(door_entrance, hall, outside).
+isOpen(door_entrance, false).
+type(juice, juice).
+in(juice, living_room).
+on(juice, tv_table).
+position (juice, [2.54,2.84,0.5]).
+picture(juice, juice.jpg).

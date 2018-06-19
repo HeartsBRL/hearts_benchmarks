@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Created : 17 Jan 2018
+# Author  : Derek Ripper
+# Purpose : Simulate the STOP command from the bench marking box
+#########################################################################################
+# Updates :
+#
+#########################################################################################
+STATE=0
+rostopic pub --once   /roah_rsbb/benchmark/state   roah_rsbb_comm_ros/BenchmarkState  $STATE

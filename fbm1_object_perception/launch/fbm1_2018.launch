@@ -1,0 +1,25 @@
+<launch>
+   <param name="cropped_folder_path" value='/home/workspaces/tb_ws/src/brl-hearts/fbm1_object_perception/data/' />
+   <node name="cloudsight_object_perception" pkg="fbm1_object_perception" type="cloudsight_object_perception.py" output="screen" />
+   <node name="image_cropper" pkg="hearts_crop" type="cropper.py" output="screen" />
+   <!-- for talking to benchmarking box -->
+   <!-- <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts"/>
+    <param name="robot_name" type="string" value="Tiago"/>
+    <param name="rsbb_key" type="string" value="FJnz6hJX"/>
+    <param name="rsbb_host" type="string" value="192.168.0.100" />
+  </node> -->
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+    <remap from="/usb_cam/image_raw" to="/camera/rgb/image_raw" />
+  </node>
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/camera/rgb/image_raw" />
+    <param name="autosize" value="true" />
+  </node>
+</launch>

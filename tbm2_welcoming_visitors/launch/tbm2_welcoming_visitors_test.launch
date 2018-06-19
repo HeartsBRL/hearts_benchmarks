@@ -1,0 +1,33 @@
+<launch>
+  <include file="$(find hearts_face_uniform)/launch/hearts_face_uniform.launch">
+    <!-- <arg name="data_path" value="/home/hearts/tb_ws/src/brl-hearts/hearts_face_uniform/data/" /> -->
+    <!-- <arg name="face_cascade_path" value="/home/hearts/tb_ws/src/brl-hearts/hearts_face_uniform/src/haarcascade_frontalface_alt2.xml" /> -->
+    <arg name="data_path" value="/home/turtlebot/tb_ws/src/brl-hearts/hearts_face_uniform/data/" />
+    <arg name="face_cascade_path" value="/home/turtlebot/tb_ws/src/brl-hearts/hearts_face_uniform/src/haarcascade_frontalface_alt2.xml" />
+  </include>
+  
+  <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
+  <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate_test.launch" />
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts" />
+    <param name="robot_name" type="string" value="Tiago" />
+    <param name="rsbb_key" type="string" value="FJnz6hJX" />
+    <param name="rsbb_host" type="string" value="192.168.0.57" />
+  </node>
+  <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
+  <node name="change_detector" pkg="tbm2_welcoming_visitors" type="change_detector.py" output="screen" />
+  <include file="$(find hearts_person_tracker)/launch/hearts_person_tracker.launch">
+  </include>
+  <!-- <node name="webcam_publisher" pkg="hearts_webcam" type="hearts_webcam" output="screen" args="1" /> -->
+  <!--  -->
+  <!--  -->
+  
+  <!-- <include file="$(find roah_devices)/launch/run_real.launch" /> -->
+  <!-- <node name="bristol_camera" pkg="bristol_camera" type="camera.bash" />-->
+  
+  <!-- <node name="location_goal" pkg="hearts_navigation" type="location_goal.py" /> -->
+  <!-- <node name="nav_goal_pub" pkg="hearts_navigation" type="navigator.py" /> -->
+
+
+</launch>
+<!-- todo: picture saver -->

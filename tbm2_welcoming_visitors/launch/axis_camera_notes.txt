@@ -1,0 +1,5 @@
+camera notes
+1. install axis_camera package
+2. run: sudo apt-get install ros-indigo-camera-info-manager-py
+3. connect to pal_home network
+4. configure static ip: pal_home > IPv4 Settings > address: 192.168.1.132, netmask: 255:255:255:0, gateway: 0:0:0:0

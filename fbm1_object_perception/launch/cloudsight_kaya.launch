@@ -1,0 +1,18 @@
+<launch>
+   <!-- <param name="cropped_folder_path" value='/home/turtlebot/tb_ws/data/obj_per/' /> -->
+   <!-- <param name="cropped_folder_path" value='/home/kaya/hearts/src/hearts/object_perception_2/data/' /> -->
+   <!-- <param name="cropped_folder_path" value='/home/hearts/tb_ws/src/hearts/object_perception_2/data/' /> -->
+   <!-- <param name="cropped_folder_path" value='/home/tb_ws/src/hearts/object_perception_2/data/' /> -->
+   <param name="cropped_folder_path" value='/home/turtlebot/tb_ws/src/hearts/object_perception_2/data/' />
+   <node name="cloudsight_object_perception" pkg="object_perception_2" type="cloudsight_object_perception.py" output="screen" />
+   <node name="image_cropper" pkg="hearts_crop" type="cropper.py" output="screen" />
+   <!-- <node name='webcam_publisher' pkg='webcam_publisher' type='webcam_publisher' output='screen' args='1'/> -->
+   <node name="sound_play" pkg="object_perception_2" type="sound_player.py" output='screen'/>
+   <node name="hearts_roah_comms" pkg="object_perception_2" type="benchmark_test.py" />
+   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts"/>
+    <param name="robot_name" type="string" value="Tiago"/>
+    <param name="rsbb_key" type="string" value="FJnz6hJX"/>
+    <param name="rsbb_host" type="string" value="192.168.122.1" />
+  </node>
+</launch>

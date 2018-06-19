@@ -1,0 +1,10 @@
+<launch>
+  <node name="hearts_roah_comms" pkg="fbm2_navigation" type="benchmark_test.py" />
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts"/>
+    <param name="robot_name" type="string" value="Tiago"/>
+    <param name="rsbb_key" type="string" value="FJ6LazOM"/>
+    <param name="rsbb_host" type="string" value="10.0.0.1" />
+  </node>
+
+</launch>

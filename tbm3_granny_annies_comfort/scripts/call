@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Created : 17 Jan 2018
+# Author  : Derek Ripper
+# Purpose : Simulate the CALL TABLET issued by the bench marking box
+#########################################################################################
+# Updates :
+#
+#########################################################################################
+
+rostopic pub --once /roah_rsbb/tablet/call std_msgs/Empty

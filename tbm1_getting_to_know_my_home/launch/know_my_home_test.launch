@@ -1,0 +1,18 @@
+<launch>
+<!--  <node name="know_my_home" pkg="tbm1_getting_to_know_my_home" type="know_my_home_controller.py" output="screen" launch-prefix="$(find tbm1_getting_to_know_my_home)/launch/head_cont" -->
+  <node name="know_my_home" pkg="tbm1_getting_to_know_my_home" type="know_my_home_controller.py" output="screen" />
+  <include file="$(find hearts_stt)/launch/hearts_stt.launch"/>
+  <include file="$(find hearts_tts)/launch/hearts_tts.launch"/>
+  <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate_test.launch" />
+  <param name="output_path" value="$(find tbm1_getting_to_know_my_home)/output/" />
+  <include file="$(find hearts_camera_saver)/launch/hearts_camera_saver.launch">
+    <arg name="output_path" value="$(find tbm1_getting_to_know_my_home)/output/" />
+    <arg name="show_feed" value="true" />
+  </include>
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts" />
+    <param name="robot_name" type="string" value="Tiago" />
+    <param name="rsbb_key" type="string" value="FJnz6hJX" />
+    <param name="rsbb_host" type="string" value="192.168.0.57" />
+  </node>
+</launch>

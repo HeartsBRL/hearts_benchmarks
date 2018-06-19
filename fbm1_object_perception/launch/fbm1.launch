@@ -1,0 +1,28 @@
+<launch>
+  <param name="cropped_folder_path" value='/home/turtlebot/tb_ws/data/obj_per/' />
+  <node name="cloudsight_object_perception" pkg="object_perception_2" type="cloudsight_object_perception.py" output="screen" />
+  <node name="image_cropper" pkg="hearts_crop" type="cropper.py" output="screen" />
+  <node name='webcam_publisher' pkg='webcam_publisher' type='webcam_publisher' output='screen' args='0'/> 
+
+  <node name="hearts_roah_comms" pkg="object_perception_2" type="benchmark_test.py" />
+  <node name="or_roah_comms" pkg="or_benchmark" type="or_benchmark.py" />
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts"/>
+    <param name="robot_name" type="string" value="Tiago"/>
+    <param name="rsbb_key" type="string" value="FJ6LazOM"/>
+    <param name="rsbb_host" type="string" value="10.0.0.1" />
+  </node>
+
+  <node name="rosbag_erl" pkg="rosbag" type="record"
+        args="-o /home/turtlebot/tb_ws/data/bags/FBMH1_Hearts_.bag
+        /amcl_pose
+        /move_base/NavfnROS/plan
+        /move_base/DWAPlannerROS/local_plan
+        /move_base/DWAPlannerROS/global_plan
+        /camera/rgb/image_raw
+	/camera/rgb/image_raw/cropped
+        /hearts/object_perception/object
+	/scan
+        /tf" />
+
+</launch>
