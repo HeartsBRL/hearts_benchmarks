@@ -464,7 +464,7 @@ class Controller():
 	def main(self):
 		print ("\n***** MAIN Executing *****\n")
 		#go to home position
-		#self.move_to_location("home")
+		self.move_to_location("home")
 
 		#wait for call 		
 		self.say("Waiting to be called by granny annie.")
