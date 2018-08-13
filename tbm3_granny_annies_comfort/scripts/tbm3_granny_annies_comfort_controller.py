@@ -339,9 +339,9 @@ class Controller():
 	### When receiving a message from the "roah_rsbb/benchmark/state" topic, will then publish the corresponding state to "roah_rsbb/messages_save"
 	def benchmark_state_callback(self, data):
 		if data.benchmark_state == BenchmarkState.STOP:
-			rospy.loginfo("STOP")
+			rospy.loginfo("*** From RSBB BM state - STOP")
 		elif data.benchmark_state == BenchmarkState.PREPARE:
-			rospy.loginfo("PREPARE")
+			rospy.loginfo("*** From RSBB BM state- PREPARE")
 			try:
 				time.sleep(0.1)
 				self.prepare() # END of PREPARE msg to service
@@ -349,7 +349,7 @@ class Controller():
 				rospy.loginfo("Failed to reply PREPARE")
 
 		elif data.benchmark_state == BenchmarkState.EXECUTE:
-			rospy.loginfo("EXECUTE")
+			rospy.loginfo("*** From RSBB BM state - EXECUTE")
 			self.main()
 			
 	def wait_for_call(self):
