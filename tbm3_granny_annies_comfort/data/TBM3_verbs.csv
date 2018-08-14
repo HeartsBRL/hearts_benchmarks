@@ -1,0 +1,25 @@
+A,accompany,guide
+A,escort,guide
+A,follow,follow
+A,guide,guide
+A,lead,guide
+A,take,guide
+M,bring,bring
+M,deliver,bring
+M,get,bring
+M,give,bring
+M,grasp,bring
+M,hand,bring
+M,leave,bring
+M,pickup,bring
+M,place,bring
+M,put,bring
+M,retrieve,bring
+M,set,bring
+M,take,bring
+S,find,find
+S,locate,find
+S,Look,find
+S,pinpoint,find
+S,search for,find
+S,spot,find
