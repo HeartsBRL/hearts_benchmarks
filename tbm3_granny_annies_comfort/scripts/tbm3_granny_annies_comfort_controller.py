@@ -476,7 +476,7 @@ class Controller():
 
 		#navigate to the user's location
 		self.say("hello granny annie, I am on my way to you.")
-		self.move_to_pose2D(self.user_location)
+		#self.move_to_pose2D(self.user_location)
 		self.say("How can I help you today? Please give me a command")
 		
 		self.listen4cmd('on')
