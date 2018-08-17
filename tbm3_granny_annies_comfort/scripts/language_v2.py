@@ -6,23 +6,27 @@ import re
 
 class Objective:
 
-    def __init__(self,sentence,com):
-        self.sentence = sentence
-        self.command = []
-        self.person = []
-        self.object = []
-        self.location = []
+    def __init__(self,sentence,com,brlcom,comtype):
+        self.sentence   = sentence
+        self.command    = []
+        self.brlcommand = []
+        self.comtype    = []
+        self.person     = []
+        self.object     = []
+        self.location   = []
         self.fromLocation = []
-        self.toLocation = []
-        self.furniture = []
-        self.reference = []
+        self.toLocation   = []
+        #self.furniture = []
+        self.reference        = []
         self.locationModifier = []
         self.command.append(com)
+        self.brlcommand.append(brlcom)
+        self.comtype.append(comtype)
 
     def parse(self):
         #reads sentence and stores key words
 
-        #check for 2 word locations & objects
+        #check for 2 (or more) word locations & objects
         self.sentence = process_locations(self.sentence)
         self.sentence = process_objects  (self.sentence)
         splitList = self.sentence.split()
@@ -71,27 +75,70 @@ class Objective:
         #### 
         ### need to write code to read in ERl verbs vesus our grouping of them (BRL verbs
         ### below self.command[0] will be changed to th BRL equivalent before compariosn takes place
-
-        # SEARCH when there is no location  for find an object
-        if self.command[0] == 'find' and len(self.object) > 0 and  len(self.location) == 0:
+        brl_com, com_type = self.get_brl_com(self.command[0])
+   
+        # SEARCH - when there is no location  for 'find/get an object'
+        if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
             value = get_obj_per_loc(self.object[0], ERL_data)
             self.location.append(value)
 
-        print("\n+++++++++++++++++++++")
-        print(self.command[0])
+        # SEARCH - when there is no location  for 'find/get a  person'
+        if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
+            value = get_obj_per_loc(self.person[0], ERL_data)
+            self.location.append(value)   
+
+        # what TODO when "TO" location is empty but location is defined? 
+        #     copy "location" into "to location"  ??    
+
+        # Decide on format of data to be processed by Tiago:
+        #    
+
+        print("***** erl com  type = "+ self.comtype[0])
+        print("***** erl com       = "+ self.command[0])
+        print("***** brl com       = "+ brl_com  )
+        print("***** erl com  type = "+ com_type )
+        print("***** person        = ")
         print(self.person)
+        print("***** object        = ")
         print(self.object)
+        print("***** location      = ")
         print(self.location)
-        print("++++++++++++++++++++=")
+        print("***** FROM Location = ")
+        print(self.fromLocation)
+        print("***** TO   Location = ")
+        print(self.toLocation)
 
         return
 
+    def get_brl_com(self, erl_com):    
+        # find the equivalent BRL command to the ERL one
+        for cmd in commands:
+            if erl_com == cmd[1]:
+                brl_com = cmd[2]
+                comtype = cmd[0]
+                break
+        #************************
+        # **** Special case *****
+        #************************
+        # "take " can either be a "MANIPULATING" or "ACOMPANYING" command.
+        # Make decision based on context: ie Type of object/person
+        if erl_com == 'take':
+
+            if len(self.person) > 0 :
+                brl_com = 'guide'
+                comtype = 'a'
+
+            if len(self.object) > 0 :             
+                brl_com = 'get' 
+                comtype = 'm' 
+
+        return brl_com, comtype        
 
     def printme(self):
         #prints all fields in the objective that have values in them
 
         print ' '
-        print "***** Split TASK *****: "
+        print "***** Split ACTION *****: "
         print self.sentence
         print "***** command: "
         print self.command
@@ -136,23 +183,32 @@ def process(task):
 
 def objectify(taskP):
     #take processed task text and generate a list of Objective classes
-    coms = []
-    taskflags = []
+    coms       = []
+    comstype   = []
+    brlcoms    = []
+    taskflags  = []
     objectives = []
+    
     #iterate through task looking for any commands, store them and their indexes in relevant list
     for word in taskP.split():
         test = ' ' + word + ' '
-        index = commands.find(test)
-        if index >-1:
-            coms.append(word)
-            index = taskP.find(test)
-            if index >-1:
-                taskflags.append(index)
+
+        for cmd  in commands:
+
+            if cmd[1] ==  word:
+                print("cmd/word="+ cmd[1]+"--"+word)
+                comstype.append(cmd[0])
+                brlcoms.append(cmd[2])
+                coms.append(word) 
+
+                index = taskP.find(test)
+                if index >-1:
+                    taskflags.append(index)
 
     #use the indices of commands to split task into objectives
-    objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]],coms[0])
-    objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]],coms[1])
-    objective3 = Objective(taskP[taskflags[2]+1:len(taskP)],coms[2])
+    objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0])
+    objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1])
+    objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2])
 
     return [objective1,objective2,objective3]
 
@@ -185,6 +241,7 @@ def resolveReferences(objectives):
 def read_ERL_data(filein):
     # read the ERL object/person versus pronbable locations table 
     # ERL Rule book (5 June 2018) page 11 Section 3.3.2
+
     with open(filein,'r') as csvfile:
         data = csvfile.readlines()
 
@@ -206,6 +263,34 @@ def read_ERL_data(filein):
 
     return obj_per_and_loc_list
 
+####################################################################################################
+def read_ERL_verb(filein):
+    # read the ERL commands (verbs) with brl equivalents
+    # also preeceded by verl type:
+    #   a = accompanying
+    #   m = manipulating
+    #   s = searching
+    # ERL Rule book (5 June 2018) page 11 Section 3.3.2
+    with open(filein,'r') as csvfile:
+        data = csvfile.readlines()
+
+    erl_brl_verb_list =[]
+    for row in data:
+            if '#' in row :
+                pass
+            elif len(row.strip()) == 0:
+                pass
+            else:
+                row = row.lower()
+
+                verb_type, ERL_verb, BRL_verb = row.split(',')
+
+                erl_brl_verb_list.append(
+                    [verb_type.strip(),             
+                     ERL_verb.strip(),   
+                     BRL_verb.strip() ] )
+   
+    return erl_brl_verb_list
 #*********************************************************************************
 def get_obj_per_loc(obj_per,table): 
     # returns a list of the 3 possible locations for the person/object
@@ -301,17 +386,20 @@ def process_objects(expr):
 #*********************************************************************************
 
 # space separated strings to use when processing and parsing tasks
-ERL_data_file   = 'TBM3_objects.csv'
+ERL_data_file   = '../data/TBM3_objects.csv'
+ERL_verb_file   = '../data/TBM3_verbs.csv'
 
 ERL_data        = read_ERL_data(ERL_data_file)
+commands        = read_ERL_verb(ERL_verb_file)
 
 people, objects = process_ERL_data(ERL_data)
 
 locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
 
-commands = " find locate look search pinpoint spot guide take lead accompany follow escort put place leave set get grasp retrieve pickup bring deliver give hand "
+#commands = " find locate look search pinpoint spot guide take lead accompany follow escort put place leave set get grasp retrieve pickup bring deliver give hand "
 
-
+# for verb in commands:
+#     print(verb)
 # for obj in objects:
 #   print("obj:"+obj+"<<")
 #locations = " kitchen bedroom exit "
@@ -329,19 +417,18 @@ locModifiers = [ 'from', 'to']
 #hard coded example commands - first four from ERL documentation
 task1 = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
 
-task2 = "Find the bottle, place it in the trash bin, and take John from the bedroom to the exit."
+task2 = "Locate the bottle, place it in the trash bin, and take John from the bedroom to the exit."
 
 task3 = "Guide me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
 
 task4 = "Give me the cup on the coffee table, find John, and follow him."
 
-task5 = "Hi Tiago, please will you go and find john, I need you to take him to the exit and then get me a bottle of water from the kitchen cabinet, thanks!"
+task5 = "Hi Tiago, please will you go and find John, I need you to take him to the exit and then get me a bottle of water from the kitchen cabinet, thanks!"
 
-
-task6 = "Find the tea pot, Get my glasses, and Bring me a pear from the kitchen table."
+task6 = "Find the tea pot, Get my glasses, and Bring me a pear from the coffee table."
 
 #simplify text ease of use
-taskP = process(task2)
+taskP = process(task5)
 
 #create objectives from task text
 objectives = objectify(taskP)
@@ -359,12 +446,16 @@ objectives[0].printme()
 objectives[1].printme()
 objectives[2].printme()
 
-obj = 'tea pot'
-locs = get_obj_per_loc(obj, ERL_data)
+# obj = 'tea pot'
+# locs = get_obj_per_loc(obj, ERL_data)
 
-print('locs for:'+obj)
-print(locs)
-
+# print('locs for:'+obj)
+# print(locs)
+print("\n***** ACTION 0 **FINAL OBJECTIVES")
 objectives[0].process_objective()
+
+print("\n***** ACTION 1 **FINAL OBJECTIVES")
 objectives[1].process_objective()
+
+print("\n***** ACTION 2 **FINAL OBJECTIVES")
 objectives[2].process_objective()

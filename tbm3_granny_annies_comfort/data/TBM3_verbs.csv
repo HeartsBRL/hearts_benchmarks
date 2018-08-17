@@ -1,25 +1,50 @@
-A,accompany,guide
-A,escort,guide
-A,follow,follow
-A,guide,guide
-A,lead,guide
-A,take,guide
-M,bring,bring
-M,deliver,bring
-M,get,bring
-M,give,bring
-M,grasp,bring
-M,hand,bring
-M,leave,bring
-M,pickup,bring
-M,place,bring
-M,put,bring
-M,retrieve,bring
-M,set,bring
-M,take,bring
-S,find,find
-S,locate,find
-S,Look,find
-S,pinpoint,find
-S,search for,find
-S,spot,find
+########################################################################
+# TBM3 Data file for ERL Madrid - October 2018
+#
+########################################################################
+# HELP:    - all data is comma delimited
+#          - Case can be mixed - as all converted to lower case internally
+#          - a '#' ANYwhere on a line, will IGNORE the whole line!
+#          - Blank lines are ignored
+#
+#         Field 1   = Type of verb (command)
+#                        - A acomanying
+#                        - M manipulating
+#                        - S searching
+#         Field 2   = ERL verb
+#         Field 3   = BRL equivalent verb
+#-------------------------------------------------------
+A,escort,        guide
+A,follow,        follow
+A,guide,         guide
+A,lead,          guide
+
+# NB verb "take" can be either acompanying OR manipulating.
+# As list of verbs needs to be unique, this decison on what
+# 'take' means is handled in the program.
+#
+# A,take,          guide
+
+#------------------------------------------------------
+M,get,           get
+M,deliver,       get
+M,bring,         get
+M,give,          get
+M,grasp,         get
+M,hand,          get
+M,leave,         get
+M,pickup,        get
+M,place,         get
+M,put,           get
+M,retrieve,      get
+M,set,           get
+M,take,          get
+
+#-------------------------------------------------------
+S,find,          find
+S,locate,        find
+S,Look,          find
+S,pinpoint,      find
+S,search for,    find
+S,spot,          find
+#-------------------------------------------------------
