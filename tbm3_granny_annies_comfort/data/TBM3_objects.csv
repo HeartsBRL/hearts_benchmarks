@@ -10,8 +10,8 @@
 #         Field 1   = P for Person OR I for Inanimate object
 #         Field 2   = persons name OR object name
 #         Field 3&4 = 1st location & probability of being there
-#         Field 5&6 = 2nd location & probability of being ther
-#         Field 7&8 = 3rd location & probability of being ther
+#         Field 5&6 = 2nd location & probability of being there
+#         Field 7&8 = 3rd location & probability of being there
 #
 #########################################################################
 

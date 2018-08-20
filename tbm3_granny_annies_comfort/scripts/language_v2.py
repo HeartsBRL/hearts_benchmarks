@@ -70,43 +70,30 @@ class Objective:
             count = count + 1
 
     def process_objective(self):
-        ##### TODO !! Derek
-        #### add code to base decision tree on type of verb ie Accompany/search/manipulate
-        #### 
-        ### need to write code to read in ERl verbs vesus our grouping of them (BRL verbs
-        ### below self.command[0] will be changed to th BRL equivalent before compariosn takes place
+        #ensure underscore removed from location tyep lists before data passed on to Tiago
+        if len(self.location) > 0:
+             self.location[0]  = self.location[0].replace('_',' ')
+        if len(self.fromLocation) > 0:
+             self.fromLocation[0]  = self.fromLocation[0].replace('_',' ')
+        if len(self.toLocation) > 0:
+             self.toLocation[0]  = self.toLocation[0].replace('_',' ')
+
+
+        #  below self.command[0] & comtyope[0] will be changed to the
+        #  BRL equivalent before compariosn takes place
         brl_com, com_type = self.get_brl_com(self.command[0])
-   
-        # SEARCH - when there is no location  for 'find/get an object'
+        self.command[0] =  brl_com
+        self.comtype[0] =  com_type
+
+        ## SEARCH ## - when there is no "toLocation"  for 'find/get an object'
         if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
             value = get_obj_per_loc(self.object[0], ERL_data)
-            self.location.append(value)
+            self.toLocation.append(value)
 
-        # SEARCH - when there is no location  for 'find/get a  person'
+        ## SEARCH ## - when there is no "toLocation"  for 'find/get a  person'
         if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
             value = get_obj_per_loc(self.person[0], ERL_data)
-            self.location.append(value)   
-
-        # what TODO when "TO" location is empty but location is defined? 
-        #     copy "location" into "to location"  ??    
-
-        # Decide on format of data to be processed by Tiago:
-        #    
-
-        print("***** erl com  type = "+ self.comtype[0])
-        print("***** erl com       = "+ self.command[0])
-        print("***** brl com       = "+ brl_com  )
-        print("***** erl com  type = "+ com_type )
-        print("***** person        = ")
-        print(self.person)
-        print("***** object        = ")
-        print(self.object)
-        print("***** location      = ")
-        print(self.location)
-        print("***** FROM Location = ")
-        print(self.fromLocation)
-        print("***** TO   Location = ")
-        print(self.toLocation)
+            self.toLocation.append(value)   
 
         return
 
@@ -137,8 +124,7 @@ class Objective:
     def printme(self):
         #prints all fields in the objective that have values in them
 
-        print ' '
-        print "***** Split ACTION *****: "
+        print "\n***** Split ACTION *****: "
         print self.sentence
         print "***** command: "
         print self.command
@@ -167,7 +153,33 @@ class Objective:
             print "***** loc modifiers: "
             print self.locationModifier
 
-def process(task):
+    def printme_final(self):
+        #prints all fields in the objective that have values in them
+        # and are required by Tiago to perform the defined Action.
+
+        print "\n***** Split ACTION *****: "
+        print self.sentence
+        print("**** Action Type: ")
+        print  self.comtype
+        print "***** command: "
+        print self.command
+        if len(self.person) > 0:
+            print "***** people: "
+            print self.person
+        if len(self.object) > 0:
+            print "***** objects: "
+            print self.object
+        if len(self.fromLocation) > 0:
+            print "***** from location: "
+            print self.fromLocation
+        if len(self.toLocation) > 0:
+            print "***** to location: "
+            print self.toLocation
+ 
+        return
+
+
+def process_task(task):
     # process the task, removing punctuation, the word 'and', converting to
     # lower case and adding leading and trailing spaces
 
@@ -196,7 +208,6 @@ def objectify(taskP):
         for cmd  in commands:
 
             if cmd[1] ==  word:
-                print("cmd/word="+ cmd[1]+"--"+word)
                 comstype.append(cmd[0])
                 brlcoms.append(cmd[2])
                 coms.append(word) 
@@ -291,10 +302,11 @@ def read_ERL_verb(filein):
                      BRL_verb.strip() ] )
    
     return erl_brl_verb_list
+
 #*********************************************************************************
 def get_obj_per_loc(obj_per,table): 
     # returns a list of the 3 possible locations for the person/object
-    # without % probability 
+    # without the % probability as not using this currently.
 
     # remove '_' for multi word object/person descriptors
     obj_per = obj_per.replace('_',' ')
@@ -310,7 +322,7 @@ def get_obj_per_loc(obj_per,table):
     return locations
 
 #*********************************************************************************
-def process_ERL_data(table):
+def parse_ERL_data(table):
     ### build list of people and a list of objects from
     ### the competition data table
     people  = []
@@ -332,16 +344,16 @@ def process_ERL_data(table):
     return people, objects
 
 #*********************************************************************************
-def parse_locations(answer):
+def parse_locations(table):
     ### build a unique list of locations that are pertient to TBM3
-    ### we need this list to identify the location as received in stt.
+    ### we need this list to identify the location as received in text from stt package.
     ### eg 'coffe table' is a 2 word location or 'kitchen cabinet'
     ### So we substitute '_' for any spaces. This then allows the 'parse' 
     ### routine to work with whole word loations.  
     locs_dict = {}
     locs_list = []
 
-    for line in answer:
+    for line in table:
 
         for i in range( 2, len(line)):
             #print( line[i][0])
@@ -385,77 +397,76 @@ def process_objects(expr):
 
 #*********************************************************************************
 
-# space separated strings to use when processing and parsing tasks
 ERL_data_file   = '../data/TBM3_objects.csv'
 ERL_verb_file   = '../data/TBM3_verbs.csv'
 
 ERL_data        = read_ERL_data(ERL_data_file)
 commands        = read_ERL_verb(ERL_verb_file)
 
-people, objects = process_ERL_data(ERL_data)
+people, objects = parse_ERL_data(ERL_data)
 
 locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
 
-#commands = " find locate look search pinpoint spot guide take lead accompany follow escort put place leave set get grasp retrieve pickup bring deliver give hand "
+references      = ['him', 'her', 'it', 'them' ]
 
-# for verb in commands:
-#     print(verb)
-# for obj in objects:
-#   print("obj:"+obj+"<<")
-#locations = " kitchen bedroom exit "
+locModifiers    = [ 'from', 'to']
+#
+#================================================================================================
+#
 
-#furnitures = " table cabinet bin "
+if __name__ == '__main__':
 
-#objects = " apple bottle glasses pear cup "
+    #hard coded example commands - first four from ERL documentation
+    task1 = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
 
-#people = " tracy john user "
+    task2 = "Locate the bottle, place it in the trash bin, and take John from the bedroom to the exit."
 
-references = ['him', 'her', 'it', 'them' ]
+    task3 = "Take  me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
 
-locModifiers = [ 'from', 'to']
+    task4 = "Give me the cup on the coffee table, find John, and follow him."
 
-#hard coded example commands - first four from ERL documentation
-task1 = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
+    task5 = "Hi Tiago, please will you go and find John, I need you to take him to the exit and then get me a bottle of water from the kitchen cabinet, thanks!"
 
-task2 = "Locate the bottle, place it in the trash bin, and take John from the bedroom to the exit."
+    task6 = "Search for the tea pot, Get my glasses, and Bring me a pear from the coffee table."
 
-task3 = "Guide me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
+    task = task1
 
-task4 = "Give me the cup on the coffee table, find John, and follow him."
+    print('\n***** Orignal task words *****')
+    print(task)
+    print '\n***** Actions remapped to BRL versions/plus other remaps'
+    #simplify text ease of use
+    taskP = process_task(task)
 
-task5 = "Hi Tiago, please will you go and find John, I need you to take him to the exit and then get me a bottle of water from the kitchen cabinet, thanks!"
+    #create objectives from task text
+    objectives = objectify(taskP)
 
-task6 = "Find the tea pot, Get my glasses, and Bring me a pear from the coffee table."
+    #use task text to fill relevant variables in each objective
+    objectives[0].parse()
+    objectives[1].parse()
+    objectives[2].parse()
 
-#simplify text ease of use
-taskP = process(task5)
+    #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
+    resolveReferences(objectives)
 
-#create objectives from task text
-objectives = objectify(taskP)
+    #print objectives for user to read
+    # objectives[0].printme()
+    # objectives[1].printme()
+    # objectives[2].printme()
 
-#use task text to fill relevant variables in each objective
-objectives[0].parse()
-objectives[1].parse()
-objectives[2].parse()
+    # map ERL verb to BRL equivalent
+    #     this also deals with "take" which can be manipulating OR accompanying 
+    # deal with locations of known objects (no location verbally given) eg Find John
+    # 
+    objectives[0].process_objective()
+    objectives[1].process_objective()
+    objectives[2].process_objective()
 
-#attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
-resolveReferences(objectives)
 
-#print objectives for user to read
-objectives[0].printme()
-objectives[1].printme()
-objectives[2].printme()
+    #print objectives for user to read
+    objectives[0].printme_final()
+    objectives[1].printme_final()
+    objectives[2].printme_final()
 
-# obj = 'tea pot'
-# locs = get_obj_per_loc(obj, ERL_data)
+    ### at some point must build the "confirmation" text for all 3 actions.
 
-# print('locs for:'+obj)
-# print(locs)
-print("\n***** ACTION 0 **FINAL OBJECTIVES")
-objectives[0].process_objective()
-
-print("\n***** ACTION 1 **FINAL OBJECTIVES")
-objectives[1].process_objective()
-
-print("\n***** ACTION 2 **FINAL OBJECTIVES")
-objectives[2].process_objective()
+    ### then pass data on to the actions(x3) driver!!

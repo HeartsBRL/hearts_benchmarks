@@ -4,7 +4,7 @@
 ########################################################################
 # HELP:    - all data is comma delimited
 #          - Case can be mixed - as all converted to lower case internally
-#          - a '#' ANYwhere on a line, will IGNORE the whole line!
+#          - a '#' ANY where on a line, will IGNORE the whole line!
 #          - Blank lines are ignored
 #
 #         Field 1   = Type of verb (command)
@@ -14,6 +14,7 @@
 #         Field 2   = ERL verb
 #         Field 3   = BRL equivalent verb
 #-------------------------------------------------------
+A,accompany,     follow
 A,escort,        guide
 A,follow,        follow
 A,guide,         guide
@@ -43,8 +44,10 @@ M,take,          get
 #-------------------------------------------------------
 S,find,          find
 S,locate,        find
-S,Look,          find
+#S,Look for,      find
+S,look,          find
 S,pinpoint,      find
-S,search for,    find
+#S,search for,    find
+S,search,        find
 S,spot,          find
 #-------------------------------------------------------
