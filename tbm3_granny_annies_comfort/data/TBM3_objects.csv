@@ -1,0 +1,37 @@
+########################################################################
+# TBM3 Data file for ERL Madrid - October 2018
+#
+########################################################################
+# HELP:    - all data is comma delimited
+#          - Case can be mixed - as all converted to lower case internally
+#          - a '#' ANYwhere on a line, will IGNORE the whole line!
+#          - Blank lines are ignored
+#
+#         Field 1   = P for Person OR I for Inanimate object
+#         Field 2   = persons name OR object name
+#         Field 3&4 = 1st location & probability of being there
+#         Field 5&6 = 2nd location & probability of being there
+#         Field 7&8 = 3rd location & probability of being there
+#
+#########################################################################
+
+######   People   #####
+
+P, john,     Room_4,60,       Room_5,30,        Room_6,10
+P, tracy,    Room_7,60,       Room_8,30,        Room_9,10
+P, fred,     Room_7,60,       Room_8,30,        bedroom,10
+
+P, user,     no_location1,60, no_location_2,30, no_location3,10
+
+######   objects   #####
+
+I, glasses,    kitchen counter,60,  Furniture_02,30,  Furniture_03,10
+I, Cup,        Furniture_04,60,     Furniture_05,30,  Furniture_06,10
+I, bottle,     Furniture_07,60,     Furniture_08,30,  Furniture_09,10
+I, apple,      coffee table,60,     Furniture_11,30,  Furniture_12,10
+I, pear,       kitchen table,60,    Furniture_14,30,  coffee table,10
+I, trash bin,  trash bin ,60,       lounge,30,        bedroom,10
+I, dummy,      exit,60,             exit,30,          exit,10
+I, double bed, double bed,60,        bedroom2,30,        bedroom3,10
+I, tea pot,    glass dining table,60, bedroom2,30,       bedroom3,10
+I, coke can,   kitchen cabinet,60,    bedromm5,30,       bedroom7,10       
