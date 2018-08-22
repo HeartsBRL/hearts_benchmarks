@@ -1,0 +1,10 @@
+#rosbag record -O filename /topic1 /topic2
+
+#test
+rosbag record -O testfile$(date +%Y %m %d) /hearts/stt
+rosbag record -O testfile$(date +%Y%m%d%H%M)_HEARTS /hearts/stt
+
+
+
+#required for all bench marks
+rosbag record -O filename /rockin/robot_pose /rockin/marker/pose /rockin/trajectory /rockin/<device>/image /rockin/<device>/camera_info/ /rockin/depth_<id>/pointcloud /rockin/scan_<id> tf
