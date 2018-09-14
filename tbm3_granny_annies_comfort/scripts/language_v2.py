@@ -4,9 +4,25 @@ import numpy as np
 import string
 import re
 
+
+class tc: # Termianl "text colour" control
+    HEADER    = '\033[95m' # purple
+    OKBLUE    = '\033[94m' # blue
+    OKGREEN   = '\033[92m' # green
+    WARNING   = '\033[93m' # yellow
+    FAIL      = '\033[91m' # red
+    ENDC      = '\033[0m'  # revert to normal text
+    BOLD      = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class Objective:
+    instances = 0
 
     def __init__(self,sentence,com,brlcom,comtype):
+        Objective.instances += 1
+        self.instance   = Objective.instances
+
         self.sentence   = sentence
         self.command    = []
         self.brlcommand = []
@@ -22,6 +38,7 @@ class Objective:
         self.command.append(com)
         self.brlcommand.append(brlcom)
         self.comtype.append(comtype)
+        self.confirmationtext = ""
 
     def parse(self):
         #reads sentence and stores key words
@@ -60,7 +77,7 @@ class Objective:
                 except IndexError:
                     #print "No location matching 'from' modifier"
                     del self.locationModifier[0]
-            elif word == "to":
+            elif word == "to" or word == "in":
                 try:
                     self.toLocation.append(self.location[count])
                     del self.locationModifier[0]
@@ -70,7 +87,9 @@ class Objective:
             count = count + 1
 
     def process_objective(self):
-        #ensure underscore removed from location tyep lists before data passed on to Tiago
+        #ensure underscore removed from location type lists before data passed on to Tiago
+       
+
         if len(self.location) > 0:
              self.location[0]  = self.location[0].replace('_',' ')
         if len(self.fromLocation) > 0:
@@ -78,24 +97,92 @@ class Objective:
         if len(self.toLocation) > 0:
              self.toLocation[0]  = self.toLocation[0].replace('_',' ')
 
+        # define the "FROM" location if not assigned thru locModifier     
+        if len(self.toLocation) == 0 :
+            self.fromLocation = self.location
 
-        #  below self.command[0] & comtyope[0] will be changed to the
+        #  below self.command[0] & comtype[0] will be changed to the
         #  BRL equivalent before compariosn takes place
         brl_com, com_type = self.get_brl_com(self.command[0])
         self.command[0] =  brl_com
         self.comtype[0] =  com_type
 
-        ## SEARCH ## - when there is no "toLocation"  for 'find/get an object'
+        ## SEARCH ## - when there is no "toLocation"  for 'find/get an object' then use the ones given in the 
+        #              ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
-            value = get_obj_per_loc(self.object[0], ERL_data)
-            self.toLocation.append(value)
+            loc0,loc1,loc2 = get_obj_per_loc(self.object[0], ERL_data)
+            self.fromLocation.append(loc0)
+            self.fromLocation.append(loc1)            
+            self.fromLocation.append(loc2)
 
-        ## SEARCH ## - when there is no "toLocation"  for 'find/get a  person'
+
+        ## SEARCH ## - when there is no "toLocation"  for 'find/get a  person'  then use the ones given in the 
+        #              ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
-            value = get_obj_per_loc(self.person[0], ERL_data)
-            self.toLocation.append(value)   
+            #print("#######if###############")
+            loc0,loc1,loc2 = get_obj_per_loc(self.person[0], ERL_data)
+            self.fromLocation.append(loc0)   
+            self.fromLocation.append(loc1)
+            self.fromLocation.append(loc2)
 
+        # if TO location empty assign to person (seems reasonable guess?)
+        if len(self.toLocation) == 0 and self.comtype[0] != 's':
+            self.toLocation = self.person
+
+        if brl_com == 'follow':
+            self.toLocation = ''
+
+
+        ###################################################################
+        
+        self.confirmationtext =  self.buildconfirmtext(self.comtype[0])
         return
+
+
+    def buildconfirmtext(self,action_type):
+
+        wordstring = ""
+        if   action_type == 'a':
+            wordstring = self.command[0]
+            if self.person:
+                per = self.person[0]
+                if  per == 'user':
+                    per =  'you'  
+            wordstring = wordstring +' '+per
+            if self.toLocation :
+                wordstring = wordstring +' to the '+self.toLocation[0]
+
+        elif action_type == 's':
+            wordstring = self.command[0]
+            #search target is either an object or person
+            if  self.person :
+                    per = self.person[0]
+                    if  per == 'user':
+                        per  = 'your'  
+                    wordstring = wordstring +' '+per
+
+            if  self.object:
+                    obj = self.object[0]
+                    wordstring = wordstring +' '+obj     
+
+            if self.fromLocation :
+                if len(self.fromLocation) == 1:
+                    wordstring = wordstring + ' ' + self.fromLocation[0]
+
+        elif action_type ==  'm':   
+            wordstring = self.command[0] 
+            wordstring = wordstring +' '+self.object[0]    
+            if self.fromLocation:
+                if len(self.fromLocation) == 1:
+                    wordstring = wordstring +' from the ' +self.fromLocation[0]
+
+            if self.toLocation :
+                toLoc      = self.toLocation[0]
+                if  toLoc == 'user':
+                    toLoc = 'you'  
+                wordstring = wordstring +' to '   + toLoc                    
+
+        return wordstring
 
     def get_brl_com(self, erl_com):    
         # find the equivalent BRL command to the ERL one
@@ -107,7 +194,7 @@ class Objective:
         #************************
         # **** Special case *****
         #************************
-        # "take " can either be a "MANIPULATING" or "ACOMPANYING" command.
+        # "take " can either be a "MANIPULATING" or "ACCOMPANYING" command.
         # Make decision based on context: ie Type of object/person
         if erl_com == 'take':
 
@@ -157,8 +244,10 @@ class Objective:
         #prints all fields in the objective that have values in them
         # and are required by Tiago to perform the defined Action.
 
-        print "\n***** Split ACTION *****: "
+        print "\n***** Split ACTION *****:  "+str(self.instance)
         print self.sentence
+        print "**** Text to speak"
+        print self.confirmationtext
         print("**** Action Type: ")
         print  self.comtype
         print "***** command: "
@@ -186,8 +275,13 @@ def process_task(task):
     taskP = task.translate(None, string.punctuation)
     nd    = re.compile('(\s*)and(\s*)')
     taskP = nd.sub(' ', taskP)
+
     me    = re.compile('(\s*)me(\s*)')
     taskP = me.sub(' user ', taskP)
+
+    my    = re.compile('(\s*)my(\s*)')
+    taskP = my.sub(' user ', taskP)
+
     taskP = taskP.lower()
     taskP = ' ' + taskP + ' '
 
@@ -225,7 +319,7 @@ def objectify(taskP):
 
 def resolveReferences(objectives):
     #if an objective references an object or person mentioned earlier, look at the previous objective and copy object or person data into current objective
-    for i in range(1,len(objectives)):
+     for i in range(1,len(objectives)):
         while len(objectives[i].reference) > 0:
             ref = objectives[i].reference[0]
             if ref == "him" or ref == "her" or ref == "them":
@@ -314,12 +408,15 @@ def get_obj_per_loc(obj_per,table):
 
     for row in table:
         if obj_per == row[1]:
-            locations.append(row[2][0]) 
-            locations.append(row[3][0]) 
-            locations.append(row[4][0]) 
+            # locations.append(row[2][0]) 
+            # locations.append(row[3][0]) 
+            # locations.append(row[4][0]) 
+            loc0 = row[2][0]
+            loc1 = row[3][0] 
+            loc2 = row[4][0]
             break
 
-    return locations
+    return loc0,loc1,loc2
 
 #*********************************************************************************
 def parse_ERL_data(table):
@@ -389,27 +486,74 @@ def process_objects(expr):
     # do in string search for all known objects
     for obj in objects:
         obj_no_ = obj.replace('_',' ')
-
         if  obj_no_ in expr:
             expr = expr.replace(obj_no_, obj)
 
     return expr 
 
+def check_locations(locations, navjson_file):
+
+    import json
+    # from pprint import pprint
+
+    with open(navjson_file) as fh:
+        data = json.load(fh)
+
+    #pprint (data)
+
+    # get top level keys - ie the location names from the map file
+    keylist = data.keys()
+    keylist.sort()
+
+    # for each unique ERL loction checkit against the map file
+    found  = 0
+    missed = 0
+    for item in locations:
+
+        loc_no_ = item.replace('_',' ')
+        if loc_no_ in keylist:
+            found += 1
+            #print(tc.OKGREEN+loc_no_+tc.ENDC)   
+        else:
+            missed += 1
+            #print(tc.FAIL+loc_no_+tc.ENDC)
+
+    return (found,missed)
 #*********************************************************************************
 
 ERL_data_file   = '../data/TBM3_objects.csv'
 ERL_verb_file   = '../data/TBM3_verbs.csv'
 
 ERL_data        = read_ERL_data(ERL_data_file)
+
+
+
 commands        = read_ERL_verb(ERL_verb_file)
 
 people, objects = parse_ERL_data(ERL_data)
+    
 
 locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
 
+
+#check that all "locations" found are in the Navigation locations.json file
+#navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
+navjson_file = 'locations.json'
+
+found,missed = check_locations(locations, navjson_file)
+#print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+# for cmd in commands:
+#     print(cmd)
+# for per in people:
+#     print("Person  : "+per)
+# for obj in  objects:
+#     print("Object  : "+obj)
+# for loc in locations:
+    # print("Location: "+loc)
+
 references      = ['him', 'her', 'it', 'them' ]
 
-locModifiers    = [ 'from', 'to']
+locModifiers    = [ 'from', 'to', 'in']
 #
 #================================================================================================
 #
@@ -419,7 +563,7 @@ if __name__ == '__main__':
     #hard coded example commands - first four from ERL documentation
     task1 = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
 
-    task2 = "Locate the bottle, place it in the trash bin, and take John from the bedroom to the exit."
+    task2 = "Locate the bottle, place it in the bucket, and take John from the bedroom to the exit."
 
     task3 = "Take  me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
 
@@ -429,7 +573,9 @@ if __name__ == '__main__':
 
     task6 = "Search for the tea pot, Get my glasses, and Bring me a pear from the coffee table."
 
-    task = task1
+    task7 = "Search for john , Get my glasses, and Bring me a pear from the coffee table."
+
+    task = task4
 
     print('\n***** Orignal task words *****')
     print(task)
@@ -467,6 +613,10 @@ if __name__ == '__main__':
     objectives[1].printme_final()
     objectives[2].printme_final()
 
-    ### at some point must build the "confirmation" text for all 3 actions.
+    acttxt_0 = objectives[0].confirmationtext
+    acttxt_1 = objectives[1].confirmationtext
+    acttxt_2 = objectives[2].confirmationtext
+    print("\n Text to be spoken to Granny Annie by TiaGO ..........")
+    print ("*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n')
 
     ### then pass data on to the actions(x3) driver!!

@@ -84,7 +84,8 @@ def service():
 	s8 = rospy.Service('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty  , callback_8)	
 	s9 = rospy.Service('/roah_rsbb/devices/blinds/set',   Percentage          , callback_9)
 	s10 = rospy.Service('/roah_rsbb/devices/dimmer/set',  Percentage         , callback_10)  
-	s11 = rospy.Service('/roah_rsbb/tablet/map',          std_srvs.srv.Empty , callback_11)   	
+	# Derek 14 Sep 2018 - s11 commented as causes package not to crash - don't know why ??
+	#s11 = rospy.Service('/roah_rsbb/tablet/map',          std_srvs.srv.Empty , callback_11)   	
 	print("using latest service definition")
 	rospy.spin()
 
