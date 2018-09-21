@@ -192,17 +192,19 @@ class Controller():
     def process_face_postman(self):
                 
         # 3.b speak to the postman, request him to open the door:  "I am here, please open the door"
-        self.say("I will receive the post mail, please open the door")
+        self.say("I will receive the post mail, please open the door") #TODO: open door ourselves
  
         # 4. detect door is open
-        rospy.sleep(3)
+        rospy.sleep(3) #TODO some sort of detection
 
         # 5. speak to postman, instruct to leave parcel on hallway floor
-        self.say("Please leave the parcel on the floor")
+        self.say("Please leave the parcel on the floor") #TODO integrate with manipulation
         rospy.sleep(2)
         
         # 6. bid postman farewell
         self.say("Thank you for visiting. Goodbye!")
+         
+        #TODO wait til door is shut?
 
         # 7. return to base
         if self.move_to("home", 3) == False:
