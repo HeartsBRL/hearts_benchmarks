@@ -18,9 +18,9 @@ from collections import Counter
 class Controller():
     def __init__(self):
         # init service proxies        
-        self.start_track = rospy.ServiceProxy('/start_person_tracking',std_srvs.srv.Trigger)
-        self.end_track = rospy.ServiceProxy('/stop_person_tracking',std_srvs.srv.Trigger)
-        self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
+        self.start_track = rospy.ServiceProxy('/start_person_tracking', std_srvs.srv.Trigger)
+        self.end_track =   rospy.ServiceProxy('/stop_person_tracking',  std_srvs.srv.Trigger)
+        self.prepare =     rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
         
         # init publishers
         self.pub_location_goal = rospy.Publisher('/hearts/navigation/goal/location', 
@@ -32,10 +32,10 @@ class Controller():
         self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
 
         # init subscribers
-        rospy.Subscriber("/hearts/navigation/status", String, self.location_result_callback)
+        rospy.Subscriber("/hearts/navigation/status", String,         self.location_result_callback)
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
-        rospy.Subscriber("roah_rsbb/benchmark",       Benchmark, self.benchmark_callback)
-        rospy.Subscriber("roah_rsbb/devices/bell",    Empty, self.bell_callback)
+        rospy.Subscriber("roah_rsbb/benchmark",       Benchmark,      self.benchmark_callback)
+        rospy.Subscriber("roah_rsbb/devices/bell",    Empty,          self.bell_callback)
 
         # init vars
         self.location_result = ""
@@ -43,9 +43,11 @@ class Controller():
         self.has_scan_changed = False
 
     def scan_changed_callback(self, msg):
+    '''Trigged by subscriber: /scan_change '''
         self.has_scan_changed = (msg.data == "yes")
 
     def wait_for_scan_changed(self):
+    '''Starts /scan_change subscriber and waits until a scan changes '''
         self.has_scan_changed = False
         rospy.Subscriber("/scan_change", String, self.scan_changed_callback)
         
@@ -89,8 +91,13 @@ class Controller():
     #    self.current_voice = data.data
   
     def benchmark_state_callback(self, data):
+    '''
+    Trigged by subscriber: roah_rsbb/benchmark/state
+    
+    Receive instructions from judges code to prepare, execute and stop.
+    '''
         if data.benchmark_state == BenchmarkState.STOP:
-            rospy.loginfo("STOP")
+            rospy.loginfo("STOP") #TODO does this actually do anything/meant to?
         elif data.benchmark_state == BenchmarkState.PREPARE:
             rospy.loginfo("PREPARE")
             try:
@@ -99,15 +106,26 @@ class Controller():
             except:
                 rospy.loginfo("Failed to reply PREPARE")
         elif data.benchmark_state == BenchmarkState.EXECUTE:
-            rospy.loginfo("EXECUTE")
+            rospy.loginfo("EXECUTE") #TODO does this actually do anything/meant to?
 
     def benchmark_callback(self, data):
+    '''Trigged by subscriber: roah_rsbb/benchmark '''
         rospy.loginfo("benchmark_callback")
  
     #def leaving_callback(self, data):
     #    self.leaving = True
 
     def bell_callback(self, data):
+    '''
+    Trigged by subscriber: roah_rsbb/devices/bell 
+    
+    Start actions to interact with visitor:
+    -> move to front door
+    -> request visitor opens door (self opening not implemented yet)
+    -> visual recognition of visitor
+    -> call visitor-dependant functions
+    
+    '''
         rospy.loginfo("bell_callback")
         
         self.say("I am coming")
@@ -140,12 +158,20 @@ class Controller():
             self.process_face_unrecognized()  
 
     def say(self, text):
+    ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
         rospy.loginfo("saying \"" + text + "\"")
         rospy.sleep(1)
         self.tts_pub.publish(text)
         rospy.sleep(5)
         
     def move_to(self, location, count):
+    ''' 
+    Publish location to move to to /hearts/navigation/goal/location and wait
+    for update on /hearts/navigation/status 
+    
+    If move not succesful, retry count number of times, changing orientation by 
+    1 radian on each retry.
+    '''
         rospy.loginfo("moving to \"" + location + "\" (" + str(count) + ")")
         msg = String()
         msg.data = location
@@ -161,6 +187,8 @@ class Controller():
             self.pub_twist.publish(t)
             rospy.sleep(1)
             self.move_to(location, count - 1)
+        elif count == 0:
+            pass #TODO add failure case
             
         return self.location_result == "Success"
         
@@ -169,13 +197,18 @@ class Controller():
     #        rospy.sleep(1)
     #    self.leaving = False
 
-    def loop(self):
-
-        rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            rate.sleep()
+    #def loop(self):
+    #
+    #   rate = rospy.Rate(10)
+    #   while not rospy.is_shutdown():
+    #       rate.sleep()
 
     def location_result_callback(self, data):
+    '''
+    Trigged by subscriber: /hearts/navigation/status 
+    
+    Contains data on succes/failure/active of ... 
+    '''#TODO does succes mean movement completed?
         rospy.loginfo(data.data)
         self.location_result = data.data
 
@@ -260,8 +293,8 @@ class Controller():
             self.say("I am unable to move to the base")
             return
 
-    def current_pose_callback(self, pose):
-        self.current_pose = pose
+    #def current_pose_callback(self, pose):
+    #    self.current_pose = pose
 
     def process_face_doctor(self):
         # 1. speak to the doctor, "Hi Dr. Kimble, I am coming to open the door."
