@@ -17,31 +17,29 @@ from collections import Counter
 
 class Controller():
     def __init__(self):
-        self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
-        #self.pub_task = rospy.Publisher('hearts/controller/task', String, queue_size=10)
-        self.pub_location_goal = rospy.Publisher('/hearts/navigation/goal/location', String, queue_size=10)
-        self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size=10)       
-
-        # subscribers
-        #rospy.Subscriber("hearts/voice/cmd",           String, self.voice_callback)
-        rospy.Subscriber("/hearts/navigation/status", String, self.location_result_callback)
-        #rospy.Subscriber("roah_devices/state",        DevicesState, self.state_callback)
-        rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
-        rospy.Subscriber("roah_rsbb/benchmark",        Benchmark, self.benchmark_callback)
-        #rospy.Subscriber("roah_rsbb/benchmark",        String, self.benchmark_callback)
-        rospy.Subscriber("roah_rsbb/devices/bell",     Empty, self.bell_callback)
-        #rospy.Subscriber("hearts/front_door/leaving",     Empty, self.leaving_callback)
-        
+        # init service proxies        
         self.start_track = rospy.ServiceProxy('/start_person_tracking',std_srvs.srv.Trigger)
         self.end_track = rospy.ServiceProxy('/stop_person_tracking',std_srvs.srv.Trigger)
+        self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
         
+        # init publishers
+        self.pub_location_goal = rospy.Publisher('/hearts/navigation/goal/location', 
+                                                 String, 
+                                                 queue_size=10)
+        self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel', 
+                                         Twist, 
+                                         queue_size=10)       
         self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
+
+        # init subscribers
+        rospy.Subscriber("/hearts/navigation/status", String, self.location_result_callback)
+        rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
+        rospy.Subscriber("roah_rsbb/benchmark",       Benchmark, self.benchmark_callback)
+        rospy.Subscriber("roah_rsbb/devices/bell",    Empty, self.bell_callback)
+
+        # init vars
         self.location_result = ""
         self.current_pose = None
-        #self.leaving = False
-
-        #self.loop()
-
         self.has_scan_changed = False
 
     def scan_changed_callback(self, msg):
@@ -123,6 +121,10 @@ class Controller():
             self.say("I am unable to move to the front door")
             return
             
+        # TODO open door
+        
+        # TODO detect door is opened
+            
         self.say("please look towards the camera so that I can recognise you")
         
         visitor = None
@@ -191,20 +193,40 @@ class Controller():
 
     def process_face_postman(self):
                 
-        # 3.b speak to the postman, request him to open the door:  "I am here, please open the door"
-        self.say("I will receive the post mail, please open the door") #TODO: open door ourselves
- 
-        # 4. detect door is open
-        rospy.sleep(3) #TODO some sort of detection
-
-        # 5. speak to postman, instruct to leave parcel on hallway floor
-        self.say("Please leave the parcel on the floor") #TODO integrate with manipulation
-        rospy.sleep(2)
+        # 3.b speak to the postman
+        self.say("I will receive the post mail, please stand back while I move my arm") 
+        
+        #TODO move to receive pose
+        
+        self.say("Please place the parcel in my hand and I will close it when you say ready") #TODO maybe a better set of words to use?
+        #TODO wait for response
+        #TODO loop until "ready" said? or timeout to repeat command?
+        #TODO close gripper
+        #TODO some sort of check to make sure object is in gripper
+        
+        
+        self.say("Thank you for the parcel, I will give it to Granny Annie now")
+        
+        # TODO move arm closer to make navigation easier
+        
         
         # 6. bid postman farewell
         self.say("Thank you for visiting. Goodbye!")
-         
+        
+        #TODO ask post man to shut door before they go or figure out way to do it autonomously         
         #TODO wait til door is shut?
+        
+        #TODO navigate to granny annie, keep far enough away so as to not hit granny annie when offering parcel
+        
+        self.say("Hello granny annie, the postman has bought you a parcel, I will pass it to you now")
+        #TODO move arm to offer parcel
+        self.say("Have you got hold of it?")
+        #TODO wait for response
+        #TODO release if yes
+        
+        #TODO move arm close in again so easier to move back to base
+
+        #TODO say something before leaving?
 
         # 7. return to base
         if self.move_to("home", 3) == False:
@@ -294,7 +316,7 @@ class Controller():
 
     def process_face_unrecognized(self):
         # 1. speak to visitor, "Sorry, I don't know you. I cannot open the door."
-        self.say("Sorry, I don't know you. I cannot open the door")
+        self.say("Sorry, I don't know you. I cannot open the door") # TODO door will be opened first, so shut door now
         
         if self.move_to("home", 3) == False:
             self.say("I am unable to move to the base")
