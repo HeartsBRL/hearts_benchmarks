@@ -102,13 +102,13 @@ class Objective:
             self.fromLocation = self.location
 
         #  below self.command[0] & comtype[0] will be changed to the
-        #  BRL equivalent before compariosn takes place
+        #  BRL equivalent before comparison takes place
         brl_com, com_type = self.get_brl_com(self.command[0])
         self.command[0] =  brl_com
         self.comtype[0] =  com_type
 
-        ## SEARCH ## - when there is no "toLocation"  for 'find/get an object' then use the ones given in the 
-        #              ERL data (ie the 3 possible locations)
+        ## SEARCH for OBJECT ## - when there is no "fromLocation"  for 'find/get an object' then use the ones
+        #                         given in the ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
             loc0,loc1,loc2 = get_obj_per_loc(self.object[0], ERL_data)
             self.fromLocation.append(loc0)
@@ -116,14 +116,20 @@ class Objective:
             self.fromLocation.append(loc2)
 
 
-        ## SEARCH ## - when there is no "toLocation"  for 'find/get a  person'  then use the ones given in the 
-        #              ERL data (ie the 3 possible locations)
+        ## SEARCH for PERSON ## - when there is no "fromLocation"  for 'find/get a  person'  then use the ones 
+        #                         given in the ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
             #print("#######if###############")
             loc0,loc1,loc2 = get_obj_per_loc(self.person[0], ERL_data)
             self.fromLocation.append(loc0)   
             self.fromLocation.append(loc1)
             self.fromLocation.append(loc2)
+
+        ## MANIPULATE and ACCOMMPANY ## - when there is no fromLocation defined it probably comes from  the
+        #                                 previuos task. 
+        if (brl_com == 'get' or brl_com == 'guide' or brl_com == 'follow') and  len(self.fromLocation) == 0:
+            self.fromLocation.append('previous task') 
+
 
         # if TO location empty assign to person (seems reasonable guess?)
         if len(self.toLocation) == 0 and self.comtype[0] != 's':
@@ -166,14 +172,14 @@ class Objective:
                     wordstring = wordstring +' '+obj     
 
             if self.fromLocation :
-                if len(self.fromLocation) == 1:
+                if len(self.fromLocation) == 1 and not  'previous' in self.fromLocation[0]:
                     wordstring = wordstring + ' ' + self.fromLocation[0]
 
         elif action_type ==  'm':   
             wordstring = self.command[0] 
             wordstring = wordstring +' '+self.object[0]    
             if self.fromLocation:
-                if len(self.fromLocation) == 1:
+                if len(self.fromLocation) == 1 and not  'previous' in self.fromLocation[0]:
                     wordstring = wordstring +' from the ' +self.fromLocation[0]
 
             if self.toLocation :
