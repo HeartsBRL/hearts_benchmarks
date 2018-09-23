@@ -187,10 +187,14 @@ class Controller():
             self.pub_twist.publish(t)
             rospy.sleep(1)
             self.move_to(location, count - 1)
-        elif count == 0:
-            pass #TODO add failure case
-            
-        return self.location_result == "Success"
+        
+        if self.location_result != "Success":
+            rospy.loginfo("ERROR movement to \"" + location + "\" has failed")
+            self.say("Sorry, I am unable to move to "+location)
+            #TODO should an actual error be thrown here?
+            return False
+        else
+            return True
         
     #def wait_until_left(self):
     #    while self.leaving == False:
@@ -252,7 +256,6 @@ class Controller():
 
         # 7. return to base
         if self.move_to("home", 3) == False:
-            self.say("I am unable to move to the base")
             return
 
     def process_face_deliman(self):
@@ -266,7 +269,6 @@ class Controller():
 
         # 6. move to kitchen
         if self.move_to("home", 3) == False:
-            self.say("I am unable to move to the kitchen")
             return
 
         # 7. speak to the deliman, instruct to leave breakfast box on the table: "Please leave the breakfast box on the table"
@@ -281,7 +283,6 @@ class Controller():
 
         # 10. move to front door
         if self.move_to("hallway", 3) == False:
-            self.say("I am unable to move to the front door")
             return
 
         # 11. bid deliman farewell
@@ -290,7 +291,6 @@ class Controller():
 
         # 12. return to base
         if self.move_to("home", 3) == False:
-            self.say("I am unable to move to the base")
             return
 
     #def current_pose_callback(self, pose):
@@ -302,7 +302,6 @@ class Controller():
 
         # 4. move to bedroom
         if self.move_to("outside bedroom", 3) == False:
-            self.say("I am unable to move to the bedroom")
             return
 
         # 5. speak to doctor, advise robot will wait
@@ -316,7 +315,6 @@ class Controller():
         
         # 9. move to hallway 
         if self.move_to("hallway", 3) == False: #TODO follow dr, don't just run them over!
-            self.say("I am unable to move to the front door")
             return
             
         # 10. bid farewell
@@ -326,7 +324,6 @@ class Controller():
 
         # 11. return to base
         if self.move_to("home", 3) == False:
-            self.say("I am unable to move to the base")
             return
 
     def process_face_unrecognized(self):
@@ -334,7 +331,6 @@ class Controller():
         self.say("Sorry, I don't recognize you. I cannot let you in. Please close the door.") # TODO door will be opened first, so shut door now
         
         if self.move_to("home", 3) == False:
-            self.say("I am unable to move to the base")
             return
 
 if __name__ == '__main__':
