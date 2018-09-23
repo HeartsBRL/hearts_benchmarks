@@ -43,11 +43,10 @@ class Controller():
         self.has_scan_changed = False
 
     def scan_changed_callback(self, msg):
-    '''Trigged by subscriber: /scan_change '''
+        '''Trigged by subscriber: /scan_change '''
         self.has_scan_changed = (msg.data == "yes")
-
     def wait_for_scan_changed(self):
-    '''Starts /scan_change subscriber and waits until a scan changes '''
+        '''Starts /scan_change subscriber and waits until a scan changes '''
         self.has_scan_changed = False
         rospy.Subscriber("/scan_change", String, self.scan_changed_callback)
         
@@ -91,11 +90,11 @@ class Controller():
     #    self.current_voice = data.data
   
     def benchmark_state_callback(self, data):
-    '''
-    Trigged by subscriber: roah_rsbb/benchmark/state
-    
-    Receive instructions from judges code to prepare, execute and stop.
-    '''
+        '''
+        Trigged by subscriber: roah_rsbb/benchmark/state
+        
+        Receive instructions from judges code to prepare, execute and stop.
+        '''
         if data.benchmark_state == BenchmarkState.STOP:
             rospy.loginfo("STOP") #TODO does this actually do anything/meant to?
         elif data.benchmark_state == BenchmarkState.PREPARE:
@@ -109,23 +108,23 @@ class Controller():
             rospy.loginfo("EXECUTE") #TODO does this actually do anything/meant to?
 
     def benchmark_callback(self, data):
-    '''Trigged by subscriber: roah_rsbb/benchmark '''
+        '''Trigged by subscriber: roah_rsbb/benchmark '''
         rospy.loginfo("benchmark_callback")
  
     #def leaving_callback(self, data):
     #    self.leaving = True
 
     def bell_callback(self, data):
-    '''
-    Trigged by subscriber: roah_rsbb/devices/bell 
-    
-    Start actions to interact with visitor:
-    -> move to front door
-    -> request visitor opens door (self opening not implemented yet)
-    -> visual recognition of visitor
-    -> call visitor-dependant functions
-    
-    '''
+        '''
+        Trigged by subscriber: roah_rsbb/devices/bell 
+        
+        Start actions to interact with visitor:
+        -> move to front door
+        -> request visitor opens door (self opening not implemented yet)
+        -> visual recognition of visitor
+        -> call visitor-dependant functions
+        
+        '''
         rospy.loginfo("bell_callback")
         
         self.say("I am coming")
@@ -158,20 +157,20 @@ class Controller():
             self.process_face_unrecognized()  
 
     def say(self, text):
-    ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
+        ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
         rospy.loginfo("saying \"" + text + "\"")
         rospy.sleep(1)
         self.tts_pub.publish(text)
         rospy.sleep(5)
         
     def move_to(self, location, count):
-    ''' 
-    Publish location to move to to /hearts/navigation/goal/location and wait
-    for update on /hearts/navigation/status 
-    
-    If move not succesful, retry count number of times, changing orientation by 
-    1 radian on each retry.
-    '''
+        ''' 
+        Publish location to move to to /hearts/navigation/goal/location and wait
+        for update on /hearts/navigation/status 
+        
+        If move not succesful, retry count number of times, changing orientation by 
+        1 radian on each retry.
+        '''
         rospy.loginfo("moving to \"" + location + "\" (" + str(count) + ")")
         msg = String()
         msg.data = location
@@ -193,7 +192,7 @@ class Controller():
             self.say("Sorry, I am unable to move to "+location)
             #TODO should an actual error be thrown here?
             return False
-        else
+        else:
             return True
         
     #def wait_until_left(self):
@@ -208,11 +207,11 @@ class Controller():
     #       rate.sleep()
 
     def location_result_callback(self, data):
-    '''
-    Trigged by subscriber: /hearts/navigation/status 
-    
-    Contains data on succes/failure/active of ... 
-    '''#TODO does succes mean movement completed?
+        '''
+        Trigged by subscriber: /hearts/navigation/status 
+        
+        Contains data on succes/failure/active of ... 
+        '''#TODO does succes mean movement completed?
         rospy.loginfo(data.data)
         self.location_result = data.data
 
