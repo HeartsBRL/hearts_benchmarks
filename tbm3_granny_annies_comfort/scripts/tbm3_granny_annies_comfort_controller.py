@@ -20,7 +20,7 @@ from   roah_rsbb_comm_ros.srv import Percentage
 from random import *
 
 
-class Controller():
+class Controller(object):
 	
 	def __init__(self):
 		#Publishers  

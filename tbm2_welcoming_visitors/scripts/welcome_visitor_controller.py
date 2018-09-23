@@ -3,20 +3,32 @@
 # https://github.com/studioimaginaire/phue
 # https://github.com/rockin-robot-challenge
 
+import sys
+import os
+
 import rospy
 import time
 from std_msgs.msg import Empty, String
 from geometry_msgs.msg import Pose2D, Twist, Pose
-from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, TabletState
+#TODO UNCOMMENT: from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, TabletState
 import std_srvs.srv
 from collections import Counter
+
+path = os.path.join(os.getenv('HOME'), 'workspaces/hearts_erl/src/hearts_benchmarks/') # NB, will break if this changes, this probably isnt the best way to implement this long term...
+sys.path.append(path)
+from testing import GenericController
 
 # activation: doorbell press detected
 # notification:
 # visitor: postman, doctor, deliman, unknown
 
-class Controller():
+class ControllerTBM2(GenericController):
     def __init__(self):
+        # init the generic stuff from GenericController
+        super(ControllerTBM2, self).__init__() 
+        
+        # init tbm2 specific stuff
+        
         # init service proxies        
         self.start_track = rospy.ServiceProxy('/start_person_tracking', std_srvs.srv.Trigger)
         self.end_track =   rospy.ServiceProxy('/stop_person_tracking',  std_srvs.srv.Trigger)
@@ -29,7 +41,6 @@ class Controller():
         self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel', 
                                          Twist, 
                                          queue_size=10)       
-        self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
 
         # init subscribers
         rospy.Subscriber("/hearts/navigation/status", String,         self.location_result_callback)
@@ -155,13 +166,6 @@ class Controller():
         elif visitor == "unknown":
             rospy.loginfo("detected unrecognized person")
             self.process_face_unrecognized()  
-
-    def say(self, text):
-        ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
-        rospy.loginfo("saying \"" + text + "\"")
-        rospy.sleep(1)
-        self.tts_pub.publish(text)
-        rospy.sleep(5)
         
     def move_to(self, location, count):
         ''' 
@@ -333,7 +337,7 @@ class Controller():
             return
 
 if __name__ == '__main__':
-    rospy.init_node("task_controller", anonymous=True)
-    rospy.loginfo("initialized controller node")
-    controller = Controller()
+    #TODO UNCOMMENT: rospy.init_node("task_controller", anonymous=True)
+    #TODO UNCOMMENT: rospy.loginfo("initialized controller node")
+    nowcontroller = ControllerTBM2()
     rospy.spin()
