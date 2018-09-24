@@ -35,15 +35,11 @@ class ControllerTBM2(GenericController):
         self.prepare =     rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
         
         # init publishers
-        self.pub_location_goal = rospy.Publisher('/hearts/navigation/goal/location', 
-                                                 String, 
-                                                 queue_size=10)
         self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel', 
                                          Twist, 
                                          queue_size=10)       
 
         # init subscribers
-        rospy.Subscriber("/hearts/navigation/status", String,         self.location_result_callback)
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
         rospy.Subscriber("roah_rsbb/benchmark",       Benchmark,      self.benchmark_callback)
         rospy.Subscriber("roah_rsbb/devices/bell",    Empty,          self.bell_callback)
@@ -167,37 +163,7 @@ class ControllerTBM2(GenericController):
             rospy.loginfo("detected unrecognized person")
             self.process_face_unrecognized()  
         
-    def move_to(self, location, count):
-        ''' 
-        Publish location to move to to /hearts/navigation/goal/location and wait
-        for update on /hearts/navigation/status 
-        
-        If move not succesful, retry count number of times, changing orientation by 
-        1 radian on each retry.
-        '''
-        rospy.loginfo("moving to \"" + location + "\" (" + str(count) + ")")
-        msg = String()
-        msg.data = location
-        self.pub_location_goal.publish(msg)
-        
-        self.location_result = "Active"
-        while self.location_result == "Active":
-            rospy.sleep(1)
-        
-        if self.location_result != "Success" and count > 0:
-            t = Twist()
-            t.angular.z = 1.0
-            self.pub_twist.publish(t)
-            rospy.sleep(1)
-            self.move_to(location, count - 1)
-        
-        if self.location_result != "Success":
-            rospy.loginfo("ERROR movement to \"" + location + "\" has failed")
-            self.say("Sorry, I am unable to move to "+location)
-            #TODO should an actual error be thrown here?
-            return False
-        else:
-            return True
+
         
     #def wait_until_left(self):
     #    while self.leaving == False:
@@ -210,14 +176,7 @@ class ControllerTBM2(GenericController):
     #   while not rospy.is_shutdown():
     #       rate.sleep()
 
-    def location_result_callback(self, data):
-        '''
-        Trigged by subscriber: /hearts/navigation/status 
-        
-        Contains data on succes/failure/active of ... 
-        '''#TODO does succes mean movement completed?
-        rospy.loginfo(data.data)
-        self.location_result = data.data
+
 
     def process_face_postman(self):
         # Door should be open already
