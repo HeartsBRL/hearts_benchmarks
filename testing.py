@@ -49,7 +49,7 @@ class GenericController(object):
             t.angular.z = 1.0
             self.pub_twist.publish(t)
             rospy.sleep(1)
-            self.move_to(location, count - 1)
+            self.move_to(location, count - 1) #recurse
         
         if self.location_result != "Success":
             rospy.loginfo("ERROR movement to \"" + location + "\" has failed")
@@ -76,7 +76,7 @@ class GenericController(object):
 		self.move_to_loc_pub.publish(target_location)
 
 		self.wait_to_arrive(5)
-
+        
 		self.say("I have arrived at the "+target_location+" location")
 		
     def wait_to_arrive(self, count): #when this function is called, must specify no of counts before it breaks out of infinite loop
@@ -93,9 +93,45 @@ class GenericController(object):
 			t.angular.z = 1.0
 			self.pub_twist.publish(t)
 			rospy.sleep(1)
-			self.wait_to_arrive(count - 1)
+			self.wait_to_arrive(count - 1) # recurse
 			return self.nav_status == "Success"
 			
     def navigation_callback(self, msg):
 		self.nav_status = msg.data
     ###########################################################################		
+    def move_to(self, target_location, num_retries):
+		rospy.loginfo("Moving to a location")
+		
+		self.move_to_loc_pub.publish(target_location)
+
+		arrive_success = self.wait_to_arrive(num_retries)
+        
+        if arrive_success == False:
+            rospy.loginfo("ERROR movement to \"" + location + "\" has failed")
+            self.say("Sorry, I am unable to move to "+location)
+            #TODO should an actual error be thrown here?
+            return False
+        else:
+		    self.say("I have arrived at the "+target_location+" location")
+		    return True
+		
+    def wait_to_arrive(self, num_retries): #when this function is called, must specify no of counts before it breaks out of infinite loop
+		rospy.loginfo("Checking Navigation Status")
+		sub = rospy.Subscriber("/hearts/navigation/status", String, self.navigation_callback)
+		self.nav_status = "Active"
+
+		while self.nav_status == "Active":
+			rospy.sleep(1)
+
+		sub.unregister()
+		if self.nav_status == "Fail" and num_retries > 0:
+			t = Twist()
+			t.angular.z = 1.0
+			self.pub_twist.publish(t)
+			rospy.sleep(1)
+			self.wait_to_arrive(num_retries - 1) # recurse
+			
+		return self.nav_status == "Success"
+			
+    def navigation_callback(self, msg):
+		self.nav_status = msg.data
