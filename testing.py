@@ -98,17 +98,27 @@ class GenericController(object):
 			
     def navigation_callback(self, msg):
 		self.nav_status = msg.data
-    ###########################################################################		
-    def move_to(self, target_location, num_retries):
-		rospy.loginfo("Moving to a location")
 		
-		self.move_to_loc_pub.publish(target_location)
+    ###########################################################################	
+    	
+    def move_to(self, target_location, num_retries):
+        ''' 
+        Publish location to move to to /hearts/navigation/goal/location and wait
+        for update on /hearts/navigation/status (either "Success" or "Failure")
+        
+        If move not succesful, retry given number of times, changing orientation
+        by 1 radian on each retry.
+        '''
+		rospy.loginfo("moving to \"" + target_location + "\" (" + str(count) + ")")
+        msg = String()
+        msg.data = location
+        self.pub_location_goal.publish(msg)
 
 		arrive_success = self.wait_to_arrive(num_retries)
         
         if arrive_success == False:
-            rospy.loginfo("ERROR movement to \"" + location + "\" has failed")
-            self.say("Sorry, I am unable to move to "+location)
+            rospy.loginfo("ERROR movement to \"" + target_location + "\" has failed")
+            self.say("Sorry, I am unable to move to "+target_location)
             #TODO should an actual error be thrown here?
             return False
         else:
