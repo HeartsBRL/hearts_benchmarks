@@ -24,31 +24,29 @@ class Controller(object):
 	
 	def __init__(self):
 		#Publishers  
-		self.tts_pub   = rospy.Publisher("/hearts/tts", String, queue_size=10)
-		self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size=10)       
-		self.move_to_loc_pub = rospy.Publisher('/hearts/navigation/goal/location', String, queue_size=10)
-		self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal', Pose2D, queue_size = 10)
+		self.pub_twist =   rospy.Publisher('/mobile_base_controller/cmd_vel', Twist,  queue_size=10)       
+		self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal',          Pose2D, queue_size=10)
 
 		#Subscribers
-		self.listen4cmd('on')
+		self.listen4cmd('on') 
 		self.listen4cmd('off')
 		self.listen4ans('on')
-		self.listen4ans('off')
+		self.listen4ans('off') # why? 
 
 		rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
 			
 		#Services
-		self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
-		self.execute = rospy.ServiceProxy('/roah_rsbb/end_execute', std_srvs.srv.Empty)
-		self.user_location_service = rospy.ServiceProxy('/roah_rsbb/tablet/map', std_srvs.srv.Empty)
-		self.switch_2_on_service = rospy.ServiceProxy('/roah_rsbb/devices/switch_2/on', std_srvs.srv.Empty)
+		self.prepare =              rospy.ServiceProxy('/roah_rsbb/end_prepare',          std_srvs.srv.Empty)
+		self.execute =              rospy.ServiceProxy('/roah_rsbb/end_execute',          std_srvs.srv.Empty)
+		self.user_location_service =rospy.ServiceProxy('/roah_rsbb/tablet/map',           std_srvs.srv.Empty)
+		self.switch_2_on_service =  rospy.ServiceProxy('/roah_rsbb/devices/switch_2/on',  std_srvs.srv.Empty)
 		self.switch_2_off_service = rospy.ServiceProxy('/roah_rsbb/devices/switch_2/off', std_srvs.srv.Empty)
-		self.switch_1_on_service = rospy.ServiceProxy('/roah_rsbb/devices/switch_1/on', std_srvs.srv.Empty)
+		self.switch_1_on_service =  rospy.ServiceProxy('/roah_rsbb/devices/switch_1/on',  std_srvs.srv.Empty)
 		self.switch_1_off_service = rospy.ServiceProxy('/roah_rsbb/devices/switch_1/off', std_srvs.srv.Empty)
-		self.dimmer_set_service = rospy.ServiceProxy('/roah_rsbb/devices/dimmer/set',Percentage)
-		self.blinds_max_service = rospy.ServiceProxy('/roah_rsbb/devices/blinds/max', std_srvs.srv.Empty)
-		self.blinds_min_service = rospy.ServiceProxy('/roah_rsbb/devices/blinds/min', std_srvs.srv.Empty)
-		self.blinds_set_service = rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',Percentage)
+		self.dimmer_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/dimmer/set',   Percentage)
+		self.blinds_max_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/max',   std_srvs.srv.Empty)
+		self.blinds_min_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty)
+		self.blinds_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',   Percentage)
 		
 		self.user_location = None
 		
@@ -309,7 +307,7 @@ class Controller(object):
 		print("\n************ write code to send me home!!\n")
 		print("*****  I have gone HOME (Idiling Position)!\n")
 		self.say("OK,  I am returning to my Initial home position now")
-		self.move_to_location("home")
+		self.move_to_location("home",1) #TODO check number of retries
 
 		return
 
@@ -324,7 +322,7 @@ class Controller(object):
 		for LOC in location:
 			print("\n***** For object : "+object+" - Location is : "+LOC+"\n")
 			print("***** Go there now.")
-			self.move_to_location(LOC) #robot moves to corresponding position according to locations.json file in hearts_navigation
+			self.move_to_location(LOC,1) #TODO check number of retries #robot moves to corresponding position according to locations.json file in hearts_navigation
 
 			print("***** Recognise object")
 			self.say("I can see the "+object+" so now returning to granny annie")
@@ -411,10 +409,6 @@ class Controller(object):
 		print("Y     : "+str(self.user_location.y))
 		print("theta : "+str(self.user_location.theta))
 
-	def navigation_callback(self, msg):
-		self.nav_status = msg.data
-
-
 		##Navigation Functions
 	def move_to_pose2D(self, target_location_2D):
 		##publish granny annie's location
@@ -423,34 +417,6 @@ class Controller(object):
 		self.pose_2d_pub.publish(target_location_2D)
 
 		self.wait_to_arrive(5)		
-		
-	def move_to_location(self, target_location):
-		rospy.loginfo("Moving to a location")
-		
-		self.move_to_loc_pub.publish(target_location)
-
-		self.wait_to_arrive(5)
-
-		self.say("I have arrived at the "+target_location+" location")
-
-
-	def wait_to_arrive(self, count): #when this function is called, must specify no of counts before it breaks out of infinite loop
-		rospy.loginfo("Checking Navigation Status")
-		sub = rospy.Subscriber("/hearts/navigation/status", String, self.navigation_callback)
-		self.nav_status = "Active"
-
-		while self.nav_status == "Active":
-			rospy.sleep(1)
-
-		sub.unregister()
-		if self.nav_status == "Fail" and count > 0:
-			t = Twist()
-			t.angular.z = 1.0
-			self.pub_twist.publish(t)
-			rospy.sleep(1)
-			self.wait_to_arrive(count - 1)
-			return self.nav_status == "Success"
-
 
 		## Interactions
 	def say(self, text):
@@ -464,7 +430,7 @@ class Controller(object):
 	def main(self):
 		print ("\n***** MAIN Executing *****\n")
 		#go to home position
-		self.move_to_location("home")
+		self.move_to_location("home",1) #TODO check number of retries
 
 		#wait for call 		
 		self.say("Waiting to be called by granny annie.")
@@ -490,7 +456,7 @@ if __name__ == '__main__':
 	print("\n***")
 	for p in sys.path:
 		print(p)
-	rospy.init_node('annies_comfort', anonymous=True)
+	rospy.init_node('annies_comfort', anonymous=False)
 	rospy.loginfo("annies comfort controller has started")
 
 	controller = Controller()

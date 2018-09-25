@@ -8,9 +8,9 @@ import os
 
 import rospy
 import time
-from std_msgs.msg import Empty, String
+from std_msgs.msg      import Empty, String
 from geometry_msgs.msg import Pose2D, Twist, Pose
-#TODO UNCOMMENT: from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, TabletState
+from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, TabletState
 import std_srvs.srv
 from collections import Counter
 
@@ -136,7 +136,7 @@ class ControllerTBM2(GenericController):
         
         self.say("I am coming")
         
-        if self.move_to("entrance", 3) == False:
+        if self.move_to_location("entrance", 3) == False:
             self.say("I am unable to move to the front door")
             return
             
@@ -217,7 +217,7 @@ class ControllerTBM2(GenericController):
         #TODO say something before leaving?
 
         # 7. return to base
-        if self.move_to("home", 3) == False:
+        if self.move_to_location("home", 3) == False:
             return
 
     def process_face_deliman(self):
@@ -230,7 +230,7 @@ class ControllerTBM2(GenericController):
         self.say("Please follow me to the kitchen")
 
         # 6. move to kitchen
-        if self.move_to("home", 3) == False:
+        if self.move_to_location("home", 3) == False:
             return
 
         # 7. speak to the deliman, instruct to leave breakfast box on the table: "Please leave the breakfast box on the table"
@@ -244,7 +244,7 @@ class ControllerTBM2(GenericController):
         self.say("Thank you, please follow me back to the door")
 
         # 10. move to front door
-        if self.move_to("hallway", 3) == False:
+        if self.move_to_location("hallway", 3) == False:
             return
 
         # 11. bid deliman farewell
@@ -252,7 +252,7 @@ class ControllerTBM2(GenericController):
         #TODO close door/ask deliman to close door
 
         # 12. return to base
-        if self.move_to("home", 3) == False:
+        if self.move_to_location("home", 3) == False:
             return
 
     #def current_pose_callback(self, pose):
@@ -263,7 +263,7 @@ class ControllerTBM2(GenericController):
         self.say("Hello Doctor Kimble, please come in and shut the door behind you. I will guide you to Granny Annie") #TODO check what names are appropriate?
 
         # 4. move to bedroom
-        if self.move_to("outside bedroom", 3) == False:
+        if self.move_to_location("outside bedroom", 3) == False:
             return
 
         # 5. speak to doctor, advise robot will wait
@@ -276,7 +276,7 @@ class ControllerTBM2(GenericController):
         rospy.sleep(2)
         
         # 9. move to hallway 
-        if self.move_to("hallway", 3) == False: #TODO follow dr, don't just run them over!
+        if self.move_to_location("hallway", 3) == False: #TODO follow dr, don't just run them over!
             return
             
         # 10. bid farewell
@@ -285,18 +285,18 @@ class ControllerTBM2(GenericController):
         #TODO any way to detect door is closed?
 
         # 11. return to base
-        if self.move_to("home", 3) == False:
+        if self.move_to_location("home", 3) == False:
             return
 
     def process_face_unrecognized(self):
         # 1. speak to visitor, "Sorry, I don't know you. I cannot open the door."
         self.say("Sorry, I don't recognize you. I cannot let you in. Please close the door.") # TODO door will be opened first, so shut door now
         
-        if self.move_to("home", 3) == False:
+        if self.move_to_location("home", 3) == False:
             return
 
 if __name__ == '__main__':
-    #TODO UNCOMMENT: rospy.init_node("task_controller", anonymous=True)
-    #TODO UNCOMMENT: rospy.loginfo("initialized controller node")
+    rospy.init_node("task_controller", anonymous=True)
+    rospy.loginfo("initialized controller node")
     nowcontroller = ControllerTBM2()
     rospy.spin()
