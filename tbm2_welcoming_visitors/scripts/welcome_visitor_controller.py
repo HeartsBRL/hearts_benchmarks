@@ -16,7 +16,7 @@ from collections import Counter
 
 path = os.path.join(os.getenv('HOME'), 'workspaces/hearts_erl/src/hearts_benchmarks/') # NB, will break if this changes, this probably isnt the best way to implement this long term...
 sys.path.append(path)
-from testing import GenericController
+from generic_controller import GenericController
 
 # activation: doorbell press detected
 # notification:
