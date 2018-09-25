@@ -18,11 +18,18 @@ from   geometry_msgs.msg      import Pose2D, Pose, Twist, PoseStamped
 from   roah_rsbb_comm_ros.msg import BenchmarkState
 from   roah_rsbb_comm_ros.srv import Percentage
 from random import *
+import sys
+import os
+path = os.path.join(os.getenv('HOME'), 'workspaces/hearts_erl/src/hearts_benchmarks/') # NB, will break if this changes, this probably isnt the best way to implement this long term...
+sys.path.append(path)
+from testing import GenericController
 
-
-class Controller(object):
+class ControllerTBM3(GenericController):
 	
 	def __init__(self):
+    	# init the generic stuff from GenericController
+        super(ControllerTBM3, self).__init__() 
+        
 		#Publishers  
 		self.pub_twist =   rospy.Publisher('/mobile_base_controller/cmd_vel', Twist,  queue_size=10)       
 		self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal',          Pose2D, queue_size=10)
@@ -459,6 +466,6 @@ if __name__ == '__main__':
 	rospy.init_node('annies_comfort', anonymous=False)
 	rospy.loginfo("annies comfort controller has started")
 
-	controller = Controller()
+	controller = ControllerTBM3()
 	#controller.main()
 	rospy.spin()
