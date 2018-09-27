@@ -17,10 +17,13 @@ class tc: # Termianl "text colour" control
 
 
 class Objective:
-    instances = 0
+    instances  = 0
+    founditems = {} # coords from Tiago of object and/or person found
+                    # data format  {name : [x,y,theta]}
 
     def __init__(self,sentence,com,brlcom,comtype):
         Objective.instances += 1
+
         self.instance   = Objective.instances
 
         self.sentence   = sentence
@@ -87,9 +90,8 @@ class Objective:
             count = count + 1
 
     def process_objective(self):
+    
         #ensure underscore removed from location type lists before data passed on to Tiago
-       
-
         if len(self.location) > 0:
              self.location[0]  = self.location[0].replace('_',' ')
         if len(self.fromLocation) > 0:
@@ -97,7 +99,7 @@ class Objective:
         if len(self.toLocation) > 0:
              self.toLocation[0]  = self.toLocation[0].replace('_',' ')
 
-        # define the "FROM" location if not assigned thru locModifier     
+        # define the "FROM" location if not assigned thru a locModifier     
         if len(self.toLocation) == 0 :
             self.fromLocation = self.location
 
@@ -119,7 +121,7 @@ class Objective:
         ## SEARCH for PERSON ## - when there is no "fromLocation"  for 'find/get a  person'  then use the ones 
         #                         given in the ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
-            #print("#######if###############")
+
             loc0,loc1,loc2 = get_obj_per_loc(self.person[0], ERL_data)
             self.fromLocation.append(loc0)   
             self.fromLocation.append(loc1)
@@ -177,7 +179,9 @@ class Objective:
 
         elif action_type ==  'm':   
             wordstring = self.command[0] 
-            wordstring = wordstring +' '+self.object[0]    
+            ##DAR
+            if  self.object:
+                wordstring = wordstring +' '+self.object[0]    
             if self.fromLocation:
                 if len(self.fromLocation) == 1 and not  'previous' in self.fromLocation[0]:
                     wordstring = wordstring +' from the ' +self.fromLocation[0]
@@ -273,9 +277,159 @@ class Objective:
  
         return
 
+    def execute(self):
+        print("***** EXECUTE for instance = "+str(self.instance))
+        if   self.comtype[0] == 's':
+            self.search()
+        elif self.comtype[0] == 'm':
+            self.get()
+        elif self.comtype[0] == 'a': 
+            self.accompany()  
+
+        return
+
+    ###### SEARCHING ######
+    def search(self):
+        Found = True #todo should be False for final program!!
+        for i in range(0,len(self.fromLocation)):
+
+            if len(self.object) >0:
+                #todo
+                obj = self.object[0]
+                print("in search: object loc= "+self.fromLocation[i])
+                print("in search: find object: "+ obj)
+                if found:
+                    print("in search: store coords of found location for object")
+                    coords = [1,2,3]
+                    self.storefoundloc(obj, coords)
+                    Found = True
+                    break
+
+            if len(self.person) >0:  
+                #todo
+                per =  self.person[0]
+                print("in search: person loc= "+self.fromLocation[i])
+                print("in search: find person: "+ per)
+                if Found:
+                    print("in search: store coords of found location for person")
+                    coords = [11,22,33]
+                    self.storefoundloc(per, coords)
+                    Found = True
+                    break
+
+        #todo store status   
+        if not Found:
+            print("in search: !!!!! FROM Location NOT FOUND !!!!!")             
+        print("in search: store status of task")           
+        print("in search: ALL DONE")
+
+        return        
+
+    def storefoundloc(self,object,coords):
+        print("in search: object for dict coords :" + object )
+        Objective.founditems[object] = [1,2,3]
+
+        return
+
+    ###### MANIPULATE 
+    def get(self):
+        #check that we have previously located the object
+        obj = self.object[0]
+
+        if Objective.founditems.has_key(obj):
+            coords = Objective.founditems[obj]
+            print("in get: coords for FROM location " + obj)
+            print(coords)
+        else:
+            # use FROM field 
+            frmLoc = self.fromLocation[0]
+            if frmLoc:
+                print("in get: use FROM location (not coords): " + frmLoc)
+            else:
+                print("in get: !!!!! no FROM location found !!!!!")
+                return # can not proceed
+        #todo
+        pickupOK = True
+        print("in get: Navigate to the FROM coords OR location name")
+        print("in get: pick up : "+self.object[0])
+
+        print("in get: TO location is : "+ self.toLocation[0])
+        toLoc = self.toLocation[0]
+
+        if toLoc == 'user':
+            #todo REMOVE hard coded coords
+            Objective.founditems["user"] = [101,201,301]
+            if Objective.founditems.has_key("user"):
+                coords = Objective.founditems["user"]
+                #todo!! must store GA's coords as sent in competition from tablet!!
+
+                print("in get: coords for TO location for " + toLoc + " - ie Granny Annie")
+                print(coords)
+        else:
+            print("in get: cannot find TO coords for: " + obj)
+
+
+        if pickupOK == True:
+            #todo 
+            print("in get: goto TO location")
+            print("in get: handover object:" + self.object[0])
+
+        else:
+            print("in get: goto TO without object:" + self.object[0])        
+
+        print("in get: request that object taken from Tiago")    
+
+        #todo store status
+        print("in get: store status of task")    
+        print("in get: ALL DONE")
+
+        return
+
+    ##### ACCOMPANY
+    def accompany(self):
+        #check that we have previously located the objectt
+        per = self.person[0]
+
+        if Objective.founditems.has_key(per):
+            coords = Objective.founditems[per]
+            print("in get: coords for " + per)
+            print(coords)
+        else:
+            print("in get: cannot find coords for: " + per + " so check FROM loc")
+        
+            # if location of person not previously known    
+            if self.fromLocation:
+                #todo
+                print("in accompany: FROM Location defined")
+                lenfrom = len(self.fromLocation)
+                if lenfrom == 1:
+                    print("in accompany: use FROM location asa single value")
+                else:              
+                #todo abort if FROM not available
+                    print("in accompany: FROM not available so abort task")
+               
+        if   self.brlcommand[0] == 'guide':
+            #todo
+            print("in accomapny: Say follow me to "+ self.person[0])
+
+            #todo         
+            print("in accompany: allow for user too far behind tiago??")
+
+
+        elif self.brlcommand[0] == 'follow':           
+            #todo
+            print("in accomapny: Say Ready to follow you" + self.person[0])
+
+            print("in accompany: listen for stop following command")
+
+        #todo store status
+        print("in accompany: store status of task")    
+        print("in accompany: ALL DONE")
+
+        return
 
 def process_task(task):
-    # process the task, removing punctuation, the word 'and', converting to
+    # punctuation, the word 'and', converting to
     # lower case and adding leading and trailing spaces
 
     taskP = task.translate(None, string.punctuation)
@@ -302,25 +456,36 @@ def objectify(taskP):
     objectives = []
     
     #iterate through task looking for any commands, store them and their indexes in relevant list
+    start = 0
+    ptr   = 0
     for word in taskP.split():
-        test = ' ' + word + ' '
+        #test = ' ' + word + ' '
+        test = word
 
-        for cmd  in commands:
+        for cmd  in commands:       
 
             if cmd[1] ==  word:
                 comstype.append(cmd[0])
                 brlcoms.append(cmd[2])
                 coms.append(word) 
+                print("taskP[start:]"+taskP[start:]+str(start))
 
-                index = taskP.find(test)
+                index = taskP[start:].find(test)
                 if index >-1:
-                    taskflags.append(index)
+                    taskflags.append(index+start-1)
+                    start = taskflags[ptr]
+                    ptr  += 1
+
 
     #use the indices of commands to split task into objectives
     objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0])
     objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1])
     objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2])
-
+    #DAR
+    print("taskflags[0]+1 :"+str(taskflags[0]+1))
+    print("taskflags[1]+1 :"+str(taskflags[1]+1))
+    print("taskflags[2]+1 :"+str(taskflags[2]+1))
+    print("len(taskP)     :"+str(len(taskP)))
     return [objective1,objective2,objective3]
 
 def resolveReferences(objectives):
@@ -526,7 +691,7 @@ def check_locations(locations, navjson_file):
 
     return (found,missed)
 #*********************************************************************************
-
+#todo put in launch file
 ERL_data_file   = '../data/TBM3_objects.csv'
 ERL_verb_file   = '../data/TBM3_verbs.csv'
 
@@ -547,9 +712,9 @@ locations       = parse_locations(ERL_data) # note 2 or more word locations retu
 navjson_file = 'locations.json'
 
 found,missed = check_locations(locations, navjson_file)
-#print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
-# for cmd in commands:
-#     print(cmd)
+print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+for cmd in commands:
+    print(cmd)
 # for per in people:
 #     print("Person  : "+per)
 # for obj in  objects:
@@ -579,10 +744,11 @@ if __name__ == '__main__':
 
     task6 = "Search for the tea pot, Get my glasses, and Bring me a pear from the coffee table."
 
-    task7 = "Search for john , Get my glasses, and Bring me a pear from the coffee table."
+    task7 = "Find for john , Get my glasses, and Bring me a pear from the coffee table."
+
+    task8 = "find the pear, get me the pear and find for my glasses"
 
     task = task4
-
     print('\n***** Orignal task words *****')
     print(task)
     print '\n***** Actions remapped to BRL versions/plus other remaps'
@@ -601,9 +767,9 @@ if __name__ == '__main__':
     resolveReferences(objectives)
 
     #print objectives for user to read
-    # objectives[0].printme()
-    # objectives[1].printme()
-    # objectives[2].printme()
+    objectives[0].printme()
+    objectives[1].printme()
+    objectives[2].printme()
 
     # map ERL verb to BRL equivalent
     #     this also deals with "take" which can be manipulating OR accompanying 
@@ -626,3 +792,6 @@ if __name__ == '__main__':
     print ("*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n')
 
     ### then pass data on to the actions(x3) driver!!
+    objectives[0].execute()
+    objectives[1].execute()
+    objectives[2].execute()
