@@ -3,6 +3,7 @@
 import numpy as np
 import string
 import re
+import json
 
 
 class tc: # Termianl "text colour" control
@@ -42,6 +43,38 @@ class Objective:
         self.brlcommand.append(brlcom)
         self.comtype.append(comtype)
         self.confirmationtext = ""
+
+        self.load_json_coords()
+
+    def load_json_coords(self): 
+
+        #todo put file name in launch file
+        filein = 'locations.json'
+        with open(filein) as fh:
+            data = json.load(fh)
+
+        # get top level keys - ie the location names
+        keylist = data.keys()
+        keylist.sort()
+
+        for key in keylist: 
+
+            x          = data[key]['x']
+            y          = data[key]['y']
+            theta      = data[key]['theta']
+            coordslist = [x,y,theta]
+            self.storefoundloc(key,coordslist)
+
+        #TODO remove temp "user"coords and get from GA's tablet
+        coordslist=[111,222,-99.9]
+        self.storefoundloc('user',coordslist)     
+        for item in self.founditems:
+            print(item)
+    # print ("####:"+key+"<")
+    # print (x)
+    # print (y)
+    # print (theta)
+
 
     def parse(self):
         #reads sentence and stores key words
@@ -295,8 +328,11 @@ class Objective:
 
             if len(self.object) >0:
                 #todo
-                obj = self.object[0]
-                print("in search: object loc= "+self.fromLocation[i])
+                obj    = self.object[0]
+                frmLoc = self.fromLocation[i]
+                coords = self.getfoundloc(frmLoc)
+                print("in search: FROM loc  = "+frmLoc)  
+                print(coords)              
                 print("in search: find object: "+ obj)
                 if found:
                     print("in search: store coords of found location for object")
@@ -327,27 +363,37 @@ class Objective:
 
     def storefoundloc(self,object,coords):
         print("in search: object for dict coords :" + object )
-        Objective.founditems[object] = [1,2,3]
+        Objective.founditems[object] = coords
 
         return
+    def getfoundloc(self, key):
+        print("in getdoundloc: key- "+key)
+        if Objective.founditems.has_key(key):
+            coords = Objective.founditems[key]
+        else:
+            coords = []
+
+        return coords
 
     ###### MANIPULATE 
     def get(self):
         #check that we have previously located the object
         obj = self.object[0]
-
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
-            print("in get: coords for FROM location " + obj)
+            print("in get: coords " + obj)
             print(coords)
         else:
             # use FROM field 
-            frmLoc = self.fromLocation[0]
             if frmLoc:
-                print("in get: use FROM location (not coords): " + frmLoc)
-            else:
-                print("in get: !!!!! no FROM location found !!!!!")
-                return # can not proceed
+                frmLoc = self.fromLocation[0]
+                if Objective.founditems.has_key(obj):
+                    coords = Objective.founditems[frmLoc]
+                    print("in get: use FROM location to find coords: " + frmLoc)
+                    print(coords)
+                else:
+                    print("in get: !!!!! no FROM location available !!!!!")
+                    return # can not proceed
         #todo
         pickupOK = True
         print("in get: Navigate to the FROM coords OR location name")
@@ -357,8 +403,7 @@ class Objective:
         toLoc = self.toLocation[0]
 
         if toLoc == 'user':
-            #todo REMOVE hard coded coords
-            Objective.founditems["user"] = [101,201,301]
+
             if Objective.founditems.has_key("user"):
                 coords = Objective.founditems["user"]
                 #todo!! must store GA's coords as sent in competition from tablet!!
@@ -395,7 +440,7 @@ class Objective:
             print("in get: coords for " + per)
             print(coords)
         else:
-            print("in get: cannot find coords for: " + per + " so check FROM loc")
+            print("in accompany: cannot find coords for: " + per + " so check FROM loc")
         
             # if location of person not previously known    
             if self.fromLocation:
@@ -403,7 +448,7 @@ class Objective:
                 print("in accompany: FROM Location defined")
                 lenfrom = len(self.fromLocation)
                 if lenfrom == 1:
-                    print("in accompany: use FROM location asa single value")
+                    print("in accompany: use FROM location as a single value")
                 else:              
                 #todo abort if FROM not available
                     print("in accompany: FROM not available so abort task")
@@ -427,6 +472,7 @@ class Objective:
         print("in accompany: ALL DONE")
 
         return
+##### end of objective class defn  #####
 
 def process_task(task):
     # punctuation, the word 'and', converting to
@@ -664,7 +710,7 @@ def process_objects(expr):
 
 def check_locations(locations, navjson_file):
 
-    import json
+
     # from pprint import pprint
 
     with open(navjson_file) as fh:
@@ -748,7 +794,7 @@ if __name__ == '__main__':
 
     task8 = "find the pear, get me the pear and find for my glasses"
 
-    task = task4
+    task = task2
     print('\n***** Orignal task words *****')
     print(task)
     print '\n***** Actions remapped to BRL versions/plus other remaps'
