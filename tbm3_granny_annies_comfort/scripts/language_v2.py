@@ -69,7 +69,7 @@ class Objective:
         coordslist=[111,222,-99.9]
         self.storefoundloc('user',coordslist)     
         for item in self.founditems:
-            print(item)
+            print("Item: "+item)
     # print ("####:"+key+"<")
     # print (x)
     # print (y)
@@ -323,7 +323,7 @@ class Objective:
 
     ###### SEARCHING ######
     def search(self):
-        Found = True #todo should be False for final program!!
+        found = True #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
 
             if len(self.object) >0:
@@ -336,9 +336,10 @@ class Objective:
                 print("in search: find object: "+ obj)
                 if found:
                     print("in search: store coords of found location for object")
-                    coords = [1,2,3]
+                    coords = [1,2,3] #todo used coords return from search code
+                    print(coords)
                     self.storefoundloc(obj, coords)
-                    Found = True
+                    found = True
                     break
 
             if len(self.person) >0:  
@@ -346,16 +347,18 @@ class Objective:
                 per =  self.person[0]
                 print("in search: person loc= "+self.fromLocation[i])
                 print("in search: find person: "+ per)
-                if Found:
+                if found:
                     print("in search: store coords of found location for person")
-                    coords = [11,22,33]
+                    coords = [11,22,33]  #todo used coords return from search code
                     self.storefoundloc(per, coords)
-                    Found = True
+                    print(coords)
+                    found = True
                     break
 
         #todo store status   
-        if not Found:
-            print("in search: !!!!! FROM Location NOT FOUND !!!!!")             
+        if not found:
+            print("in search: !!!!! FROM Location NOT FOUND !!!!!")   
+
         print("in search: store status of task")           
         print("in search: ALL DONE")
 
@@ -367,7 +370,6 @@ class Objective:
 
         return
     def getfoundloc(self, key):
-        print("in getdoundloc: key- "+key)
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
         else:
@@ -379,14 +381,15 @@ class Objective:
     def get(self):
         #check that we have previously located the object
         obj = self.object[0]
+        print("in get: obj= "+obj)
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
-            print("in get: coords " + obj)
+            print("in get: FROM location coords for: " + obj)
             print(coords)
         else:
             # use FROM field 
+            frmLoc = self.fromLocation[0]
             if frmLoc:
-                frmLoc = self.fromLocation[0]
                 if Objective.founditems.has_key(obj):
                     coords = Objective.founditems[frmLoc]
                     print("in get: use FROM location to find coords: " + frmLoc)
@@ -396,22 +399,19 @@ class Objective:
                     return # can not proceed
         #todo
         pickupOK = True
-        print("in get: Navigate to the FROM coords OR location name")
-        print("in get: pick up : "+self.object[0])
+        print("in get: Navigate to the FROM coords")
+        print("in get: pick up the: "+self.object[0])
 
         print("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
-
-        if toLoc == 'user':
-
-            if Objective.founditems.has_key("user"):
-                coords = Objective.founditems["user"]
-                #todo!! must store GA's coords as sent in competition from tablet!!
-
-                print("in get: coords for TO location for " + toLoc + " - ie Granny Annie")
-                print(coords)
+        print("in get: toLoc : "+toLoc)
+        if Objective.founditems.has_key(toLoc):
+            coords = Objective.founditems[toLoc]
+        
+            print("in get: coords for TO location for " + toLoc )
+            print(coords)
         else:
-            print("in get: cannot find TO coords for: " + obj)
+            print("in get: cannot find TO coords for: " + toLoc)
 
 
         if pickupOK == True:
@@ -437,7 +437,7 @@ class Objective:
 
         if Objective.founditems.has_key(per):
             coords = Objective.founditems[per]
-            print("in get: coords for " + per)
+            print("in get: coords for person " + per)
             print(coords)
         else:
             print("in accompany: cannot find coords for: " + per + " so check FROM loc")
@@ -455,7 +455,14 @@ class Objective:
                
         if   self.brlcommand[0] == 'guide':
             #todo
-            print("in accomapny: Say follow me to "+ self.person[0])
+            toLoc = self.toLocation[0]
+
+            if Objective.founditems.has_key(toLoc):
+                 coords = Objective.founditems[toLoc]
+                 print("n accompan: TO location is " + toLoc)
+                 print(coords)
+
+                 print("in accompany: Say follow me to "+ self.person[0])
 
             #todo         
             print("in accompany: allow for user too far behind tiago??")
@@ -528,10 +535,10 @@ def objectify(taskP):
     objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1])
     objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2])
     #DAR
-    print("taskflags[0]+1 :"+str(taskflags[0]+1))
-    print("taskflags[1]+1 :"+str(taskflags[1]+1))
-    print("taskflags[2]+1 :"+str(taskflags[2]+1))
-    print("len(taskP)     :"+str(len(taskP)))
+    # print("taskflags[0]+1 :"+str(taskflags[0]+1))
+    # print("taskflags[1]+1 :"+str(taskflags[1]+1))
+    # print("taskflags[2]+1 :"+str(taskflags[2]+1))
+    # print("len(taskP)     :"+str(len(taskP)))
     return [objective1,objective2,objective3]
 
 def resolveReferences(objectives):
@@ -794,7 +801,7 @@ if __name__ == '__main__':
 
     task8 = "find the pear, get me the pear and find for my glasses"
 
-    task = task2
+    task = task1
     print('\n***** Orignal task words *****')
     print(task)
     print '\n***** Actions remapped to BRL versions/plus other remaps'
