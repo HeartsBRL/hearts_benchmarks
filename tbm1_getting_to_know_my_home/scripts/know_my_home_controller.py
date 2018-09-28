@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+# Filename: know_my_home_controller.py
+# Created: 
+# Author : Joe Daly, Chris Birmingham
+# Purpose: Controls Tiago behaviour in TBM1
+################################################################################
+# Updates:
+#
+# August 2018 - Updated for 2018 season, changes required for 
+#         
+################################################################################
 '''
 Rooms:
     kitchen, bedroom, living room, dining room, hall

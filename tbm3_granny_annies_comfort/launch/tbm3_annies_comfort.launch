@@ -3,36 +3,37 @@
    <arg name="SR_speechrec_engine" value="google" />
    <arg name="SR_ENERGY_THRESHOLD" value="600" />
    <arg name="listen" value="" />
-  </include>   
-  
-  <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
- 
-  <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort" type="tbm3_granny_annies_comfort_controller.py" output="screen" />
+  </include>
 
-  
-  <!-- comment out the "servicer" node when actual benchmark box is being used and un-comment the 
+  <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
+
+  <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort" type="tbm3_granny_annies_comfort_controller.py" output="screen" />
+  <node name="tiago_tts" pkg="hearts_tts" type="tiago_tts.py" />
+  <node name="frame_controller" pkg="hearts_navigation" type="frames.py" />
+
+  <!-- comment out the "servicer" node when actual benchmark box is being used and un-comment the
       node: roah_rsbb_comm_ros
   -->
-  
- 
+
+
   <!-- <node name="servicer" pkg="tbm3_granny_annies_comfort" type="service.py" output="screen" /> -->
 
 
-  
- 
+
+
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
 
     <param name="robot_name" type="string" value="Tiago" />
     <!-- <param name="team_name" type="string" value="TestingTeam" />  -->
     <!-- <param name="rsbb_key" type="string" value="PASSWORD" />      -->
     <param name="team_name" type="string" value="Hearts" />
-    <param name="rsbb_key" type="string" value="FJ6LazOM" /> 
+    <param name="rsbb_key" type="string" value="FJ6LazOM" />
     <param name="rsbb_host" type="string" value="10.2.0.101" />
     <param name="rsbb_port" type="int" value="6666"/>
-  </node>  
-   
+  </node>
+
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
-    <arg name="map_name" value="map_final" />
+    <arg name="map_name" value="brl_arena" />
   </include>
   <param name="locations_json" type="string" value="$(find hearts_navigation)/data/locations.json" />
 </launch>

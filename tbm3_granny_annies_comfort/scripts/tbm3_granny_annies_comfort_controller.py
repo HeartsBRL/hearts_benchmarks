@@ -390,17 +390,16 @@ class Controller():
 		print("msg.theta from GA tablet: "+str(msg.theta))
 
 
-
 		for idx in range (0,2):
-			if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
-				msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :
+			'''if   msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
+				msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]  '''  
 
-				# assign the coords in our system
-				msg.x = self.ulocx[idx]
-				msg.y = self.ulocy[idx]
-				msg.theta = self.uloct[idx]
-				self.user_location = msg
-				found = True
+			# assign the coords in our system#
+			msg.x = self.ulocx[idx]
+			msg.y = self.ulocy[idx]
+			msg.theta = self.uloct[idx]
+			self.user_location = msg
+			found = True
 
 		if not found :
 			print("Re-mapping for Grany Annie location failed!")
@@ -410,6 +409,7 @@ class Controller():
 		print("X     : "+str(self.user_location.x))
 		print("Y     : "+str(self.user_location.y))
 		print("theta : "+str(self.user_location.theta))
+
 
 	def navigation_callback(self, msg):
 		self.nav_status = msg.data
@@ -476,7 +476,7 @@ class Controller():
 
 		#navigate to the user's location
 		self.say("hello granny annie, I am on my way to you.")
-		#self.move_to_pose2D(self.user_location)
+		self.move_to_pose2D(self.user_location)
 		self.say("How can I help you today? Please give me a command")
 		
 		self.listen4cmd('on')
