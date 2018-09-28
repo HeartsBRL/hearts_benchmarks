@@ -3,6 +3,7 @@
 import numpy as np
 import string
 import re
+import json
 
 
 class tc: # Termianl "text colour" control
@@ -42,6 +43,31 @@ class Objective:
         self.brlcommand.append(brlcom)
         self.comtype.append(comtype)
         self.confirmationtext = ""
+
+        self.load_json_coords()
+
+    def load_json_coords(self): 
+
+        #todo put file name in launch file
+        filein = 'locations.json'
+        with open(filein) as fh:
+            data = json.load(fh)
+
+        # get top level keys - ie the location names
+        keylist = data.keys()
+        keylist.sort()
+
+        for key in keylist: 
+            x          = data[key]['x']
+            y          = data[key]['y']
+            theta      = data[key]['theta']
+            coordslist = [x,y,theta]
+
+            self.storefoundloc(key,coordslist)
+
+        #TODO remove temp "user"coords and get from GA's tablet
+        coordslist=[111,222,-99.9]
+        self.storefoundloc('user',coordslist)    
 
     def parse(self):
         #reads sentence and stores key words
@@ -128,7 +154,9 @@ class Objective:
             self.fromLocation.append(loc2)
 
         ## MANIPULATE and ACCOMMPANY ## - when there is no fromLocation defined it probably comes from  the
-        #                                 previuos task. 
+        #  previous task. 
+        #todo     NB the next 2 IF's related to efore I caged the system t loo up all coords in foundtems
+        #          so now shoud just throw up errors as the TO & FROM being  tested should be defined.                         
         if (brl_com == 'get' or brl_com == 'guide' or brl_com == 'follow') and  len(self.fromLocation) == 0:
             self.fromLocation.append('previous task') 
 
@@ -290,19 +318,23 @@ class Objective:
 
     ###### SEARCHING ######
     def search(self):
-        Found = True #todo should be False for final program!!
+        found = True #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
 
             if len(self.object) >0:
                 #todo
-                obj = self.object[0]
-                print("in search: object loc= "+self.fromLocation[i])
+                obj    = self.object[0]
+                frmLoc = self.fromLocation[i]
+                coords = self.getfoundloc(frmLoc)
+                print("in search: FROM loc  = "+frmLoc)  
+                print(coords)              
                 print("in search: find object: "+ obj)
                 if found:
                     print("in search: store coords of found location for object")
-                    coords = [1,2,3]
+                    coords = [1,2,3] #todo used coords return from search code
+                    print(coords)
                     self.storefoundloc(obj, coords)
-                    Found = True
+                    found = True
                     break
 
             if len(self.person) >0:  
@@ -310,63 +342,71 @@ class Objective:
                 per =  self.person[0]
                 print("in search: person loc= "+self.fromLocation[i])
                 print("in search: find person: "+ per)
-                if Found:
+                if found:
                     print("in search: store coords of found location for person")
-                    coords = [11,22,33]
+                    coords = [11,22,33]  #todo used coords return from search code
                     self.storefoundloc(per, coords)
-                    Found = True
+                    print(coords)
+                    found = True
                     break
 
         #todo store status   
-        if not Found:
-            print("in search: !!!!! FROM Location NOT FOUND !!!!!")             
+        if not found:
+            print("in search: !!!!! FROM Location NOT FOUND !!!!!")   
+
         print("in search: store status of task")           
         print("in search: ALL DONE")
 
         return        
 
     def storefoundloc(self,object,coords):
-        print("in search: object for dict coords :" + object )
-        Objective.founditems[object] = [1,2,3]
+        #print("in search: object for dict coords :" + object )
+        Objective.founditems[object] = coords
 
         return
+    def getfoundloc(self, key):
+        if Objective.founditems.has_key(key):
+            coords = Objective.founditems[key]
+        else:
+            coords = []
+
+        return coords
 
     ###### MANIPULATE 
     def get(self):
         #check that we have previously located the object
         obj = self.object[0]
-
+        print("in get: obj= "+obj)
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
-            print("in get: coords for FROM location " + obj)
+            print("in get: FROM location coords for: " + obj)
             print(coords)
         else:
             # use FROM field 
             frmLoc = self.fromLocation[0]
             if frmLoc:
-                print("in get: use FROM location (not coords): " + frmLoc)
-            else:
-                print("in get: !!!!! no FROM location found !!!!!")
-                return # can not proceed
+                if Objective.founditems.has_key(obj):
+                    coords = Objective.founditems[frmLoc]
+                    print("in get: use FROM location to find coords: " + frmLoc)
+                    print(coords)
+                else:
+                    print("in get: !!!!! no FROM location available !!!!!")
+                    return # can not proceed
         #todo
         pickupOK = True
-        print("in get: Navigate to the FROM coords OR location name")
-        print("in get: pick up : "+self.object[0])
+        print("in get: Navigate to the FROM coords")
+        print("in get: pick up the: "+self.object[0])
 
         print("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
-
-        if toLoc == 'user':
-            #todo REMOVE hard coded coords
-            Objective.founditems["user"] = [101,201,301]
-            if Objective.founditems.has_key("user"):
-                coords = Objective.founditems["user"]
-                #todo!! must store GA's coords as sent in competition from tablet!!
-
-                print("in get: coords for TO location for " + toLoc + " - ie Granny Annie")
-                print(coords)
+        print("in get: toLoc : "+toLoc)
+        if Objective.founditems.has_key(toLoc):
+            coords = Objective.founditems[toLoc]
+        
+            print("in get: coords for TO location for " + toLoc )
+            print(coords)
         else:
-            print("in get: cannot find TO coords for: " + obj)
+            print("in get: cannot find TO coords for: " + toLoc)
 
 
         if pickupOK == True:
@@ -392,10 +432,10 @@ class Objective:
 
         if Objective.founditems.has_key(per):
             coords = Objective.founditems[per]
-            print("in get: coords for " + per)
+            print("in get: coords for person " + per)
             print(coords)
         else:
-            print("in get: cannot find coords for: " + per + " so check FROM loc")
+            print("in accompany: cannot find coords for: " + per + " so check FROM loc")
         
             # if location of person not previously known    
             if self.fromLocation:
@@ -403,14 +443,21 @@ class Objective:
                 print("in accompany: FROM Location defined")
                 lenfrom = len(self.fromLocation)
                 if lenfrom == 1:
-                    print("in accompany: use FROM location asa single value")
+                    print("in accompany: use FROM location as a single value")
                 else:              
                 #todo abort if FROM not available
                     print("in accompany: FROM not available so abort task")
                
         if   self.brlcommand[0] == 'guide':
             #todo
-            print("in accomapny: Say follow me to "+ self.person[0])
+            toLoc = self.toLocation[0]
+
+            if Objective.founditems.has_key(toLoc):
+                 coords = Objective.founditems[toLoc]
+                 print("in accompany: TO location is " + toLoc)
+                 print(coords)
+
+                 print("in accompany: Say follow me to "+ self.person[0])
 
             #todo         
             print("in accompany: allow for user too far behind tiago??")
@@ -427,6 +474,7 @@ class Objective:
         print("in accompany: ALL DONE")
 
         return
+##### end of objective class defn  #####
 
 def process_task(task):
     # punctuation, the word 'and', converting to
@@ -468,7 +516,7 @@ def objectify(taskP):
                 comstype.append(cmd[0])
                 brlcoms.append(cmd[2])
                 coms.append(word) 
-                print("taskP[start:]"+taskP[start:]+str(start))
+                #print("taskP[start:]"+taskP[start:]+str(start))
 
                 index = taskP[start:].find(test)
                 if index >-1:
@@ -482,10 +530,10 @@ def objectify(taskP):
     objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1])
     objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2])
     #DAR
-    print("taskflags[0]+1 :"+str(taskflags[0]+1))
-    print("taskflags[1]+1 :"+str(taskflags[1]+1))
-    print("taskflags[2]+1 :"+str(taskflags[2]+1))
-    print("len(taskP)     :"+str(len(taskP)))
+    # print("taskflags[0]+1 :"+str(taskflags[0]+1))
+    # print("taskflags[1]+1 :"+str(taskflags[1]+1))
+    # print("taskflags[2]+1 :"+str(taskflags[2]+1))
+    # print("len(taskP)     :"+str(len(taskP)))
     return [objective1,objective2,objective3]
 
 def resolveReferences(objectives):
@@ -664,7 +712,7 @@ def process_objects(expr):
 
 def check_locations(locations, navjson_file):
 
-    import json
+
     # from pprint import pprint
 
     with open(navjson_file) as fh:
@@ -713,8 +761,8 @@ navjson_file = 'locations.json'
 
 found,missed = check_locations(locations, navjson_file)
 print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
-for cmd in commands:
-    print(cmd)
+# for cmd in commands:
+#     print(cmd)
 # for per in people:
 #     print("Person  : "+per)
 # for obj in  objects:
@@ -748,7 +796,7 @@ if __name__ == '__main__':
 
     task8 = "find the pear, get me the pear and find for my glasses"
 
-    task = task4
+    task = task1
     print('\n***** Orignal task words *****')
     print(task)
     print '\n***** Actions remapped to BRL versions/plus other remaps'
@@ -767,9 +815,9 @@ if __name__ == '__main__':
     resolveReferences(objectives)
 
     #print objectives for user to read
-    objectives[0].printme()
-    objectives[1].printme()
-    objectives[2].printme()
+    # objectives[0].printme()
+    # objectives[1].printme()
+    # objectives[2].printme()
 
     # map ERL verb to BRL equivalent
     #     this also deals with "take" which can be manipulating OR accompanying 

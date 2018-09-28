@@ -7,7 +7,8 @@
 #
 ##############################################################################################
 # Updates : 
-#
+#	29 Sep 2018 Derek - removed comment on   "self.move_to_location("home")" in main (used for testing)
+#				    comment out remapping of GA's coordinates used in Edinburgh						
 #
 ##############################################################################################
 import rospy
@@ -401,14 +402,14 @@ class Controller():
 			self.user_location = msg
 			found = True
 
-		if not found :
-			print("Re-mapping for Grany Annie location failed!")
-			print("\n***** STOPPING PROGRAM *****\n")
-			quit()
-		print("remapped granny location")		
-		print("X     : "+str(self.user_location.x))
-		print("Y     : "+str(self.user_location.y))
-		print("theta : "+str(self.user_location.theta))
+		# if not found :
+		# 	print("Re-mapping for Grany Annie location failed!")
+		# 	print("\n***** STOPPING PROGRAM *****\n")
+		# 	quit()
+		# print("remapped granny location")		
+		# print("X     : "+str(self.user_location.x))
+		# print("Y     : "+str(self.user_location.y))
+		# print("theta : "+str(self.user_location.theta))
 
 
 	def navigation_callback(self, msg):
@@ -464,7 +465,7 @@ class Controller():
 	def main(self):
 		print ("\n***** MAIN Executing *****\n")
 		#go to home position
-		#self.move_to_location("home")
+		self.move_to_location("home")
 
 		#wait for call 		
 		self.say("Waiting to be called by granny annie.")
