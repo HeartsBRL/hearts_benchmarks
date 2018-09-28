@@ -58,23 +58,16 @@ class Objective:
         keylist.sort()
 
         for key in keylist: 
-
             x          = data[key]['x']
             y          = data[key]['y']
             theta      = data[key]['theta']
             coordslist = [x,y,theta]
+
             self.storefoundloc(key,coordslist)
 
         #TODO remove temp "user"coords and get from GA's tablet
         coordslist=[111,222,-99.9]
-        self.storefoundloc('user',coordslist)     
-        for item in self.founditems:
-            print("Item: "+item)
-    # print ("####:"+key+"<")
-    # print (x)
-    # print (y)
-    # print (theta)
-
+        self.storefoundloc('user',coordslist)    
 
     def parse(self):
         #reads sentence and stores key words
@@ -161,7 +154,9 @@ class Objective:
             self.fromLocation.append(loc2)
 
         ## MANIPULATE and ACCOMMPANY ## - when there is no fromLocation defined it probably comes from  the
-        #                                 previuos task. 
+        #  previous task. 
+        #todo     NB the next 2 IF's related to efore I caged the system t loo up all coords in foundtems
+        #          so now shoud just throw up errors as the TO & FROM being  tested should be defined.                         
         if (brl_com == 'get' or brl_com == 'guide' or brl_com == 'follow') and  len(self.fromLocation) == 0:
             self.fromLocation.append('previous task') 
 
@@ -365,7 +360,7 @@ class Objective:
         return        
 
     def storefoundloc(self,object,coords):
-        print("in search: object for dict coords :" + object )
+        #print("in search: object for dict coords :" + object )
         Objective.founditems[object] = coords
 
         return
@@ -459,7 +454,7 @@ class Objective:
 
             if Objective.founditems.has_key(toLoc):
                  coords = Objective.founditems[toLoc]
-                 print("n accompan: TO location is " + toLoc)
+                 print("in accompany: TO location is " + toLoc)
                  print(coords)
 
                  print("in accompany: Say follow me to "+ self.person[0])
@@ -521,7 +516,7 @@ def objectify(taskP):
                 comstype.append(cmd[0])
                 brlcoms.append(cmd[2])
                 coms.append(word) 
-                print("taskP[start:]"+taskP[start:]+str(start))
+                #print("taskP[start:]"+taskP[start:]+str(start))
 
                 index = taskP[start:].find(test)
                 if index >-1:
@@ -766,8 +761,8 @@ navjson_file = 'locations.json'
 
 found,missed = check_locations(locations, navjson_file)
 print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
-for cmd in commands:
-    print(cmd)
+# for cmd in commands:
+#     print(cmd)
 # for per in people:
 #     print("Person  : "+per)
 # for obj in  objects:
@@ -820,9 +815,9 @@ if __name__ == '__main__':
     resolveReferences(objectives)
 
     #print objectives for user to read
-    objectives[0].printme()
-    objectives[1].printme()
-    objectives[2].printme()
+    # objectives[0].printme()
+    # objectives[1].printme()
+    # objectives[2].printme()
 
     # map ERL verb to BRL equivalent
     #     this also deals with "take" which can be manipulating OR accompanying 
