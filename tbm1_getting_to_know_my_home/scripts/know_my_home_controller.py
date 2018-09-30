@@ -41,9 +41,8 @@ from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState
 import std_srvs.srv
 
 from navigation_camera_mgr_example import NavigationCameraMgr
-path = os.path.join(os.getenv('HOME'), 'workspaces/hearts_erl/src/hearts_benchmarks/') # NB, will break if this changes, this probably isnt the best way to implement this long term...
-sys.path.append(path)
-from generic_controller import GenericController
+
+from python_support_library.generic_controller import GenericController
 
 class ControllerTBM1(GenericController):
 
