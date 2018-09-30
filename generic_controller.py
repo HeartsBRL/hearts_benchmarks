@@ -9,7 +9,7 @@ from collections import Counter
 class GenericController(object):
     def __init__(self):
         # init subscribers
-        rospy.Subscriber("/hearts/navigation/status", String, self.location_result_callback)#tbm2
+        rospy.Subscriber("/hearts/navigation/status", String, self.navigation_callback)#tbm2
     
         # init publishers 
         self.tts_pub =           rospy.Publisher("/hearts/tts", String, queue_size=10) #tbm2
@@ -27,7 +27,7 @@ class GenericController(object):
     ###########################################################################
     
     ################## NAVIGATION FUNCTIONS ###################################
-    	
+        
     def move_to_location(self, target_location, num_retries):
         ''' 
         Publish location to move to to /hearts/navigation/goal/location and wait
@@ -36,12 +36,12 @@ class GenericController(object):
         If move not succesful, retry given number of times, changing orientation
         by 1 radian on each retry.
         '''
-		rospy.loginfo("moving to \"" + target_location + "\" (" + str(count) + ")")
+        rospy.loginfo("moving to \"" + target_location + "\" (" + str(count) + ")")
         msg = String()
         msg.data = location
         self.pub_location_goal.publish(msg)
 
-		arrive_success = self.wait_to_arrive(num_retries)
+        arrive_success = self.wait_to_arrive(num_retries)
         
         if arrive_success == False:
             rospy.loginfo("ERROR movement to \"" + target_location + "\" has failed")
@@ -49,30 +49,30 @@ class GenericController(object):
             #TODO should an actual error be thrown here?
             return False
         else:
-		    self.say("I have arrived at the "+target_location+" location")
-		    return True
-		
+            self.say("I have arrived at the "+target_location+" location")
+            return True
+        
     def wait_to_arrive(self, num_retries):
-		rospy.loginfo("Checking Navigation Status")
-		sub = rospy.Subscriber("/hearts/navigation/status", String, self.navigation_callback)
-		self.nav_status = "Active"
+        rospy.loginfo("Checking Navigation Status")
+        sub = rospy.Subscriber("/hearts/navigation/status", String, self.navigation_callback)
+        self.nav_status = "Active"
 
-		while self.nav_status == "Active":
-			rospy.sleep(1)
+        while self.nav_status == "Active":
+            rospy.sleep(1)
 
-		sub.unregister()
-		if self.nav_status == "Fail" and num_retries > 0:
-			t = Twist()
-			t.angular.z = 1.0
-			self.pub_twist.publish(t)
-			rospy.sleep(1)
-			self.wait_to_arrive(num_retries - 1) # recurse
-			
-		return self.nav_status == "Success"
-			
+        sub.unregister()
+        if self.nav_status == "Fail" and num_retries > 0:
+            t = Twist()
+            t.angular.z = 1.0
+            self.pub_twist.publish(t)
+            rospy.sleep(1)
+            self.wait_to_arrive(num_retries - 1) # recurse
+            
+        return self.nav_status == "Success"
+            
     def navigation_callback(self, msg):
-		self.nav_status = msg.data
-		
+        self.nav_status = msg.data
+        
     ###########################################################################
     
     def move_to_pose(self, pose_name):
