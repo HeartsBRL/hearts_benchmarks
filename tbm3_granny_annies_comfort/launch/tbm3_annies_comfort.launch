@@ -28,7 +28,7 @@
     <!-- <param name="rsbb_key" type="string" value="PASSWORD" />      -->
     <param name="team_name" type="string" value="Hearts" />
     <param name="rsbb_key" type="string" value="FJ6LazOM" />
-    <param name="rsbb_host" type="string" value="10.2.0.101" />
+    <param name="rsbb_host" type="string" value="192.168.1.43" />
     <param name="rsbb_port" type="int" value="6666"/>
   </node>
 
