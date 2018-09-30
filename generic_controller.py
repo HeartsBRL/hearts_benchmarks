@@ -15,6 +15,8 @@ class GenericController(object):
         self.tts_pub =           rospy.Publisher("/hearts/tts", String, queue_size=10) #tbm2
         self.pub_location_goal = rospy.Publisher('/hearts/navigation/goal/location', 
                                                                 String, queue_size=10) #tbm2
+        self.pub_motion =        rospy.Publisher("motion_name", String, queue_size=10)
+        
     ######################## FROM TBM2 ########################################        
     def say(self, text):
         ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
@@ -72,3 +74,13 @@ class GenericController(object):
 		self.nav_status = msg.data
 		
     ###########################################################################
+    
+    def move_to_pose(self, pose_name):
+        rospy.loginfo("moving to pose " + pose_name )
+        msg = String()
+        msg.data = pose_name
+        self.pub_motion.publish(msg)
+        
+        #TODO some sort of making sure you actually get there before moving on
+    
+        

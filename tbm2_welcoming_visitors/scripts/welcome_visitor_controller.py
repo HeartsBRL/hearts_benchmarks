@@ -87,6 +87,7 @@ class ControllerTBM2(GenericController):
             rospy.loginfo("visitor = " + likliest_visitor)
         
         return likliest_visitor
+        #TODO deliman and plumber will not have known faces, but must be identified in other ways, not just turned away
         
     def face_callback(self, msg):
         rospy.loginfo("face_callback: " + msg.data)
@@ -184,19 +185,25 @@ class ControllerTBM2(GenericController):
         # 3.b speak to the postman
         self.say("Hello postman, I will receive the post mail, please stand back while I move my arm") 
         
-        #TODO move to receive pose
+        #TODO check postman has stood back/area is clear for movement
+        
+        # move to receive pose
+        self.move_to_pose("give_receive")
+        self.move_to_pose("open_gripper")
         
         self.say("Please place the parcel in my hand and I will close it when you say ready") #TODO maybe a better set of words to use?
         #TODO wait for response
         #TODO loop until "ready" said? or timeout to repeat command?
-        #TODO close gripper
+        
+        # close gripper
+        self.move_to_pose("close_gripper")
         #TODO some sort of check to make sure object is in gripper
         
         
         self.say("Thank you for the parcel, I will give it to Granny Annie now")
         
-        # TODO move arm closer to make navigation easier
-        
+        # move arm closer to make navigation easier
+        self.move_to_pose("hold_close")
         
         # 6. bid postman farewell
         self.say("Thank you for visiting. Goodbye!")
@@ -207,12 +214,18 @@ class ControllerTBM2(GenericController):
         #TODO navigate to granny annie, keep far enough away so as to not hit granny annie when offering parcel
         
         self.say("Hello granny annie, the postman has bought you a parcel, I will pass it to you now")
-        #TODO move arm to offer parcel
+        
+        # move arm to offer parcel
+        self.move_to_pose("give_receive")
+
+        
         self.say("Have you got hold of it?")
         #TODO wait for response
         #TODO release if yes
+        self.move_to_pose("open_gripper")
         
-        #TODO move arm close in again so easier to move back to base
+        # move arm close in again so easier to move back to base
+        self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
 
         #TODO say something before leaving?
 
@@ -222,15 +235,13 @@ class ControllerTBM2(GenericController):
 
     def process_face_deliman(self):
         self.say("Hello deliman")
-        
-        # 3. speak to the deliman, request him to open the door: "I am here, please open the door"
         self.say("I will receive the breakfast")
 
         # 5. speak to the deliman, instruct to follow robot: "Please follow me"
         self.say("Please follow me to the kitchen")
 
         # 6. move to kitchen
-        if self.move_to_location("home", 3) == False:
+        if self.move_to_location("kitchen", 3) == False:
             return
 
         # 7. speak to the deliman, instruct to leave breakfast box on the table: "Please leave the breakfast box on the table"
@@ -250,7 +261,9 @@ class ControllerTBM2(GenericController):
         # 11. bid deliman farewell
         self.say("Thank you for visiting. Goodbye!")
         #TODO close door/ask deliman to close door
-
+        
+        rospy.sleep(5)
+        
         # 12. return to base
         if self.move_to_location("home", 3) == False:
             return
@@ -274,6 +287,7 @@ class ControllerTBM2(GenericController):
         self.wait_for_scan_changed() # waits to detect face again
         self.say("Now you are done. I will follow you to the door. Please lead the way.")
         rospy.sleep(2)
+        #TODO confirm they are actually done?
         
         # 9. move to hallway 
         if self.move_to_location("hallway", 3) == False: #TODO follow dr, don't just run them over!
@@ -283,7 +297,7 @@ class ControllerTBM2(GenericController):
         self.say("Thank you for visiting. Please close the door behind you. Goodbye!")
 
         #TODO any way to detect door is closed?
-
+        rospy.sleep(2)
         # 11. return to base
         if self.move_to_location("home", 3) == False:
             return
