@@ -3,7 +3,7 @@
   <include file="$(find hearts_stt)/launch/hearts_stt.launch"/>
   <include file="$(find hearts_tts)/launch/hearts_tts.launch"/>
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
-    <arg name="map_name" value="map_final" />
+    <arg name="map_name" value="brl_arena" />
   </include>
   <param name="locations_json" type="string" value="$(find hearts_navigation)/data/locations.json" />
   <param name="output_path" value="$(find tbm1_getting_to_know_my_home)/output/" />

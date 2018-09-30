@@ -65,7 +65,9 @@ class Controller():
         self.objects = ['banana','apple','lemon','orange','macaroni','weetabix','juice',
         'water','pringles','paracetamol','soda','pasta','soup','toothpaste','salt','gum']
 
-        self.furniture = ['Trash_bin','Plant','Closet','Bed','Side_table_1','Bookshelf ','Coffee_table ','Sofa','Arm_Chair_1','Arm_Chair_2','TV_Table','Bathroom_drawer','Dining_chair','Kitchen_chair']
+        self.furniture = ['Trash_bin','Plant','Closet','Bed','Side_table_1','Bookshelf ',
+                          'Coffee_table ','Sofa','Arm_Chair_1','Arm_Chair_2','TV_Table',
+                          'Bathroom_drawer','Dining_chair','Kitchen_chair']
         self.rooms = ['Kitchen', 'Bedroom', 'Living_room', 'Dining_room', 'Hall']
         self.doors = ['Door_entrance','Door_bathroom','Door_bedroom_2','Door_bedroom_1']
         self.search= ['Kitchen_counter', 'Kitchen_table','Dining_table','Side_table_2']
@@ -146,7 +148,7 @@ class Controller():
     #SEE the [couch, bed, chair, lamp (furniture)] in the [room]
     #SEE the [coke, biscuits (object)] in the [room] on the [furniture]
 
-    def handle_picture_taking(self,subject):
+    '''def handle_picture_taking(self,subject):
         thingy = MoveBaseActionFeedback()
         thingy.feedback.base_position.pose.position.x = 2.0
         thingy.feedback.base_position.pose.position.y = 2.0
@@ -234,7 +236,7 @@ class Controller():
         for line in to_write:
             f.write(line+'\n')
             rospy.loginfo(line)
-        f.close()
+        f.close()'''
 
 
     def linewriter(self, descriptor, options_list):

@@ -12,7 +12,7 @@
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
     <param name="team_name" type="string" value="Hearts" />
     <param name="robot_name" type="string" value="Tiago" />
-    <param name="rsbb_key" type="string" value="FJnz6hJX" />
-    <param name="rsbb_host" type="string" value="192.168.0.57" />
+    <param name="rsbb_key" type="string" value="FJK6LazOM" />
+    <param name="rsbb_host" type="string" value="192.168.1.43" />
   </node>
 </launch>
