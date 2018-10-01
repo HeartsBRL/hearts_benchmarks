@@ -52,7 +52,7 @@ class ControllerTBM2(GenericController):
         self.has_scan_changed = False
         rospy.Subscriber("/scan_change", String, self.scan_changed_callback)
         
-        while not self.has_scan_changed: #TODO add timer to request person to move to better viewing position if difficulty detecting? Might affect dr kimble code...
+        while not self.has_scan_changed: 
             rospy.sleep(1)
            
         # TODO: kill subscriber 
@@ -136,18 +136,18 @@ class ControllerTBM2(GenericController):
             self.say("I am unable to move to the front door")
             return
             
-        # TODO open door
+        #todo open door
         self.say("please open the door")
         
-        # TODO detect door is opened
+        #todo detect door is opened
+        time.sleep(3)
             
         #TODO raise torso - use pose movement
         
         self.say("please look towards the camera so that I can recognise you")
         
-        #TODO use new calls
         visitor = None
-        while visitor is None or visitor == "":
+        while visitor is None:
             visitor = self.detect_visitor()
         
         if visitor == "postman":
@@ -172,24 +172,10 @@ class ControllerTBM2(GenericController):
                 answer = "yes" 
                 if answer == "yes":
                     rospy.loginfo("detected plumber")
-                    self.process_face_deliman()
+                    self.process_face_plumber()
                 elif:
                     rospy.loginfo("visitor not recognize")
                     
-        
-    #def wait_until_left(self):
-    #    while self.leaving == False:
-    #        rospy.sleep(1)
-    #    self.leaving = False
-
-    #def loop(self):
-    #
-    #   rate = rospy.Rate(10)
-    #   while not rospy.is_shutdown():
-    #       rate.sleep()
-
-
-
     def process_face_postman(self):
         # Door should be open already
         
@@ -310,6 +296,13 @@ class ControllerTBM2(GenericController):
         #TODO any way to detect door is closed?
         rospy.sleep(2)
         # 11. return to base
+        if self.move_to_location("home", 3) == False:
+            return
+            
+    def process_face_plumber(self):
+        self.say("Hello plumber, where would you like to visit today?")
+        #TODO logic for plumber
+        
         if self.move_to_location("home", 3) == False:
             return
 
