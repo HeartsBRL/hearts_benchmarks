@@ -329,6 +329,35 @@ class ControllerTBM2(GenericController):
             return
 #PLUMBER HERE #DANIEL 1st OCT 2018
     def process_face_plumber(self):
+        # ask plumber where they would like to go
+        self.say("Hello Plumber, which room would you like to go to?")
+
+        #listen for answer
+        self.toggle_stt(on)
+        self.stt_callback()
+
+        #go to the room, or not
+        if room = bathroom:
+            self.say("Please follow me to the bathroom.")
+            if self.move_to_location("bathroom", 3) == False:
+                return
+            #wait for plumber to finish
+
+        elif room = kitchen:
+            self.say("Please follow me to the kitchen.")
+            if self.move_to_location("kitchen", 3) == False:
+                return
+            #wait for plumber to finish
+
+
+        else:
+            self.say("I am sorry I cannot take you there.")
+
+
+
+
+
+
 
     def process_face_unrecognized(self):
         # 1. speak to visitor, "Sorry, I don't know you. I cannot open the door."
