@@ -3,9 +3,6 @@
 # https://github.com/studioimaginaire/phue
 # https://github.com/rockin-robot-challenge
 
-import sys
-import os
-
 import rospy
 import time
 from std_msgs.msg      import Empty, String
@@ -14,9 +11,7 @@ from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, Tabl
 import std_srvs.srv
 from collections import Counter
 
-path = os.path.join(os.getenv('HOME'), 'workspaces/hearts_erl/src/hearts_benchmarks/') # NB, will break if this changes, this probably isnt the best way to implement this long term...
-sys.path.append(path)
-from generic_controller import GenericController
+from python_support_library.generic_controller import GenericController
 
 # activation: doorbell press detected
 # notification:

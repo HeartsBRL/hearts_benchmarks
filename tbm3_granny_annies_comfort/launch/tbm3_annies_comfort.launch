@@ -1,7 +1,7 @@
 <launch>
   <include file="$(find hearts_stt)/launch/hearts_stt.launch">
    <arg name="SR_speechrec_engine" value="google" />
-   <arg name="SR_ENERGY_THRESHOLD" value="600" />
+   <arg name="SR_ENERGY_THRESHOLD" value="1200" />
    <arg name="listen" value="" />
   </include>   
   
@@ -21,11 +21,11 @@
   
  
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
-    <param name="team_name" type="string" value="TestingTeam" />
+    <param name="team_name" type="string" value="Hearts" />
     <param name="robot_name" type="string" value="Tiago" />
     <param name="rsbb_key" type="string" value="PASSWORD" />
-    <!--    <param name="rsbb_key" type="string" value="FJ6LazOM" />   -->
-    <param name="rsbb_host" type="string" value="10.2.0.101" />
+    <param name="rsbb_key" type="string" value="FJ6LazOM" />
+    <param name="rsbb_host" type="string" value="192.168.1.43" />
     <param name="rsbb_port" type="int" value="6666"/>
   </node>  
    
