@@ -1,0 +1,31 @@
+key: arm chair 1
+key: arm chair one
+key: arm chair two
+key: bathroom
+key: bathroom drawer
+key: bed
+key: bedroom
+key: bookshelf
+key: closet
+key: coffee table
+key: dining room
+key: dining table
+key: entrance hall
+key: hallway
+key: kitcen counter
+key: kitchen
+key: kitchen counter
+key: kitchen table
+key: living room
+key: no_location1
+key: no_location_2
+key: no_location3
+key: plant
+key: room_7
+key: room_8
+key: room_9
+key: side table 1
+key: side table 2
+key: sofa
+key: trash bin
+key: tv table
