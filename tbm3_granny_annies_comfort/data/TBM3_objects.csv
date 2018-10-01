@@ -1,0 +1,89 @@
+########################################################################
+# TBM3 Data file for ERL Madrid - October 2018
+#
+########################################################################
+# HELP:    - all data is comma delimited
+#          - Case can be mixed - as all converted to lower case internally
+#          - a '#' ANYwhere on a line, will IGNORE the whole line!
+#          - Blank lines are ignored
+#
+#         Field 1   = P for Person OR I for Inanimate object
+#         Field 2   = persons name OR object name
+#         Field 3&4 = 1st location & probability of being there
+#         Field 5&6 = 2nd location & probability of being there
+#         Field 7&8 = 3rd location & probability of being there
+#
+#########################################################################
+######   People   #####
+# Madrid 2018 - Oct 2018
+
+P,Steve,       Bedroom,60,            Living room,30,     Kitchen,10
+P,Robert,      Bedroom,60,            Living room,30,     Kitchen,10
+P,Luis,        Bedroom,60,            Living room,30,     Kitchen,10
+
+P,John,        Bathroom,60,           Bedroom,30,         Dining room,10
+P,James,       Bathroom,60,           Bedroom,30,         Dining room,10
+P,Alfred,      Bathroom,60,           Bedroom,30,         Dining room,10
+
+P,Daniel,      Kitchen,60,            Living room,30,     Hallway,10
+P,Luis,        Kitchen,60,            Living room,30,     Hallway,10
+P,Paul,        Kitchen,60,            Living room,30,     Hallway,10
+
+P, user,       no_location1,60, no_location_2,30, no_location3,10
+
+######   objects   #####
+# Madrid 2018 - Oct 2018
+I,Coke,        Kitchen counter,60,    Coffee table,30,    Dining table,10
+I,Water,       Kitchen counter,60,    Coffee table,30,    Dining table,10
+I,Juice,       Kitchen counter,60,    Coffee table,30,    Dining table,10
+
+I,Apple,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,Lemon,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,Rice,        Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,Pringles,    Kitchen table,60,      Kitchen counter,30, Coffee table,10
+
+I,Kleenex,     Bathroom drawer,60,    Side table 2,30,    Kitchen counter,10
+I,Sponge,      Bathroom drawer,60,    Side table 2,30,    Kitchen counter,10
+I,Soap,        Bathroom drawer,60,    Side table 2,30,    Kitchen counter,10
+I,Whiteboard cleaner, Bathroom drawer,60, Side table 2,30, Kitchen counter,10     
+
+I,Cup,         Coffee table,60,       Kitchen table,30,   Dining table,10
+I,Glass,       Coffee table,60,       Kitchen table,30,   Dining table,10
+I,Candle,      Side table 2,60,       Coffee table,30,    Dining table,10
+
+###### just Locations  #####
+
+I,xdummy,      Entrance hall,60,     trash bin,30,        Plant,10
+I,xdummy,      Closet,60,            Bed,30,              side table 1,10
+I,xdummy,      Bookshelf,60,         Sofa,30,             Arm chair 1,10
+I,xdummy,      Arm chair two,60,     TV Table,30,         Arm chair one,10
+I,xdummy,      arm chair 2,60,       hallway,30,           xxxxxx,10 
+
+
+##########################################################################
+# initial testing tables used with rule book before  competion in Madrid.
+##########################################################################
+
+######   People   #####
+
+#P, john,       Room_4,60,            Room_5,30,        Room_6,10
+P, tracy,       Room_7,60,            Room_8,30,        Room_9,10
+#P, fred,       Room_7,60,            Room_8,30,        bedroom,10
+
+#P, user,       no_location1,60, no_location_2,30, no_location3,10
+
+#I, glasses,    kitchen counter,60,    Furniture_02,30,  Furniture_03,10
+#I, cup,        Furniture_04,60,       Furniture_05,30,  Furniture_06,10
+#I, bottle,     Furniture_07,60,       Furniture_08,30,  Furniture_09,10
+#I, apple,      coffee table,60,       Furniture_11,30,  Furniture_12,10
+#I, pear,       kitchen table,60,      Furniture_14,30,  coffee table,10
+#I, trash bin,  trash bin ,60,         lounge,30,        bedroom,10
+#I, double bed, double bed,60,         bedroom2,30,      bedroom3,10
+#I, tea pot,    glass dining table,60, bedroom2,30,      bedroom3,10
+#I, coke can,   kitchen cabinet,60,    bedromm5,30,      bedroom7,10       
+
+######   Location defintions not linked to any partcular object OR person   #####
+
+#I, dummy,      bucket,100,             bucket,30,       bucket,10
+#I, dummy,      exit,100,               exit,30,         exit,10
+
