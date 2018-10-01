@@ -12,9 +12,9 @@
     <arg name="show_feed" value="true" />
   </include>
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
-    <param name="team_name" type="string" value="Hearts" />
+    <param name="team_name" type="string" value="HEARTS" />
     <param name="robot_name" type="string" value="Tiago" />
-    <param name="rsbb_key" type="string" value="FJ6LazOM" />
-    <param name="rsbb_host" type="string" value="10.2.0.101" />
+    <param name="rsbb_key" type="string" value="YEnzHu6P" />
+    <param name="rsbb_host" type="string" value="10.2.0.10" />
   </node>
 </launch>
