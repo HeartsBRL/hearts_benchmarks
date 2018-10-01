@@ -24,8 +24,6 @@
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
 
     <param name="robot_name" type="string" value="Tiago" />
-    <!-- <param name="team_name" type="string" value="TestingTeam" />  -->
-    <!-- <param name="rsbb_key" type="string" value="PASSWORD" />      -->
     <param name="team_name" type="string" value="HEARTS" />
     <param name="rsbb_key" type="string" value="YEnzHu6P" />
     <param name="rsbb_host" type="string" value="10.2.0.10" />

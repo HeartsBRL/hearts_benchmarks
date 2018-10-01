@@ -363,12 +363,17 @@ class Controller():
 		sub.unregister()
 
 	def wait_for_user_location(self):
+		print("in: wait_for_user_location 1")
 		rospy.loginfo("Waiting for user location")
 		self.user_location = None
+		print("in: wait_for_user_location 2")
 		sub = rospy.Subscriber("/roah_rsbb/tablet/position", Pose2D, self.user_location_callback)
+		print("in: wait_for_user_location 3")
 		rospy.wait_for_service('/roah_rsbb/tablet/map')
+		print("in: wait_for_user_location 4")
 		
 		self.user_location_service()
+		print("in: wait_for_user_location 5")
 		rospy.loginfo("going to while loop")
 		while self.user_location is None:
 			rospy.sleep(0.1)
@@ -465,7 +470,7 @@ class Controller():
 	def main(self):
 		print ("\n***** MAIN Executing *****\n")
 		#go to home position
-		self.move_to_location("home")
+		#self.move_to_location("home")
 
 		#wait for call 		
 		self.say("Waiting to be called by granny annie.")
@@ -477,7 +482,7 @@ class Controller():
 
 		#navigate to the user's location
 		self.say("hello granny annie, I am on my way to you.")
-		self.move_to_pose2D(self.user_location)
+		#self.move_to_pose2D(self.user_location)
 		self.say("How can I help you today? Please give me a command")
 		
 		self.listen4cmd('on')
