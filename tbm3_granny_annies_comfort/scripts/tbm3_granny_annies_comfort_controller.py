@@ -3,10 +3,10 @@
 # Author  : Derek Ripper/Joe Daly
 # Created : Dec 2017
 # Purpose : To fulfil ERL-SR competition Bench Mark TBM3 - Grannie Annies comfort
-#           Written for the 22-26 Jan 2018 ERL competition in Edinburgh.       
+#           Written for the 22-26 Jan 2018 ERL competition in Edinburgh.
 #
 ##############################################################################################
-# Updates : 
+# Updates :
 #
 #
 ##############################################################################################
@@ -21,23 +21,23 @@ from random import *
 from python_support_library.generic_controller import GenericController
 
 class ControllerTBM3(GenericController):
-    
+
     def __init__(self):
                 # init the generic stuff from GenericController
-        super(ControllerTBM3, self).__init__() 
-        
-        #Publishers  
-        self.pub_twist =   rospy.Publisher('/mobile_base_controller/cmd_vel', Twist,  queue_size=10)       
+        super(ControllerTBM3, self).__init__()
+
+        #Publishers
+        self.pub_twist =   rospy.Publisher('/mobile_base_controller/cmd_vel', Twist,  queue_size=10)
         self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal',          Pose2D, queue_size=10)
 
         #Subscribers
-        self.listen4cmd('on') 
+        self.listen4cmd('on')
         self.listen4cmd('off')
         self.listen4ans('on')
-        self.listen4ans('off') # why? 
+        self.listen4ans('off') # why?
 
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
-            
+
         #Services
         self.prepare =              rospy.ServiceProxy('/roah_rsbb/end_prepare',          std_srvs.srv.Empty)
         self.execute =              rospy.ServiceProxy('/roah_rsbb/end_execute',          std_srvs.srv.Empty)
@@ -50,21 +50,21 @@ class ControllerTBM3(GenericController):
         self.blinds_max_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/max',   std_srvs.srv.Empty)
         self.blinds_min_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty)
         self.blinds_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',   Percentage)
-        
+
         self.user_location = None
-        
+
         # Granny Annies position in our map's coord system
         # col 0= bed, col1 = sofa
-        self.ulocx = [ -0.493560373783 ,-2.34082365036]
-        self.ulocy = [ -3.79606962204,  -7.20651531219]
-        self.uloct = [  0.995374783353,  0.92682136867]
-        
-        #test version  
+        # self.ulocx = [ -0.493560373783 ,-2.34082365036]
+        # self.ulocy = [ -3.79606962204,  -7.20651531219]
+        # self.uloct = [  0.995374783353,  0.92682136867]
+
+        #test version
         #self.ulocx = [ 0.206475734711, 2.52560305595 ]
         #self.ulocy = [ 0.507319450378, 0.0467052459717 ]
         #self.uloct = [ 0.00143957138062, 0.00225162506104 ]
-        
-        
+
+
         # Granny Annies position in judges coord system
         # h for high value and l for low value ie the range
         self.jlocxh = [ 0.00,  1.50]
@@ -80,8 +80,8 @@ class ControllerTBM3(GenericController):
         # List of unwanted words
         self.rm_words = [
         'a',
-        'of',  
-        'in',  
+        'of',
+        'in',
         'the',
         'please',
         'my',
@@ -126,7 +126,7 @@ class ControllerTBM3(GenericController):
                                 "kitchen table",
                                 "coffee table",
                                 "bedside table"
-                            ],    
+                            ],
         "coca-cola can"   : ["kitchen table"],
         "mug"             : ["kitchen counter"],
         "candle"          : ["coffee table"],
@@ -136,26 +136,26 @@ class ControllerTBM3(GenericController):
         }
 
     def listen4cmd(self,status):
-        if status == 'on' :    
-            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)  
-            print('***** Listening for a COMMAND')  
+        if status == 'on' :
+            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+            print('***** Listening for a COMMAND')
         else:
             self.sub_cmd.unregister()
-            print('***** NOT! Listening for a COMMAND')  
+            print('***** NOT! Listening for a COMMAND')
 
         return
 
     def listen4ans(self,status):
-        if status == 'on' :    
-            self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)  
+        if status == 'on' :
+            self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
             print('***** Listening for an ANSWER')
         else:
             self.sub_ans.unregister()
             print('***** NOT! Listening for an ANSWER')
 
-        return        
+        return
 
-    def hearAnswer_callback(self,data):      
+    def hearAnswer_callback(self,data):
         speech = str(data)
         speech = speech.lower()
         rospy.loginfo('*** Heard an answer : '+speech+'\n')
@@ -165,17 +165,17 @@ class ControllerTBM3(GenericController):
             self.say("OK then I will do that")
             exec(self.code2exec)
             self.say("The task is complete. Please give me another command")
-            
-            # re-establish subscribers    
+
+            # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
 
         elif 'no' in words:
             self.say("OK I will forget your last command. Please give me another command")
 
-            # re-establish subscribers    
+            # re-establish subscribers
             self.listen4ans('off')
-            self.listen4cmd('on')    
+            self.listen4cmd('on')
 
         else:
             self.say("Please answer with yes please or no thank you")
@@ -188,7 +188,7 @@ class ControllerTBM3(GenericController):
         speech = speech.lower()
         rospy.loginfo('*** Heard a command\n'+speech+'\n')
 
-        # remove the ROS msg "Data:" value from speech    
+        # remove the ROS msg "Data:" value from speech
         item = 'data:'
         if item in speech:
             speech = speech.replace(item,'')
@@ -196,7 +196,7 @@ class ControllerTBM3(GenericController):
         # check that text has been returned
         if "bad_recognition" in speech:
             self.say("Sorry, no words were recognised. Please repeat.")
-            return 
+            return
 
         lookupkey = self.bld_lookupkey(speech)
         rospy.loginfo("*** lookup key: "+lookupkey)
@@ -208,16 +208,16 @@ class ControllerTBM3(GenericController):
         if self.code2exec != None:
             #listen for "answer"
             self.say("You requested that I "+speech+'. Shall I do this now?')
-    
+
             # get confirmation of command
             self.listen4cmd('off')
             self.listen4ans('on')
-            
+
         else:
             self.say("Sorry, your command was not understood. Please repeat.")
 
         return
-    
+
     def bld_lookupkey(self,speech):
 
         # Change words for fetching to "get"
@@ -225,8 +225,8 @@ class ControllerTBM3(GenericController):
         for sub_item in self.get_words:
             rspeech = rspeech.replace(sub_item,'get')
 
-        # build list of words    
-        words = rspeech.split(' ')    
+        # build list of words
+        words = rspeech.split(' ')
 
         # change 2nd and subsequent values: 'off' to ''
         firstfound = True
@@ -237,11 +237,11 @@ class ControllerTBM3(GenericController):
                 words[idx] = ''
 
         #remove unwanted words
-        for rm_item in self.rm_words:    
+        for rm_item in self.rm_words:
             for idx,elem in enumerate(words):
                 if elem == rm_item:
                     words[idx] = ''
-    
+
         # rebuild lookup key as a string with single spaces
         lookupkey = ''
         for ii in range(1,len(words)):
@@ -260,7 +260,7 @@ class ControllerTBM3(GenericController):
     def off_LLB(self):
         # OFF Left Light Bedroom
         self.switch_2_off_service()
-        return    
+        return
 
     def on_RLB(self):
         # ON   Right Light Bedroom
@@ -288,11 +288,11 @@ class ControllerTBM3(GenericController):
     def half_L(self):
         print("\n***** in dimmer call\n")
         percent = 50
-        self.dimmer_set_service(percent) 
-    
+        self.dimmer_set_service(percent)
+
     def open_B(self):
         # OPEN Blinds
-        self.blinds_max_service()                                                                                
+        self.blinds_max_service()
         return
 
     def close_B(self):
@@ -303,7 +303,7 @@ class ControllerTBM3(GenericController):
     def half_B(self):
         # HALF CLOSE Blinds as at 27 Dec2017 does not work - percentae type problem
         percent = 50
-        self.blinds_set_service(percent) 
+        self.blinds_set_service(percent)
         return
 
     def go_home(self):
@@ -334,8 +334,8 @@ class ControllerTBM3(GenericController):
             self.move_to_pose2D(self.user_location)
             # cardboard box detection not working!
             return
-        
-        return    
+
+        return
 
     ### When receiving a message from the "roah_rsbb/benchmark/state" topic, will then publish the corresponding state to "roah_rsbb/messages_save"
     def benchmark_state_callback(self, data):
@@ -352,14 +352,14 @@ class ControllerTBM3(GenericController):
         elif data.benchmark_state == BenchmarkState.EXECUTE:
             rospy.loginfo("EXECUTE")
             self.main()
-            
+
     def wait_for_call(self):
         rospy.loginfo("***** Waiting for call from GA")
         self.wait = False
         sub = rospy.Subscriber("/roah_rsbb/tablet/call", Empty, self.tablet_callback)
         while self.wait == False:
             rospy.sleep(0.1)
-        print("***** Call recd from GA")    
+        print("***** Call recd from GA")
         sub.unregister()
 
     def wait_for_user_location(self):
@@ -367,7 +367,7 @@ class ControllerTBM3(GenericController):
         self.user_location = None
         sub = rospy.Subscriber("/roah_rsbb/tablet/position", Pose2D, self.user_location_callback)
         rospy.wait_for_service('/roah_rsbb/tablet/map')
-        
+
         self.user_location_service()
         rospy.loginfo("going to while loop")
         while self.user_location is None:
@@ -393,21 +393,21 @@ class ControllerTBM3(GenericController):
 
 
         for idx in range (0,2):
-            if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
-                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :
+            '''if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
+                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :'''
 
-                # assign the coords in our system
-                msg.x = self.ulocx[idx]
-                msg.y = self.ulocy[idx]
-                msg.theta = self.uloct[idx]
-                self.user_location = msg
-                found = True
+            # assign the coords in our system
+            # msg.x = self.ulocx[idx]
+            # msg.y = self.ulocy[idx]
+            # msg.theta = self.uloct[idx]
+            self.user_location = msg
+            found = True
 
         if not found :
             print("Re-mapping for Grany Annie location failed!")
             print("\n***** STOPPING PROGRAM *****\n")
             quit()
-        print("remapped granny location")        
+        print("remapped granny location")
         print("X     : "+str(self.user_location.x))
         print("Y     : "+str(self.user_location.y))
         print("theta : "+str(self.user_location.theta))
@@ -416,10 +416,10 @@ class ControllerTBM3(GenericController):
     def move_to_pose2D(self, target_location_2D):
         ##publish granny annie's location
         rospy.loginfo("Moving to Pose2D")
-        
+
         self.pose_2d_pub.publish(target_location_2D)
 
-        self.wait_to_arrive(5)        
+        self.wait_to_arrive(5)
 
         ## Interactions
     def say(self, text):
@@ -435,7 +435,7 @@ class ControllerTBM3(GenericController):
         #go to home position
         #self.move_to_location("home",1) #TODO check number of retries
 
-        #wait for call         
+        #wait for call
         self.say("Waiting to be called by granny annie.")
         self.wait_for_call()
 
@@ -445,9 +445,10 @@ class ControllerTBM3(GenericController):
 
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
-        #self.move_to_pose2D(self.user_location)
+        self.move_to_pose2D(self.user_location)
+        self.wait_to_arrive(5)
         self.say("How can I help you today? Please give me a command")
-        
+
         self.listen4cmd('on')
 
         rospy.loginfo("End of MAIN programme")

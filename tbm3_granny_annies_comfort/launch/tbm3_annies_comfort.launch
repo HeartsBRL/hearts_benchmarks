@@ -3,34 +3,33 @@
    <arg name="SR_speechrec_engine" value="google" />
    <arg name="SR_ENERGY_THRESHOLD" value="1200" />
    <arg name="listen" value="" />
-  </include>   
-  
+  </include>
+
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
- 
+
   <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort" type="tbm3_granny_annies_comfort_controller.py" output="screen" />
 
-  
-  <!-- comment out the "servicer" node when actual benchmark box is being used and un-comment the 
+
+  <!-- comment out the "servicer" node when actual benchmark box is being used and un-comment the
       node: roah_rsbb_comm_ros
   -->
-  
- 
+
+
   <!-- <node name="servicer" pkg="tbm3_granny_annies_comfort" type="service.py" output="screen" /> -->
 
 
-  
- 
+
+
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
-    <param name="team_name" type="string" value="Hearts" />
+    <param name="team_name" type="string" value="HEARTS" />
     <param name="robot_name" type="string" value="Tiago" />
-    <param name="rsbb_key" type="string" value="PASSWORD" />
-    <param name="rsbb_key" type="string" value="FJ6LazOM" />
-    <param name="rsbb_host" type="string" value="192.168.1.43" />
+        <param name="rsbb_key" type="string" value="YEnzHu6P" />
+    <param name="rsbb_host" type="string" value="10.2.0.10" />
     <param name="rsbb_port" type="int" value="6666"/>
-  </node>  
-   
+  </node>
+
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
-    <arg name="map_name" value="map_final" />
+    <arg name="map_name" value="erl_2018" />
   </include>
   <param name="locations_json" type="string" value="$(find hearts_navigation)/data/locations.json" />
 </launch>
