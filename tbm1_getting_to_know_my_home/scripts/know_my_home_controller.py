@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+##############################################################################################
+# Author  : Chris Birmingham / Joe Daly
+# Created : Dec 2017
+# Purpose :
+#
+##############################################################################################
+# Updates :
+#
+#
+##############################################################################################
 '''
 Rooms:
     kitchen, bedroom, living room, dining room, hall
@@ -29,29 +39,36 @@ from rospy.rostime import Duration
 from move_base_msgs.msg import MoveBaseActionFeedback
 from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState
 import std_srvs.srv
+
 from navigation_camera_mgr_example import NavigationCameraMgr
 
-class Controller():
-    def __init__(self):
-        
-        ### Publishers - sends out goal locations, movement/turns, and speech        
+from python_support_library.generic_controller import GenericController
+
+class ControllerTBM1(GenericController):
+
+	def __init__(self):
+    	# init the generic stuff from GenericController
+        super(ControllerTBM1, self).__init__()
+
+
+        ### Publishers - sends out goal locations, movement/turns, and speech
         self.pubGoal = rospy.Publisher('hearts/navigation/goal/location', String, queue_size=10)
         self.pub_talk = rospy.Publisher('/hearts/tts', String, queue_size = 10)
         self.pub_pic = rospy.Publisher('/hearts/camera/snapshot', String, queue_size = 10)
         self.pub_head = rospy.Publisher('/head_controller/command',JointTrajectory, queue_size = 10)
-        self.pub_move = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size = 10)  
+        self.pub_move = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size = 10)
         self.pub_dummy = rospy.Publisher('/move_base/feedback', MoveBaseActionFeedback, queue_size = 10)
-              
+
         ### Subscribers - must listen for speech commands, location
         rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
         rospy.Subscriber('/move_base/feedback', MoveBaseActionFeedback, self.current_pose_callback)
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
-        
+
         self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
         self.execute = rospy.ServiceProxy('/roah_rsbb/end_execute', std_srvs.srv.Empty)
-    
+
         self.outfolder = rospy.get_param('output_path')
-        
+
         self.objects = ['banana','apple','lemon','orange','macaroni','weetabix','juice',
         'water','pringles','paracetamol','soda','pasta','soup','toothpaste','salt','gum']
 
@@ -69,11 +86,11 @@ class Controller():
             "look": ["up", "down", "right", "left"],
             "here": [],
             "see": self.objects,}
-        
+
         # Disable head manager
         head_mgr = NavigationCameraMgr()
         head_mgr.head_mgr_as("disable")
-        
+
         # Movement Parameters
         self.head_lr = 0.0
         self.head_ud = -0.5
@@ -83,7 +100,7 @@ class Controller():
         self.handle_camera_direction(['center'])
 
     def benchmark_state_callback(self, data):
-                     
+
         if data.benchmark_state == BenchmarkState.STOP:
             rospy.loginfo("STOP")
         elif data.benchmark_state == BenchmarkState.PREPARE:
@@ -116,7 +133,7 @@ class Controller():
             verb = words[0]
             subject = words[1:]
             #TODO parse rooms into single words (e.g. dining room into dining_room)
-        else:        #self.pub_move = rospy.Publisher('/hearts/controller/move', Twist, queue_size = 10)        
+        else:        #self.pub_move = rospy.Publisher('/hearts/controller/move', Twist, queue_size = 10)
             valid_command=False
             self.pub_talk.publish("Invalid command please try again")
             return
@@ -127,12 +144,12 @@ class Controller():
         elif verb == "look":
             self.handle_camera_direction(subject)
         elif verb == "see":
-            self.handle_picture_taking(subject) 
+            self.handle_picture_taking(subject)
         elif verb == "look":
-            self.handle_camera_direction(subject)    
+            self.handle_camera_direction(subject)
         elif verb == "end":
             self.execute()
-        return 
+        return
 
     #SEE the [bedroom, bathroom, hall, entrance] door is [open, closed]
     #SEE the [couch, bed, chair, lamp (furniture)] in the [room]
@@ -156,19 +173,19 @@ class Controller():
                 thing_id = 'door_bedroom'
                 room1 = 'bedroom'
                 room2 = 'living_room'
-            if 'bathroom' in subject: 
+            if 'bathroom' in subject:
                 thing_id = 'door_bathroom'
                 room1 = 'bathroom'
                 room2 = 'kitchen'
-            if 'hall' in subject: 
+            if 'hall' in subject:
                 thing_id = 'door_hall'
                 room1 = 'hall'
                 room2 = 'kitchen'
-            else: 
+            else:
                 thing_id = 'door_entrance'
                 room1 = 'hall'
                 room2 = 'outside'
-            
+
             line1 = self.linewriter('type',[thing_id,'door'])
             line2 = self.linewriter('connects',[thing_id,room1,room2])
             line3 = self.linewriter('isOpen',[thing_id,open_status])
@@ -183,7 +200,7 @@ class Controller():
             position_string = self.object_position() #TODO get actual position
             self.pub_pic.publish(subject[0]+'.jpg')
             item = thing_id
-            
+
             if subject[3] == 'room':
                 room = subject[2]+'_'+subject[3]
                 subject.pop(3)
@@ -216,7 +233,7 @@ class Controller():
                 thing_id = 'arm_chair'
             if thing_id == 'night' or thing_id == 'night_stand':
                 thing_id = 'nightstand'
-            line1 = self.linewriter('type',[thing_id,thing_id]) 
+            line1 = self.linewriter('type',[thing_id,thing_id])
             line2 = self.linewriter('in',[thing_id,room])
             to_write = [line1,line2]
         else:
@@ -244,10 +261,10 @@ class Controller():
         command.joint_names = ["head_2_joint","head_1_joint"]
         point1 = JointTrajectoryPoint()
         #point2 = JointTrajectoryPoint()
-        
+
         point1.velocities = [0.0,0.0]
         #point2.velocities = [0]
-        
+
         point1.time_from_start = Duration(2.0,0.0)
         rospy.loginfo(subject)
         if subject[0] == 'up':
@@ -258,7 +275,7 @@ class Controller():
             self.head_lr = self.head_lr + self.head_move_step_size
         if subject[0] == 'right':
             self.head_lr = self.head_lr - self.head_move_step_size
-                    
+
         rospy.loginfo(self.head_ud)
         point1.positions = [self.head_ud, self.head_lr]
         command.points = [point1]
@@ -302,7 +319,7 @@ class Controller():
                 self.send_directions(0,-1*self.turn_step_size)
                 distance = 20
             d = rospy.get_time()-t0
-          
+
     def send_directions(self,straight,turn):
         rospy.loginfo('Sending out a direction')
         t = Twist()
@@ -316,7 +333,7 @@ class Controller():
 
         self.pub_move.publish(t)
         rospy.sleep(0.01)
-    
+
     def object_position(self):
         ####Read in base position
         d = 1 #distance from object
@@ -343,5 +360,5 @@ class Controller():
 if __name__ == '__main__':
     rospy.init_node('know_my_home', anonymous=True)
     rospy.loginfo("know my home controller has started")
-    controller = Controller()
+    controller = ControllerTBM1()
     rospy.spin()

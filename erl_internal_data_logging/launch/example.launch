@@ -1,0 +1,17 @@
+<launch>
+  <node name="visit_my_home" pkg="tbm4_visit_my_home" type="visit_my_home_controller.py" output="screen" />
+  <include file="$(find hearts_stt)/launch/hearts_stt.launch"/>
+  <include file="$(find hearts_tts)/launch/hearts_tts.launch"/>
+  <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate_test.launch" />
+  <param name="output_path" value="$(find tbm4_visit_my_home)/output/" />
+  <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
+    <param name="team_name" type="string" value="Hearts" />
+    <param name="robot_name" type="string" value="Tiago" />
+    <param name="rsbb_key" type="string" value="FJnz6hJX" />
+    <param name="rsbb_host" type="string" value="192.168.0.57" />
+  </node>
+  <include file="$(find hearts_person_tracker)/launch/hearts_person_tracker.launch">
+  </include>
+  <include file="$(find hearts_person_detector)/launch/hearts_person_detector.launch">
+  </include>
+</launch>
