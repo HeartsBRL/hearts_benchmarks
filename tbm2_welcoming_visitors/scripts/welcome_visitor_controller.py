@@ -336,7 +336,7 @@ class ControllerTBM2(GenericController):
 
         if self.move_to_location("home", 3) == False:
             return
-
+#Main
 if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
