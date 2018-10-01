@@ -677,6 +677,7 @@ def parse_locations(table):
 
     # build locations list from unique keys in dctionary        
     for key in locs_dict:
+        print("key: "+key)
         locs_list.append(key)
 
     # find any space delimited location and replace the ' ' with '_'    
@@ -745,7 +746,8 @@ ERL_verb_file   = '../data/TBM3_verbs.csv'
 
 ERL_data        = read_ERL_data(ERL_data_file)
 
-
+# for line in ERL_data:
+#     print (line[0],line[1],line[2],line[3],line[4])
 
 commands        = read_ERL_verb(ERL_verb_file)
 
@@ -753,6 +755,8 @@ people, objects = parse_ERL_data(ERL_data)
     
 
 locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
+for loc  in locations:
+    print(loc)
 
 
 #check that all "locations" found are in the Navigation locations.json file
