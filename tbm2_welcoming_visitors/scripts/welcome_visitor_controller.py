@@ -142,11 +142,15 @@ class ControllerTBM2(GenericController):
             return
             
         # TODO open door
+        self.say("please open the door")
         
         # TODO detect door is opened
             
+        #TODO raise torso - use pose movement
+        
         self.say("please look towards the camera so that I can recognise you")
         
+        #TODO use new calls
         visitor = None
         while visitor is None or visitor == "":
             visitor = self.detect_visitor()
@@ -154,17 +158,29 @@ class ControllerTBM2(GenericController):
         if visitor == "postman":
             rospy.loginfo("detected postman")
             self.process_face_postman()
-        elif visitor == "deliman":
-            rospy.loginfo("detected deliman")
-            self.process_face_deliman()
         elif visitor == "doctor":
             rospy.loginfo("detected doctor")
             self.process_face_doctor()
         elif visitor == "unknown":
-            rospy.loginfo("detected unrecognized person")
-            self.process_face_unrecognized()  
-        
-
+            rospy.loginfo("do not recognize face")
+            self.say("I do not know your face. Are you the deliman?")
+            
+            #TODO wait for no/yes
+            answer = "yes" 
+            
+            if answer == "yes":
+                rospy.loginfo("detected deliman")
+                self.process_face_deliman()
+            elif answer == "no":
+                self.say("Are you the postman?")
+                #TODO wait for no/yes
+                answer = "yes" 
+                if answer == "yes":
+                    rospy.loginfo("detected plumber")
+                    self.process_face_deliman()
+                elif:
+                    rospy.loginfo("visitor not recognize")
+                    
         
     #def wait_until_left(self):
     #    while self.leaving == False:
