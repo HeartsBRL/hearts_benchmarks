@@ -395,7 +395,7 @@ class ControllerTBM2(GenericController):
 
 
         #go to the room, or not
-        if 'bathroom' in room:
+        if 'bathroom' in room or 'bath room' in room:
             self.say("Please follow me to the bathroom.")
             #TODO implement following behaviour
             # for now just navigate to the location
@@ -450,6 +450,8 @@ class ControllerTBM2(GenericController):
 
         else:
             self.say("I am sorry I cannot take you there.")
+
+
 
         if self.move_to_location("home", 3) == False:
             return
