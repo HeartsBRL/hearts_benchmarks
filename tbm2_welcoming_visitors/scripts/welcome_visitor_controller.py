@@ -57,6 +57,7 @@ class ControllerTBM2(GenericController):
         self.has_scan_changed = False
         self.recognition = None #DANIEL
         self.vision_status = None
+        self.called = False
 
     def scan_changed_callback(self, msg):
         '''Trigged by subscriber: /scan_change '''
@@ -75,11 +76,11 @@ class ControllerTBM2(GenericController):
 #####################VISION FACE RECOGNITION#######################
 
     def detect_visitor_face(self): #DANIEL
-        rospy.Subscriber("/recognising_visitor/vision",    Face_recog_verdict,self.recognition_callback) #DANIEL
+        subD = rospy.Subscriber("/recognising_visitor/vision",    Face_recog_verdict,self.recognition_callback) #DANIEL
         rospy.loginfo("subscribed to topic /recognising_visitor/vision")
         while self.recognition is None:
             rospy.sleep(0.1)
-        sub.unregister()
+        subD.unregister()
 
 
         return self.recognition
@@ -93,11 +94,13 @@ class ControllerTBM2(GenericController):
 ############VISION PEOPLE TRACKING############################
 
     def track_visitor(self): #DANIEL
-        rospy.Subscriber("/tracking_visitor/vision",    Tracking_info,self.tracking_callback) #DANIEL
+        subT = rospy.Subscriber("/tracking_visitor/vision",    Tracking_info,self.tracking_callback) #DANIEL
         rospy.loginfo("subscribed to topic /tracking_visitor/vision")
         while self.visitor_status is None: #TODO When the plumber finished for example or when the visitor goes out of sight
             rospy.sleep(0.1)
-        sub.unregister()
+            print "."
+        rospy.loginfo("unsubscribed to topic /tracking_visitor/vision")
+        subT.unregister()
 
         return self.visitor_status
         #TODO deliman and plumber will not have known faces, but must be identified in other ways, not just turned away
@@ -149,58 +152,63 @@ class ControllerTBM2(GenericController):
 
         '''
         rospy.loginfo("bell_callback")
+        if self.called == False:
+            self.called = True#TODO uncomment this:
+            #TODO uncomment this: self.say("I am coming")
 
-        self.say("I am coming")
+            #if self.move_to_location("entrance", 3) == False:
+            #    self.say("I am unable to move to the front door")
+                #return #TODO uncomment this
 
-        if self.move_to_location("entrance", 3) == False:
-            self.say("I am unable to move to the front door")
-            return
+            # TODO open door
+            #TODO uncomment this:self.say("please open the door")
 
-        # TODO open door
-        self.say("please open the door")
+            # TODO detect door is opened
 
-        # TODO detect door is opened
+            #TODO raise torso - use pose movement
 
-        #TODO raise torso - use pose movement
+            #TODO uncomment this:self.say("please look towards the camera so that I can recognise you")
 
-        self.say("please look towards the camera so that I can recognise you")
-
-        #TODO use new calls
-        visitor = None
-        Recog_visitor_msg = Face_recog_verdict() #DANIEL
-        Recog_visitor_msg.scan_time = rospy.Duration(10)
-        self.pub_face.publish(Recog_visitor_msg)
-        visitor = self.detect_visitor_faces()
+            #TODO use new calls
+            visitor = None
+            Recog_visitor_msg = Face_recog_verdict() #DANIEL
+            Recog_visitor_msg.scan_time = rospy.Duration(10)
+            self.pub_face.publish(Recog_visitor_msg)
+            visitor = self.detect_visitor_face()
 
 
-        if visitor == "postman":
-            rospy.loginfo("detected postman")
-            self.process_face_postman()
-        elif visitor == "doctor":
-            rospy.loginfo("detected doctor")
-            self.process_face_doctor()
-        elif visitor == "unknown":
-            rospy.loginfo("do not recognize face")
-            self.say("I do not know your face. Are you the deliman?")
-
-            #TODO wait for no/yes
-            self.toggle_stt('on')
-            answer = self.speech
-
-            if 'yes' in answer:
-                self.toggle_stt('off')
-                rospy.loginfo("detected deliman")
-                self.process_face_deliman()
+            if visitor == "postman":
+                rospy.loginfo("detected postman")
+                self.process_face_postman()
+            elif visitor == "doctor":
+                rospy.loginfo("detected doctor")
+                self.process_face_doctor()
+            elif visitor == "Unknown":
+                rospy.loginfo("do not recognize face")
+                self.say("I do not know your face. Are you the deliman?")
             else:
-                self.toggle_stt('off')
-                self.say("Are you the postman?")
+                rospy.loginfo("no faces detected")
+                self.say("Are you hiding from me?") #TODO try again if no faces were detected
+
                 #TODO wait for no/yes
+                self.toggle_stt('on')
                 answer = self.speech
+
                 if 'yes' in answer:
-                    rospy.loginfo("detected plumber")
+                    self.toggle_stt('off')
+                    rospy.loginfo("detected deliman")
                     self.process_face_deliman()
                 else:
-                    rospy.loginfo("visitor not recognize")
+                    self.toggle_stt('off')
+                    self.say("Are you the postman?")
+                    #TODO wait for no/yes
+                    answer = self.speech
+                    if 'yes' in answer:
+                        rospy.loginfo("detected plumber")
+                        self.process_face_deliman()
+                    else:
+                        rospy.loginfo("visitor not recognize")
+            self.called = False
 
 
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
@@ -406,4 +414,5 @@ if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
     nowcontroller = ControllerTBM2()
+    rospy.loginfo("waiting for the doorbell")
     rospy.spin()

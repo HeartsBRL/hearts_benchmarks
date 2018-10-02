@@ -18,8 +18,10 @@
   </node>
   <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
   <node name="change_detector" pkg="tbm2_welcoming_visitors" type="change_detector.py" output="screen" />
-  <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" />
-  <node name="person_tracking" pkg="aggregator" type="person_tracking_TBM2_controller.py" />
+  <!-- <node name="face_recognizer" pkg="aggregator" type="final_vision_aggregator.py" /> -->
+  <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" output="screen"  />
+
+  <node name="person_tracking" pkg="aggregator" type="person_tracking_TBM2_controller.py" output="screen"  />
   <!--include file="$(find hearts_person_tracker)/launch/hearts_person_tracker.launch">
 </include-->
   <!-- <node name="webcam_publisher" pkg="hearts_webcam" type="hearts_webcam" output="screen" args="1" /> -->
