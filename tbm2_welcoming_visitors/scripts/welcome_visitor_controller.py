@@ -160,6 +160,7 @@ class ControllerTBM2(GenericController):
         self.say("please open the door")
 
         # TODO detect door is opened
+        rospy.sleep(2)
 
         #TODO raise torso - use pose movement
 
@@ -181,13 +182,13 @@ class ControllerTBM2(GenericController):
             self.process_face_doctor()
         elif visitor == "unknown":
             rospy.loginfo("do not recognize face")
-            self.say("I do not know your face. Who are you?")
+            self.say("I do not recognise your face. Who are you?")
 
-            #TODO wait for no/yes
+            #listen for reply, act accordingly
             self.toggle_stt('on')
             answer = self.speech
 
-            if 'deliman' in answer:
+            if 'deliman' in answer or 'deli man' in answer:
                 self.toggle_stt('off')
                 rospy.loginfo("detected deliman")
                 self.process_face_deliman()
@@ -197,13 +198,21 @@ class ControllerTBM2(GenericController):
                 rospy.loginfo("detected plumber")
                 self.process_face_plumber()
 
+            elif 'dr' in answer or 'doctor' in answer or 'kimble' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected plumber")
+                self.process_face_doctor()
+
+            elif 'postman' in answer or 'post man' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected plumber")
+                self.process_face_postman()
+
             else:
                 rospy.loginfo("visitor not recognize")
 
-
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
     def function_to_be_called_by_process_face_methods(self): # DANIEL
-
         Tracking_visitor_msg = Tracking_info() #DANIEL
         Tracking_visitor_msg.tracking_flag = True #CHANGE WITH AUDIO RESPONSE OF TASK FINISHED
         self.pub_tracking.publish(Tracking_visitor_msg)
@@ -217,6 +226,8 @@ class ControllerTBM2(GenericController):
         self.say("Hello postman, I will receive the post mail, please stand back while I move my arm")
 
         #TODO check postman has stood back/area is clear for movement
+        rospy.sleep(1)
+
 
         # move to receive pose
         self.move_to_pose("give_receive")
@@ -224,6 +235,7 @@ class ControllerTBM2(GenericController):
 
         self.say("Please place the parcel in my hand and I will close it when you say ready") #TODO maybe a better set of words to use?
         #TODO wait for response
+
         #TODO loop until "ready" said? or timeout to repeat command?
         self.toggle_stt('on')
         answer = None
@@ -268,6 +280,7 @@ class ControllerTBM2(GenericController):
         self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
 
         #TODO say something before leaving?
+        self.say("See you later Grannie Annie.")
 
         # 7. return to base
         if self.move_to_location("home", 3) == False:
