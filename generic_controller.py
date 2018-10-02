@@ -29,13 +29,15 @@ class GenericController(object):
         rospy.sleep(5)
 
     ########################### LISTEN TO SPEECH ################################################
-
     def toggle_stt(self,status):
-        '''how to use: self.toggle_stt('on') to turn on listening, self.toggle_stt('off') to turn off listening'''
+        '''
+        Turns stt on or off.
+        how to use: self.toggle_stt('on') to turn on stt, self.toggle_stt('off') to turn off stt'''
+
         if status == 'on' :
             self.speech = None
             self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.stt_callback)
-            print('***** Listening for speech')
+            print('***** Listening for speech, converting speech to text')
         else:
             self.sub_cmd.unregister()
             print('***** NOT! Listening for speech')
@@ -44,15 +46,17 @@ class GenericController(object):
 
     ### extract content of speech recognition
     def stt_callback(self,data): #from tbm3
-        '''how to use: stt_callback()'''
+        '''how to use: stt_callback() returns a string of speech in lowercase
+        '''
         speech = str(data)
         speech = speech.lower()
-        rospy.loginfo('*** Heard speech:\n'+speech+'\n')
+
 
         # remove the ROS msg "Data:" value from speech
         item = 'data:'
         if item in speech:
-            speech = speech.replace(item,'')
+            speech = speech.replace(item
+            rospy.loginfo('*** Heard speech:\n'+speech+'\n')
 
         # check that text has been returned
         if "bad_recognition" in speech:
