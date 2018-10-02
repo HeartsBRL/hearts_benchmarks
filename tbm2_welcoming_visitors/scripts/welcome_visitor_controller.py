@@ -163,57 +163,63 @@ class ControllerTBM2(GenericController):
             # TODO open door
             #TODO uncomment this:self.say("please open the door")
 
-            # TODO detect door is opened
+        # TODO detect door is opened
+        rospy.sleep(3)
 
             #TODO raise torso - use pose movement
 
-            #TODO uncomment this:self.say("please look towards the camera so that I can recognise you")
+        self.say("please look at me so that I can recognise you")
 
             #TODO use new calls
-            visitor = None
-            Recog_visitor_msg = Face_recog_verdict() #DANIEL
-            Recog_visitor_msg.scan_time = rospy.Duration(10)
-            self.pub_face.publish(Recog_visitor_msg)
-            visitor = self.detect_visitor_face()
+        visitor = None
+        Recog_visitor_msg = Face_recog_verdict() #DANIEL
+        Recog_visitor_msg.scan_time = rospy.Duration(10)
+        self.pub_face.publish(Recog_visitor_msg)
+        visitor = self.detect_visitor_face()
 
 
-            if visitor == "postman":
-                rospy.loginfo("detected postman")
-                self.process_face_postman()
-            elif visitor == "doctor":
-                rospy.loginfo("detected doctor")
+        if visitor == "postman":
+            rospy.loginfo("detected postman")
+            self.process_face_postman()
+        elif visitor == "doctor":
+            rospy.loginfo("detected doctor")
+            self.process_face_doctor()
+        elif visitor == "Unknown":
+            rospy.loginfo("do not recognize face")
+            self.say("I do not recognise your face. Who are you?")
+
+            #listen for reply, act accordingly
+            self.toggle_stt('on')
+            answer = self.speech
+
+            if 'deliman' in answer or 'deli man' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected deliman")
+                self.process_face_deliman()
+
+            elif 'plumber' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected plumber")
+                self.process_face_plumber()
+
+            elif 'dr' in answer or 'doctor' in answer or 'kimble' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected plumber")
                 self.process_face_doctor()
-            elif visitor == "Unknown":
-                rospy.loginfo("do not recognize face")
-                self.say("I do not know your face. Are you the deliman?")
+
+            elif 'postman' in answer or 'post man' in answer:
+                self.toggle_stt('off')
+                rospy.loginfo("detected plumber")
+                self.process_face_postman()
+
             else:
-                rospy.loginfo("no faces detected")
-                self.say("Are you hiding from me?") #TODO try again if no faces were detected
+                rospy.loginfo("visitor not recognize")
 
-                #TODO wait for no/yes
-                self.toggle_stt('on')
-                answer = self.speech
-
-                if 'yes' in answer:
-                    self.toggle_stt('off')
-                    rospy.loginfo("detected deliman")
-                    self.process_face_deliman()
-                else:
-                    self.toggle_stt('off')
-                    self.say("Are you the postman?")
-                    #TODO wait for no/yes
-                    answer = self.speech
-                    if 'yes' in answer:
-                        rospy.loginfo("detected plumber")
-                        self.process_face_deliman()
-                    else:
-                        rospy.loginfo("visitor not recognize")
-            self.called = False
-
+        else:
+            rospy.loginfo("no faces detected")
 
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
     def function_to_be_called_by_process_face_methods(self): # DANIEL
-
         Tracking_visitor_msg = Tracking_info() #DANIEL
         Tracking_visitor_msg.tracking_flag = True #CHANGE WITH AUDIO RESPONSE OF TASK FINISHED
         self.pub_tracking.publish(Tracking_visitor_msg)
@@ -227,6 +233,8 @@ class ControllerTBM2(GenericController):
         self.say("Hello postman, I will receive the post mail, please stand back while I move my arm")
 
         #TODO check postman has stood back/area is clear for movement
+        rospy.sleep(2)
+
 
         # move to receive pose
         self.move_to_pose("give_receive")
@@ -234,7 +242,18 @@ class ControllerTBM2(GenericController):
 
         self.say("Please place the parcel in my hand and I will close it when you say ready") #TODO maybe a better set of words to use?
         #TODO wait for response
+
         #TODO loop until "ready" said? or timeout to repeat command?
+        self.toggle_stt('on')
+        answer = None
+        while 'ready' not in answer:
+            answer = self.speech
+            rospy.sleep(0.1)
+            if answer is not None and 'ready' not in answer:
+                self.say("Please say ready")
+                answer = None
+        self.toggle_stt('off')
+
 
         # close gripper
         self.move_to_pose("close_gripper")
@@ -245,41 +264,48 @@ class ControllerTBM2(GenericController):
         # move arm closer to make navigation easier
         self.move_to_pose("hold_close")
 
-        # 6. bid postman farewell
+        # 6. bid postman farewell         #TODO figure out way to do it autonomously
         self.say("Thank you for visiting. Please close the door behind you. Goodbye!")
-
-        #TODO ask post man to shut door before they go or figure out way to do it autonomously
-
 
         #TODO wait til door is shut?
         rospy.sleep(5)
 
-
         #TODO navigate to granny annie, keep far enough away so as to not hit granny annie when offering parcel
-
-        self.say("Hello granny annie, the postman has bought you a parcel, I will pass it to you now")
+        if self.move_to_location("bedroom", 3) == False:
+            return
 
         # move arm to offer parcel
         self.move_to_pose("give_receive")
 
+        self.say("Hello Grannie Annie. Please take the parcel in my hand, please tell me when you are ready and I will let go.") #TODO maybe a better set of words to use?
 
-        self.say("Have you got hold of it?")
-        #TODO wait for response
+        #TODO loop until "ready" said? or timeout to repeat command?
+        self.toggle_stt('on')
+        answer = None
+        while 'ready' not in answer:
+            answer = self.speech
+            rospy.sleep(0.1)
+            if answer is not None and 'ready' not in answer:
+                self.say("Please tell me when you are ready.")
+                answer = None
+        self.toggle_stt('off')
+
         #TODO release if yes
+        self.say("I am letting go now.")
         self.move_to_pose("open_gripper")
 
         # move arm close in again so easier to move back to base
         self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
 
         #TODO say something before leaving?
+        self.say("See you later Grannie Annie.")
 
         # 7. return to base
         if self.move_to_location("home", 3) == False:
             return
 
     def process_face_deliman(self):
-        self.say("Hello deliman")
-        self.say("I will receive the breakfast")
+        self.say("Hello deliman, please come in and close the door behind you.")
 
         # 5. speak to the deliman, instruct to follow robot: "Please follow me"
         self.say("Please follow me to the kitchen")
@@ -299,7 +325,7 @@ class ControllerTBM2(GenericController):
         self.say("Thank you, please follow me back to the door")
 
         # 10. move to front door
-        if self.move_to_location("hallway", 3) == False:
+        if self.move_to_location("entrance", 3) == False:
             return
 
         # 11. bid deliman farewell
@@ -320,7 +346,8 @@ class ControllerTBM2(GenericController):
         self.say("Hello Doctor Kimble, please come in and shut the door behind you. I will guide you to Granny Annie") #TODO check what names are appropriate?
 
         # 4. move to bedroom
-        if self.move_to_location("outside bedroom", 3) == False:
+        #TODO implement guiding behavior
+        if self.move_to_location("doctor_lead", 3) == False:
             return
 
         # 5. speak to doctor, advise robot will wait
@@ -329,12 +356,25 @@ class ControllerTBM2(GenericController):
         # 6. wait until doctor exits the bedroom
         rospy.sleep(3) #TODO is this here to give dr time to move out of sight?
         self.wait_for_scan_changed() # waits to detect face again
-        self.say("Now you are done. I will follow you to the door. Please lead the way.")
-        rospy.sleep(2)
+
         #TODO confirm they are actually done?
+        self.say("Please tell me when you are ready to leave.")
+        self.toggle_stt('on')
+        answer = None
+        while 'ready' not in answer:
+            answer = self.speech
+            rospy.sleep(0.1)
+            if answer is not None and 'ready' not in answer:
+                self.say("Please tell me when you are ready")
+                answer = None
+        self.toggle_stt('off')
+
+        self.say("Now you are done, I will follow you to the door. Please lead the way.")
+        rospy.sleep(3)
+
 
         # 9. move to hallway
-        if self.move_to_location("hallway", 3) == False: #TODO follow dr, don't just run them over!
+        if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
             return
 
         # 10. bid farewell
@@ -345,6 +385,8 @@ class ControllerTBM2(GenericController):
         # 11. return to base
         if self.move_to_location("home", 3) == False:
             return
+
+
     #PLUMBER HERE #DANIEL 1st OCT 2018
     def process_face_plumber(self):
         # ask plumber where they would like to go
@@ -352,53 +394,73 @@ class ControllerTBM2(GenericController):
 
         #listen for answer
         self.toggle_stt('on')
-        room = self.speech
+        while self.speech == None:
+            room = self.speech
+            rospy.sleep(0.1)
+        self.toggle_stt('off')
 
 
         #go to the room, or not
-        if 'bathroom' in room:
-            self.toggle_stt('off')
+        if 'bathroom' in room or 'bath room' in room:
             self.say("Please follow me to the bathroom.")
             #TODO implement following behaviour
             # for now just navigate to the location
-            if self.move_to_location("bathroom", 3) == False:
+            if self.move_to_location("plumber_bathroom", 3) == False:
                 return
             #wait for plumber to finish
-            self.say("Please tell me when you are finished")
 
             #wait for answer
+            #TODO confirm they are actually done?
+            self.say("Please tell me when you are ready to leave.")
             self.toggle_stt('on')
-            answer = self.speech
-            if 'finished' in answer:
-                self.say("I will follow you to the entrance door.")
-                #TODO implement following behaviour
-                # for now just navigate to the location
-                if self.move_to_location("entrance", 3) == False:
-                    return
+            answer = None
+            while 'ready' not in answer:
+                answer = self.speech
+                rospy.sleep(0.1)
+                if answer is not None and 'ready' not in answer:
+                    self.say("Please tell me when you are ready")
+                    answer = None
+            self.toggle_stt('off')
+
+            self.say("Now you are done, I will follow you to the door. Please lead the way.")
+            rospy.sleep(3)
+            if self.move_to_location("entrance", 3) == False:
+                            return
 
 
         elif 'kitchen' in room:
             self.toggle_stt('off')
             self.say("Please follow me to the kitchen.")
-            #TODO implement following behaviour
+            #TODO implement 'following' behaviour
+
             # for now just navigate to the location
             if self.move_to_location("kitchen", 3) == False:
                 return
+
             #wait for plumber to finish
-            self.say("Please tell me when you are finished.")
-            #wait for answer
+            self.say("Please tell me when you are ready to leave.")
             self.toggle_stt('on')
-            answer = self.speech
-            if 'finished' in answer:
-                self.say("I will follow you to the entrance door.")
-                #TODO implement following behaviour
-                # for now just navigate to the location
-                if self.move_to_location("entrance", 3) == False:
-                    return
+            answer = None
+            while 'ready' not in answer:
+                answer = self.speech
+                rospy.sleep(0.1)
+                if answer is not None and 'ready' not in answer:
+                    self.say("Please tell me when you are ready")
+                    answer = None
+            self.toggle_stt('off')
+
+            self.say("Now you are done, I will follow you to the door. Please lead the way.")
+            rospy.sleep(3)
+            if self.move_to_location("entrance", 3) == False:
+                return
 
         else:
-            self.toggle_stt('off')
             self.say("I am sorry I cannot take you there.")
+
+
+
+        if self.move_to_location("home", 3) == False:
+            return
 
 '''
     def process_face_unrecognized(self):
@@ -413,6 +475,6 @@ class ControllerTBM2(GenericController):
 if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
-    nowcontroller = ControllerTBM2()
-    rospy.loginfo("waiting for the doorbell")
+    newcontroller = ControllerTBM2()
+    newcontroller.move_to_location("kitchen", 3)
     rospy.spin()
