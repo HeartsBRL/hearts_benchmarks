@@ -306,7 +306,7 @@ class ControllerTBM2(GenericController):
         self.say("Thank you, please follow me back to the door")
 
         # 10. move to front door
-        if self.move_to_location("hallway", 3) == False:
+        if self.move_to_location("entrance", 3) == False:
             return
 
         # 11. bid deliman farewell
@@ -328,7 +328,7 @@ class ControllerTBM2(GenericController):
 
         # 4. move to bedroom
         #TODO implement guiding behavior
-        if self.move_to_location("outside bedroom", 3) == False:
+        if self.move_to_location("doctor_lead", 3) == False:
             return
 
         # 5. speak to doctor, advise robot will wait
@@ -355,7 +355,7 @@ class ControllerTBM2(GenericController):
 
 
         # 9. move to hallway
-        if self.move_to_location("hallway", 3) == False: #TODO follow dr, don't just run them over!
+        if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
             return
 
         # 10. bid farewell
@@ -386,7 +386,7 @@ class ControllerTBM2(GenericController):
             self.say("Please follow me to the bathroom.")
             #TODO implement following behaviour
             # for now just navigate to the location
-            if self.move_to_location("bathroom", 3) == False:
+            if self.move_to_location("plumber_bathroom", 3) == False:
                 return
             #wait for plumber to finish
 
@@ -405,6 +405,8 @@ class ControllerTBM2(GenericController):
 
             self.say("Now you are done, I will follow you to the door. Please lead the way.")
             rospy.sleep(3)
+            if self.move_to_location("entrance", 3) == False:
+                            return
 
 
         elif 'kitchen' in room:
@@ -430,9 +432,14 @@ class ControllerTBM2(GenericController):
 
             self.say("Now you are done, I will follow you to the door. Please lead the way.")
             rospy.sleep(3)
+            if self.move_to_location("entrance", 3) == False:
+                return
 
         else:
             self.say("I am sorry I cannot take you there.")
+
+        if self.move_to_location("home", 3) == False:
+            return
 
 '''
     def process_face_unrecognized(self):
@@ -448,4 +455,5 @@ if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
     nowcontroller = ControllerTBM2()
+    newcontroller.move_to_location("kitchen", 3)
     rospy.spin()
