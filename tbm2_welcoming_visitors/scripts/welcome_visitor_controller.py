@@ -11,7 +11,7 @@ from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState, DevicesState, Tabl
 import std_srvs.srv
 from collections import Counter
 
-from aggregator.msg import Face_recog_verdict# My personal messages DANIEL
+from aggregator.msg import Face_recog_verdict, Tracking_info# My personal messages DANIEL
 
 from python_support_library.generic_controller import GenericController
 
@@ -33,12 +33,16 @@ class ControllerTBM2(GenericController):
 
         # init publishers
         self.pub_twist = rospy.Publisher('/mobile_base_controller/cmd_vel',
-                                         Twist,
-                                         queue_size=10)
+            Twist,
+            queue_size=10)
 
-         self.pub_face = rospy.Publisher('/recognising_visitor/controller',
-                                          Face_recog_verdict,
-                                          queue_size=10)#DANIEL
+        self.pub_face = rospy.Publisher('/recognising_visitor/controller',
+            Face_recog_verdict,
+            queue_size=10)#DANIEL
+
+        self.pub_tracking = rospy.Publisher('/tracking_visitor/controller',
+            Tracking_info,
+            queue_size=10)#DANIEL
 
         # init subscribers
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
@@ -52,6 +56,7 @@ class ControllerTBM2(GenericController):
         self.current_pose = None
         self.has_scan_changed = False
         self.recognition = None #DANIEL
+        self.vision_status = None
 
     def scan_changed_callback(self, msg):
         '''Trigged by subscriber: /scan_change '''
@@ -61,14 +66,17 @@ class ControllerTBM2(GenericController):
         '''Starts /scan_change subscriber and waits until a scan changes '''
         self.has_scan_changed = False
         rospy.Subscriber("/scan_change", String, self.scan_changed_callback)
-        while not self.has_scan_changed:
+
+        while not self.has_scan_changed: #TODO add timer to request person to move to better viewing position if difficulty detecting? Might affect dr kimble code...
             rospy.sleep(1)
 
         # TODO: kill subscriber
 
+#####################VISION FACE RECOGNITION#######################
+
     def detect_visitor_face(self): #DANIEL
         rospy.Subscriber("/recognising_visitor/vision",    Face_recog_verdict,self.recognition_callback) #DANIEL
-        rospy.loginfo("subscribed to topic /hearts/face/user")
+        rospy.loginfo("subscribed to topic /recognising_visitor/vision")
         while self.recognition is None:
             rospy.sleep(0.1)
         sub.unregister()
@@ -77,9 +85,28 @@ class ControllerTBM2(GenericController):
         return self.recognition
         #TODO deliman and plumber will not have known faces, but must be identified in other ways, not just turned away
 
+    #DANIEL
     def recognition_callback(self, msg):
         rospy.loginfo("face_callback: " + msg.best_pick)
         self.recognition = msg.best_pick
+
+############VISION PEOPLE TRACKING############################
+
+    def track_visitor(self): #DANIEL
+        rospy.Subscriber("/tracking_visitor/vision",    Tracking_info,self.tracking_callback) #DANIEL
+        rospy.loginfo("subscribed to topic /tracking_visitor/vision")
+        while self.visitor_status is None: #TODO When the plumber finished for example or when the visitor goes out of sight
+            rospy.sleep(0.1)
+        sub.unregister()
+
+        return self.visitor_status
+        #TODO deliman and plumber will not have known faces, but must be identified in other ways, not just turned away
+
+    #DANIEL
+    def tracking_callback(self, msg):
+        rospy.loginfo("tracking_callback: " + msg.decision)
+        self.visitor_status = msg.decision
+
 
     #def voice_callback(self, data):
     #    rospy.loginfo("voice_callback: " + data.data)
@@ -128,13 +155,12 @@ class ControllerTBM2(GenericController):
         if self.move_to_location("entrance", 3) == False:
             self.say("I am unable to move to the front door")
             return
-            
-        #todo open door
+
+        # TODO open door
         self.say("please open the door")
-        
-        #todo detect door is opened
-        time.sleep(3)
-            
+
+        # TODO detect door is opened
+
         #TODO raise torso - use pose movement
 
         self.say("please look towards the camera so that I can recognise you")
@@ -169,10 +195,19 @@ class ControllerTBM2(GenericController):
                 answer = "yes"
                 if answer == "yes":
                     rospy.loginfo("detected plumber")
-                    self.process_face_plumber()
+                    self.process_face_deliman()
                 elif:
                     rospy.loginfo("visitor not recognize")
-                    
+##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
+    def function_to_be_called_by_process_face_methods(self): # DANIEL
+
+        Tracking_visitor_msg = Tracking_info() #DANIEL
+        Tracking_visitor_msg.tracking_flag = True #CHANGE WITH AUDIO RESPONSE OF TASK FINISHED
+        self.pub_tracking.publish(Tracking_visitor_msg)
+        visitor = self.track_visitor()
+####################################################################################################
+
+
     def process_face_postman(self):
         # Door should be open already
 
@@ -295,13 +330,37 @@ class ControllerTBM2(GenericController):
         # 11. return to base
         if self.move_to_location("home", 3) == False:
             return
-            
+#PLUMBER HERE #DANIEL 1st OCT 2018
     def process_face_plumber(self):
-        self.say("Hello plumber, where would you like to visit today?")
-        #TODO logic for plumber
-        
-        if self.move_to_location("home", 3) == False:
-            return
+        # ask plumber where they would like to go
+        self.say("Hello Plumber, which room would you like to go to?")
+
+        #listen for answer
+        self.toggle_stt(on)
+        self.stt_callback()
+
+        #go to the room, or not
+        if room = bathroom:
+            self.say("Please follow me to the bathroom.")
+            if self.move_to_location("bathroom", 3) == False:
+                return
+            #wait for plumber to finish
+
+        elif room = kitchen:
+            self.say("Please follow me to the kitchen.")
+            if self.move_to_location("kitchen", 3) == False:
+                return
+            #wait for plumber to finish
+
+
+        else:
+            self.say("I am sorry I cannot take you there.")
+
+
+
+
+
+
 
     def process_face_unrecognized(self):
         # 1. speak to visitor, "Sorry, I don't know you. I cannot open the door."
@@ -309,7 +368,7 @@ class ControllerTBM2(GenericController):
 
         if self.move_to_location("home", 3) == False:
             return
-
+#Main
 if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
