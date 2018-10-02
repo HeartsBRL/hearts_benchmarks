@@ -180,7 +180,7 @@ class ControllerTBM2(GenericController):
         elif visitor == "doctor":
             rospy.loginfo("detected doctor")
             self.process_face_doctor()
-        elif visitor == "unknown":
+        elif visitor == "Unknown":
             rospy.loginfo("do not recognize face")
             self.say("I do not recognise your face. Who are you?")
 
@@ -209,7 +209,7 @@ class ControllerTBM2(GenericController):
                 self.process_face_postman()
 
             else:
-                rospy.loginfo("visitor not recognize")
+                rospy.loginfo("visitor not recognized")
 
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
     def function_to_be_called_by_process_face_methods(self): # DANIEL
