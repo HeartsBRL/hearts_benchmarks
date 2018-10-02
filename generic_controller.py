@@ -46,11 +46,12 @@ class GenericController(object):
 
     ### extract content of speech recognition
     def stt_callback(self,data): #from tbm3
-        '''how to use: stt_callback() returns a string of speech in lowercase
+        '''
+        to use in code use self.speech
+        e.g. answer = self.speech
         '''
         speech = str(data)
         speech = speech.lower()
-
 
         # remove the ROS msg "Data:" value from speech
         item = 'data:'
