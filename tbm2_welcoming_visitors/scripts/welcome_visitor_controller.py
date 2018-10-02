@@ -213,7 +213,7 @@ class ControllerTBM2(GenericController):
                 self.process_face_postman()
 
             else:
-                rospy.loginfo("visitor not recognize")
+                rospy.loginfo("visitor not recognized")
 
         else:
             rospy.loginfo("no faces detected")
