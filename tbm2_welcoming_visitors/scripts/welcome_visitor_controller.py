@@ -61,7 +61,7 @@ class ControllerTBM2(GenericController):
     def scan_changed_callback(self, msg):
         '''Trigged by subscriber: /scan_change '''
         self.has_scan_changed = (msg.data == "yes")
-        
+
     def wait_for_scan_changed(self):
         '''Starts /scan_change subscriber and waits until a scan changes '''
         self.has_scan_changed = False
@@ -196,7 +196,7 @@ class ControllerTBM2(GenericController):
                 if answer == "yes":
                     rospy.loginfo("detected plumber")
                     self.process_face_deliman()
-                elif:
+                else:
                     rospy.loginfo("visitor not recognize")
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
     def function_to_be_called_by_process_face_methods(self): # DANIEL
