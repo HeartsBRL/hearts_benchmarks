@@ -267,12 +267,10 @@ class ControllerTBM2(GenericController):
         if self.move_to_location("bedroom", 3) == False:
             return
 
-
         # move arm to offer parcel
-        #self.move_to_pose("give_receive")
+        self.move_to_pose("give_receive")
 
-        self.say("Hello Grannie Annie. Please take the  parcel in my hand and I will let go when you say ready") #TODO maybe a better set of words to use?
-        #TODO wait for response
+        self.say("Hello Grannie Annie. Please take the parcel in my hand, please tell me when you are ready and I will let go.") #TODO maybe a better set of words to use?
 
         #TODO loop until "ready" said? or timeout to repeat command?
         self.toggle_stt('on')
@@ -286,10 +284,11 @@ class ControllerTBM2(GenericController):
         self.toggle_stt('off')
 
         #TODO release if yes
+        self.say("I am letting go now.")
         self.move_to_pose("open_gripper")
 
         # move arm close in again so easier to move back to base
-        #self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
+        self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
 
         #TODO say something before leaving?
         self.say("See you later Grannie Annie.")
