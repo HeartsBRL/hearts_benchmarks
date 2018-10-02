@@ -264,14 +264,27 @@ class ControllerTBM2(GenericController):
         rospy.sleep(5)
 
         #TODO navigate to granny annie, keep far enough away so as to not hit granny annie when offering parcel
-        self.say("Hello granny annie, the postman has bought you a parcel, I will pass it to you now")
+        if self.move_to_location("bedroom", 3) == False:
+            return
+
 
         # move arm to offer parcel
-        self.move_to_pose("give_receive")
+        #self.move_to_pose("give_receive")
 
-
-        self.say("Have you got hold of it?")
+        self.say("Hello Grannie Annie. Please take the  parcel in my hand and I will let go when you say ready") #TODO maybe a better set of words to use?
         #TODO wait for response
+
+        #TODO loop until "ready" said? or timeout to repeat command?
+        self.toggle_stt('on')
+        answer = None
+        while 'ready' not in answer:
+            answer = self.speech
+            rospy.sleep(0.1)
+            if answer is not None and 'ready' not in answer:
+                self.say("Please tell me when you are ready.")
+                answer = None
+        self.toggle_stt('off')
+
         #TODO release if yes
         self.move_to_pose("open_gripper")
 
