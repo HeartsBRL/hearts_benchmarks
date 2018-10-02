@@ -56,6 +56,7 @@ class ControllerTBM2(GenericController):
     def scan_changed_callback(self, msg):
         '''Trigged by subscriber: /scan_change '''
         self.has_scan_changed = (msg.data == "yes")
+        
     def wait_for_scan_changed(self):
         '''Starts /scan_change subscriber and waits until a scan changes '''
         self.has_scan_changed = False
@@ -65,7 +66,7 @@ class ControllerTBM2(GenericController):
 
         # TODO: kill subscriber
 
-    def detect_visitor(self): #DANIEL
+    def detect_visitor_face(self): #DANIEL
         rospy.Subscriber("/recognising_visitor/vision",    Face_recog_verdict,self.recognition_callback) #DANIEL
         rospy.loginfo("subscribed to topic /hearts/face/user")
         while self.recognition is None:
@@ -143,7 +144,7 @@ class ControllerTBM2(GenericController):
         Recog_visitor_msg = Face_recog_verdict() #DANIEL
         Recog_visitor_msg.scan_time = rospy.Duration(10)
         self.pub_face.publish(Recog_visitor_msg)
-        visitor = self.etect_visitor()
+        visitor = self.detect_visitor_faces()
 
 
         if visitor == "postman":
