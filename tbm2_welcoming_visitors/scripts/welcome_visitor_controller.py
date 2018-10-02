@@ -164,7 +164,7 @@ class ControllerTBM2(GenericController):
 
         #TODO raise torso - use pose movement
 
-        self.say("please look towards the camera so that I can recognise you")
+        self.say("please look at me so that I can recognise you")
 
         #TODO use new calls
         visitor = None
@@ -226,7 +226,7 @@ class ControllerTBM2(GenericController):
         self.say("Hello postman, I will receive the post mail, please stand back while I move my arm")
 
         #TODO check postman has stood back/area is clear for movement
-        rospy.sleep(1)
+        rospy.sleep(2)
 
 
         # move to receive pose
@@ -266,7 +266,6 @@ class ControllerTBM2(GenericController):
         #TODO navigate to granny annie, keep far enough away so as to not hit granny annie when offering parcel
         self.say("Hello granny annie, the postman has bought you a parcel, I will pass it to you now")
 
-
         # move arm to offer parcel
         self.move_to_pose("give_receive")
 
@@ -287,8 +286,7 @@ class ControllerTBM2(GenericController):
             return
 
     def process_face_deliman(self):
-        self.say("Hello deliman")
-        self.say("I will receive the breakfast")
+        self.say("Hello deliman, please come in and close the door behind you.")
 
         # 5. speak to the deliman, instruct to follow robot: "Please follow me"
         self.say("Please follow me to the kitchen")
@@ -368,6 +366,8 @@ class ControllerTBM2(GenericController):
         # 11. return to base
         if self.move_to_location("home", 3) == False:
             return
+
+
     #PLUMBER HERE #DANIEL 1st OCT 2018
     def process_face_plumber(self):
         # ask plumber where they would like to go
