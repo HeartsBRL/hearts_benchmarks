@@ -740,39 +740,41 @@ def check_locations(locations, navjson_file):
 
     return (found,missed)
 #*********************************************************************************
-#todo put in launch file
-ERL_data_file   = '../data/TBM3_objects.csv'
-ERL_verb_file   = '../data/TBM3_verbs.csv'
+def getcompdata():
+    #todo put in launch file
+    ERL_data_file   = '../data/TBM3_objects.csv'
+    ERL_verb_file   = '../data/TBM3_verbs.csv'
 
-ERL_data        = read_ERL_data(ERL_data_file)
+    ERL_data        = read_ERL_data(ERL_data_file)
 
-# for line in ERL_data:
-#     print (line[0],line[1],line[2],line[3],line[4])
+    # for line in ERL_data:
+    #     print (line[0],line[1],line[2],line[3],line[4])
 
-commands        = read_ERL_verb(ERL_verb_file)
+    commands        = read_ERL_verb(ERL_verb_file)
 
-people, objects = parse_ERL_data(ERL_data)
-    
+    people, objects = parse_ERL_data(ERL_data)
 
-locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
-for loc  in locations:
-    print(loc)
+    locations       = parse_locations(ERL_data) # note 2 or more word locations returned with "_" instead of " "
+    for loc  in locations:
+        print(loc)
+    return ERL_data, locations,commands, people, objects
 
 
+def checklocations(locations):
 #check that all "locations" found are in the Navigation locations.json file
 #navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
-navjson_file = 'locations.json'
+    navjson_file = 'locations.json'
 
-found,missed = check_locations(locations, navjson_file)
-print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
-# for cmd in commands:
-#     print(cmd)
-# for per in people:
-#     print("Person  : "+per)
-# for obj in  objects:
-#     print("Object  : "+obj)
-# for loc in locations:
-    # print("Location: "+loc)
+    found,missed = check_locations(locations, navjson_file)
+    print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+    # for cmd in commands:
+    #     print(cmd)
+    # for per in people:
+    #     print("Person  : "+per)
+    # for obj in  objects:
+    #     print("Object  : "+obj)
+    # for loc in locations:
+        # print("Location: "+loc)
 
 references      = ['him', 'her', 'it', 'them' ]
 
@@ -780,6 +782,47 @@ locModifiers    = [ 'from', 'to', 'in']
 #
 #================================================================================================
 #
+
+def defineobjectives(taskP):
+    taskP = process_task(task)
+
+    #create objectives from task text
+    objectives = objectify(taskP)
+
+    #use task text to fill relevant variables in each objective
+    objectives[0].parse()
+    objectives[1].parse()
+    objectives[2].parse()
+
+    #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
+    resolveReferences(objectives)
+
+    # map ERL verb to BRL equivalent
+    #     this also deals with "take" which can be manipulating OR accompanying 
+    # deal with locations of known objects (no location verbally given) eg Find John
+    # 
+    objectives[0].process_objective()
+    objectives[1].process_objective()
+    objectives[2].process_objective()
+
+    return objectives
+
+def getconfirmationtext(objectives):
+    acttxt_0 = objectives[0].confirmationtext
+    acttxt_1 = objectives[1].confirmationtext
+    acttxt_2 = objectives[2].confirmationtext
+
+    action_txt = "*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n'
+    print("\n Text to be spoken to Granny Annie by TiaGO ..........")
+    print (action_txt)
+
+    return action_txt
+
+def executeobectives(objectives):
+    ### then pass data on to the actions(x3) driver!!
+    objectives[0].execute()
+    objectives[1].execute()
+    objectives[2].execute()
 
 if __name__ == '__main__':
 
@@ -804,46 +847,57 @@ if __name__ == '__main__':
     print('\n***** Orignal task words *****')
     print(task)
     print '\n***** Actions remapped to BRL versions/plus other remaps'
+
+    ERL_data, locations, commands,people,objects = getcompdata()
+
+    theobjectives = defineobjectives(task1)
+
+    ans = getconfirmationtext(theobjectives)
+
+    executeobectives(theobjectives)
+
     #simplify text ease of use
-    taskP = process_task(task)
+    # taskP = process_task(task)
 
-    #create objectives from task text
-    objectives = objectify(taskP)
+    # #create objectives from task text
+    # objectives = objectify(taskP)
 
-    #use task text to fill relevant variables in each objective
-    objectives[0].parse()
-    objectives[1].parse()
-    objectives[2].parse()
+    # #use task text to fill relevant variables in each objective
+    # objectives[0].parse()
+    # objectives[1].parse()
+    # objectives[2].parse()
 
-    #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
-    resolveReferences(objectives)
+    # #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
+    # resolveReferences(objectives)
 
-    #print objectives for user to read
-    # objectives[0].printme()
-    # objectives[1].printme()
-    # objectives[2].printme()
+    # #print objectives for user to read
+    # # objectives[0].printme()
+    # # objectives[1].printme()
+    # # objectives[2].printme()
 
-    # map ERL verb to BRL equivalent
-    #     this also deals with "take" which can be manipulating OR accompanying 
-    # deal with locations of known objects (no location verbally given) eg Find John
-    # 
-    objectives[0].process_objective()
-    objectives[1].process_objective()
-    objectives[2].process_objective()
+    # # map ERL verb to BRL equivalent
+    # #     this also deals with "take" which can be manipulating OR accompanying 
+    # # deal with locations of known objects (no location verbally given) eg Find John
+    # # 
+    # objectives[0].process_objective()
+    # objectives[1].process_objective()
+    # objectives[2].process_objective()
 
 
-    #print objectives for user to read
-    objectives[0].printme_final()
-    objectives[1].printme_final()
-    objectives[2].printme_final()
+    # #print objectives for user to read
+    # objectives[0].printme_final()
+    # objectives[1].printme_final()
+    # objectives[2].printme_final()
 
-    acttxt_0 = objectives[0].confirmationtext
-    acttxt_1 = objectives[1].confirmationtext
-    acttxt_2 = objectives[2].confirmationtext
-    print("\n Text to be spoken to Granny Annie by TiaGO ..........")
-    print ("*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n')
+    # acttxt_0 = objectives[0].confirmationtext
+    # acttxt_1 = objectives[1].confirmationtext
+    # acttxt_2 = objectives[2].confirmationtext
 
-    ### then pass data on to the actions(x3) driver!!
-    objectives[0].execute()
-    objectives[1].execute()
-    objectives[2].execute()
+    # action_txt = "*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n'
+    # print("\n Text to be spoken to Granny Annie by TiaGO ..........")
+    # print (action_txt)
+
+    # ### then pass data on to the actions(x3) driver!!
+    # objectives[0].execute()
+    # objectives[1].execute()
+    # objectives[2].execute()
