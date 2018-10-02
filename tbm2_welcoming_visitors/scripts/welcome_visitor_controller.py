@@ -289,7 +289,7 @@ class ControllerTBM2(GenericController):
         self.move_to_pose("open_gripper")
 
         # move arm close in again so easier to move back to base
-        self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
+        #self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
 
         #TODO say something before leaving?
         self.say("See you later Grannie Annie.")
