@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import numpy as np
 import string
 import re
@@ -22,8 +20,10 @@ class Objective:
     founditems = {} # coords from Tiago of object and/or person found
                     # data format  {name : [x,y,theta]}
 
-    def __init__(self,sentence,com,brlcom,comtype):
+    def __init__(self,sentence,com,brlcom,comtype,analysis):
         Objective.instances += 1
+
+        self.analysis = analysis
 
         self.instance   = Objective.instances
 
@@ -74,25 +74,25 @@ class Objective:
         #reads sentence and stores key words
 
         #check for 2 (or more) word locations & objects
-        self.sentence = analysis.process_locations(self.sentence)
-        self.sentence = analysis.process_objects  (self.sentence)
+        self.sentence = self.analysis.process_locations(self.sentence)
+        self.sentence = self.analysis.process_objects  (self.sentence)
         splitList = self.sentence.split()
 
         for word in splitList:
             test = word 
             
-            if test in analysis.locations:
+            if test in self.analysis.locations:
                 self.location.append(word)
             #elif test in furnitures:
             #    self.furniture.append(word)
            
-            elif test in analysis.objects:
+            elif test in self.analysis.objects:
                 self.object.append(word)
-            elif test in analysis.people:
+            elif test in self.analysis.people:
                 self.person.append(word)
-            elif test in analysis.references:
+            elif test in self.analysis.references:
                 self.reference.append(word)
-            elif test in analysis.locModifiers:
+            elif test in self.analysis.locModifiers:
                 self.locationModifier.append(word)
 
         #uses modifier words 'to' and 'from' to fill in 'to' and 'from' locations - important in "take thing from x to y" tasks
@@ -139,7 +139,7 @@ class Objective:
         ## SEARCH for OBJECT ## - when there is no "fromLocation"  for 'find/get an object' then use the ones
         #                         given in the ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
-            loc0,loc1,loc2 = analysis.get_obj_per_loc(self.object[0])
+            loc0,loc1,loc2 = self.analysis.get_obj_per_loc(self.object[0])
             self.fromLocation.append(loc0)
             self.fromLocation.append(loc1)            
             self.fromLocation.append(loc2)
@@ -149,7 +149,7 @@ class Objective:
         #                         given in the ERL data (ie the 3 possible locations)
         if (brl_com == 'find' or brl_com == 'get') and len(self.person) > 0 and len(self.location) == 0:
 
-            loc0,loc1,loc2 = analysis.get_obj_per_loc(self.person[0])
+            loc0,loc1,loc2 = self.analysis.get_obj_per_loc(self.person[0])
             self.fromLocation.append(loc0)   
             self.fromLocation.append(loc1)
             self.fromLocation.append(loc2)
@@ -225,7 +225,7 @@ class Objective:
 
     def get_brl_com(self, erl_com):    
         # find the equivalent BRL command to the ERL one
-        for cmd in analysis.commands:
+        for cmd in self.analysis.commands:
             if erl_com == cmd[1]:
                 brl_com = cmd[2]
                 comtype = cmd[0]
@@ -538,9 +538,9 @@ class Analysis(object):
 
 
         #use the indices of commands to split task into objectives
-        objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0])
-        objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1])
-        objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2])
+        objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
+        objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
+        objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
         #DAR
         # print("taskflags[0]+1 :"+str(taskflags[0]+1))
         # print("taskflags[1]+1 :"+str(taskflags[1]+1))
@@ -833,7 +833,8 @@ class Analysis(object):
         objectives[2].execute()
 
 if __name__ == '__main__':
-
+    pass
+'''
     #hard coded example commands - first four from ERL documentation
     task1 = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
 
@@ -911,3 +912,4 @@ if __name__ == '__main__':
     # objectives[0].execute()
     # objectives[1].execute()
     # objectives[2].execute()
+'''

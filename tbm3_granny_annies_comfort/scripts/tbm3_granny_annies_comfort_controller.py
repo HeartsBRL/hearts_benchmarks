@@ -27,7 +27,7 @@ import language_v2 as nlp
 class ControllerTBM3(GenericController):
     
     def __init__(self):
-                # init the generic stuff from GenericController
+        # init the generic stuff from GenericController
         super(ControllerTBM3, self).__init__() 
         
         #Publishers  
@@ -212,13 +212,24 @@ class ControllerTBM3(GenericController):
         # if self.code2exec != None:
         #     #listen for "answer"
         ###### NEW CODE for sppech processing        #####
-        ERL_data, locations, commands,people,objects = nlp.getcompdata()
+        analysis = nlp.Analysis()
 
-        theobjectives = nlp.defineobjectives(speech)
+        analysis.getcompdata()
+
+        theobjectives = analysis.defineobjectives(speech)
+
+        talkback = analysis.getconfirmationtext(theobjectives)
+
+        #analysis.executeobectives(theobjectives)
+
+
+                #ERL_data, locations, commands,people,objects = nlp.getcompdata()
+
+                #theobjectives = nlp.defineobjectives(speech)
         print("***** nlp 1")
-        speech = nlp.getconfirmationtext(theobjectives)
-        print("*****\n"+speech+ "\n")
-        self.say("You requested that I "+speech+'. Shall I do this now?')
+        #speech = nlp.getconfirmationtext(theobjectives)
+        print("*****\n"+talkback+ "\n")
+        self.say("You requested that I "+talkback+'. Shall I do this now?')
         ###### end of code for NEW speech processing #####
         # self.code2exec = executeobectives(theobjectives)
         # get confirmation of command
@@ -467,12 +478,11 @@ class ControllerTBM3(GenericController):
 
 
 if __name__ == '__main__':
-    import sys
 
-    ERL_data, locations, commands,people,objects = nlp.getcompdata()
+       
     rospy.init_node('annies_comfort', anonymous=False)
     rospy.loginfo("annies comfort controller has started")
-
     controller = ControllerTBM3()
     #controller.main()
     rospy.spin()
+
