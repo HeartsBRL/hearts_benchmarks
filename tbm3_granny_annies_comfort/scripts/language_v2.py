@@ -21,6 +21,11 @@ class Objective:
                     # data format  {name : [x,y,theta]}
 
     def __init__(self,sentence,com,brlcom,comtype,analysis):
+        #publishers
+        self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
+
+
+
         Objective.instances += 1
 
         self.analysis = analysis
@@ -43,13 +48,25 @@ class Objective:
         self.brlcommand.append(brlcom)
         self.comtype.append(comtype)
         self.confirmationtext = ""
+        self.success = False
+
 
         self.load_json_coords()
 
 
+    def say(self, text):
+        ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
+        rospy.loginfo("saying \"" + text + "\"")
+        rospy.sleep(1)
+        self.tts_pub.publish(text)
+        rospy.sleep(5)
+
+
+    
     def load_json_coords(self): 
 
         #todo put file name in launch file
+        #TODO set json file to be the same as the general navigation one
         filein = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/locations.json'
         with open(filein) as fh:
             data = json.load(fh)
@@ -319,7 +336,7 @@ class Objective:
 
     ###### SEARCHING ######
     def search(self):
-        found = True #todo should be False for final program!!
+        found = False #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
 
             if len(self.object) >0:
@@ -330,12 +347,14 @@ class Objective:
                 print("in search: FROM loc  = "+frmLoc)  
                 print(coords)              
                 print("in search: find object: "+ obj)
+                self.say("I am looking for "+ obj)
                 if found:
                     print("in search: store coords of found location for object")
                     coords = [1,2,3] #todo used coords return from search code
                     print(coords)
                     self.storefoundloc(obj, coords)
                     found = True
+                    self.say("I have found "+obj)
                     break
 
             if len(self.person) >0:  
@@ -826,7 +845,7 @@ class Analysis(object):
 
         return action_txt
 
-    def executeobectives(self,objectives):
+    def executeobjectives(self,objectives):
         ### then pass data on to the actions(x3) driver!!
         objectives[0].execute()
         objectives[1].execute()

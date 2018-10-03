@@ -168,7 +168,7 @@ class ControllerTBM3(GenericController):
         if 'yes' in words:
             self.say("OK then I will do that")
     
-            self.analysis.executeobectives(self.theobjectives)
+            self.analysis.executeobjectives(self.theobjectives)
             self.say("The task is complete. Please give me another command")
             
             # re-establish subscribers    
@@ -225,7 +225,7 @@ class ControllerTBM3(GenericController):
         self.say("You requested that I "+talkback+'. Shall I do this now?')
         ###### end of code for NEW speech processing #####
     
-        # self.code2exec = executeobectives(theobjectives)
+        # self.code2exec = executeobjectives(theobjectives)
         #get confirmation of command
         self.listen4cmd('off')
         self.listen4ans('on')
