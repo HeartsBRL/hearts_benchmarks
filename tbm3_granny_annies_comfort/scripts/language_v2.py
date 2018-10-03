@@ -820,7 +820,7 @@ class Analysis(object):
         acttxt_1 = objectives[1].confirmationtext
         acttxt_2 = objectives[2].confirmationtext
 
-        action_txt = "*** "+ acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n'
+        action_txt =  acttxt_0 +' then ' + acttxt_1 + ' and '+ acttxt_2 +'\n'
         print("\n Text to be spoken to Granny Annie by TiaGO ..........")
         print (action_txt)
 

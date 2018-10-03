@@ -167,7 +167,8 @@ class ControllerTBM3(GenericController):
 
         if 'yes' in words:
             self.say("OK then I will do that")
-            exec(self.code2exec)
+    
+            self.analysis.executeobectives(self.theobjectives)
             self.say("The task is complete. Please give me another command")
             
             # re-establish subscribers    
@@ -212,32 +213,25 @@ class ControllerTBM3(GenericController):
         # if self.code2exec != None:
         #     #listen for "answer"
         ###### NEW CODE for sppech processing        #####
-        analysis = nlp.Analysis()
+        self.analysis = nlp.Analysis()
+        self.analysis.getcompdata()
+        self.theobjectives = self.analysis.defineobjectives(speech)
 
-        analysis.getcompdata()
+        talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-        theobjectives = analysis.defineobjectives(speech)
-
-        talkback = analysis.getconfirmationtext(theobjectives)
-
-        #analysis.executeobectives(theobjectives)
-
-
-                #ERL_data, locations, commands,people,objects = nlp.getcompdata()
-
-                #theobjectives = nlp.defineobjectives(speech)
+              
         print("***** nlp 1")
-        #speech = nlp.getconfirmationtext(theobjectives)
         print("*****\n"+talkback+ "\n")
         self.say("You requested that I "+talkback+'. Shall I do this now?')
         ###### end of code for NEW speech processing #####
+    
         # self.code2exec = executeobectives(theobjectives)
-        # get confirmation of command
+        #get confirmation of command
         self.listen4cmd('off')
         self.listen4ans('on')
             
-        # else:
-        #     self.say("Sorry, your command was not understood. Please repeat.")
+       # else:
+            #  self.say("Sorry, your command was not understood. Please repeat.")
 
         return
     
