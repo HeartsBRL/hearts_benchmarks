@@ -233,6 +233,7 @@ class ControllerTBM2(GenericController):
                         rospy.sleep(5)
                         print "now"
             self.called = False
+            self.recognition = None
 
         # else:
             # rospy.loginfo("no faces detected")
@@ -310,7 +311,7 @@ class ControllerTBM2(GenericController):
         # move arm to offer parcel
         self.move_to_pose("give_receive")
 
-        self.say("Hello Grannie Annie. Please take the parcel from my hand, I will release it in 3, 2, 1.") #TODO maybe a better set of words to use?
+        self.say("Hello Grannie Annie. Please take the parcel from my hand") #TODO maybe a better set of words to use?
 
         # #TODO loop until "ready" said? or timeout to repeat command?
         # self.ready = False
@@ -337,10 +338,11 @@ class ControllerTBM2(GenericController):
         #TODO release if yes
         # self.say("I am letting go now.")
         self.move_to_pose("open_gripper")
+        rospy.sleep(1)
 
         # move arm close in again so easier to move back to base
         self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
-
+        rospy.sleep(1)
         #TODO say something before leaving?
         self.say("See you later Annie.")
 
