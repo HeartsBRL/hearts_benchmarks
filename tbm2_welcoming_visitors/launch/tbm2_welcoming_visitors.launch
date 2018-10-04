@@ -8,12 +8,12 @@
 
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
-    <arg name="map_name" value="erl_2018" />
+    <arg name="map_name" value="erl_2018_2" />
   </include>
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
     <param name="team_name" type="string" value="HEARTS" />
     <param name="robot_name" type="string" value="Tiago" />
-    <param name="rsbb_key" type="string" value="YBnzHu6B" />
+    <param name="rsbb_key" type="string" value="YEnzHu6P" />
     <param name="rsbb_host" type="string" value="10.2.0.10" />
   </node>
   <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
@@ -21,7 +21,15 @@
   <!-- <node name="face_recognizer" pkg="aggregator" type="final_vision_aggregator.py" /> -->
   <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" output="screen"  />
 
+  <include file="$(find hearts_stt)/launch/hearts_stt.launch">
+   <arg name="SR_speechrec_engine" value="google" />
+   <arg name="SR_ENERGY_THRESHOLD" value="1500" />
+   <arg name="listen" value="" />
+  </include>
+
   <node name="person_tracking" pkg="aggregator" type="person_tracking_TBM2_controller.py" output="screen"  />
+  <node name="motion_player" pkg="hearts_arm_control" type="motion_player.py" />
+  <rosparam file="$(find hearts_arm_control)/config/hearts_motions.yaml" command="load" />
   <!--include file="$(find hearts_person_tracker)/launch/hearts_person_tracker.launch">
 </include-->
   <!-- <node name="webcam_publisher" pkg="hearts_webcam" type="hearts_webcam" output="screen" args="1" /> -->
