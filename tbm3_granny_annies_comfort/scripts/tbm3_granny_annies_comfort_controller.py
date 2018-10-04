@@ -8,8 +8,10 @@
 ##############################################################################################
 # Updates :
 #
-#
-##############################################################################################
+# Oct 2018 in Madrid:
+#         - generic controller introduced
+#         - new language processor introduced for the June 2018 rule book
+#############################################################################################
 import rospy
 import time
 import std_srvs.srv
@@ -20,10 +22,12 @@ from   roah_rsbb_comm_ros.srv import Percentage
 from random import *
 from python_support_library.generic_controller import GenericController
 
+import language_v2 as nlp
+
 class ControllerTBM3(GenericController):
 
     def __init__(self):
-                # init the generic stuff from GenericController
+        # init the generic stuff from GenericController
         super(ControllerTBM3, self).__init__()
 
         #Publishers
@@ -163,7 +167,8 @@ class ControllerTBM3(GenericController):
 
         if 'yes' in words:
             self.say("OK then I will do that")
-            exec(self.code2exec)
+
+            self.analysis.executeobjectives(self.theobjectives)
             self.say("The task is complete. Please give me another command")
 
             # re-establish subscribers
@@ -198,23 +203,35 @@ class ControllerTBM3(GenericController):
             self.say("Sorry, no words were recognised. Please repeat.")
             return
 
-        lookupkey = self.bld_lookupkey(speech)
-        rospy.loginfo("*** lookup key: "+lookupkey)
+        # lookupkey = self.bld_lookupkey(speech)
+        # rospy.loginfo("*** lookup key: "+lookupkey)
 
-        # obtain  "Directive to Robot" from dictionary
-        self.code2exec = self.actions_dict.get(lookupkey)
+        # # obtain  "Directive to Robot" from dictionary
+        # self.code2exec = self.actions_dict.get(lookupkey)
 
-        # check that lookup key was found
-        if self.code2exec != None:
-            #listen for "answer"
-            self.say("You requested that I "+speech+'. Shall I do this now?')
+        # # check that lookup key was found
+        # if self.code2exec != None:
+        #     #listen for "answer"
+        ###### NEW CODE for sppech processing        #####
+        self.analysis = nlp.Analysis()
+        self.analysis.getcompdata()
+        self.theobjectives = self.analysis.defineobjectives(speech)
 
-            # get confirmation of command
-            self.listen4cmd('off')
-            self.listen4ans('on')
+        talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-        else:
-            self.say("Sorry, your command was not understood. Please repeat.")
+
+        print("***** nlp 1")
+        print("*****\n"+talkback+ "\n")
+        self.say("You requested that I "+talkback+'. Shall I do this now?')
+        ###### end of code for NEW speech processing #####
+
+        # self.code2exec = executeobjectives(theobjectives)
+        #get confirmation of command
+        self.listen4cmd('off')
+        self.listen4ans('on')
+
+       # else:
+            #  self.say("Sorry, your command was not understood. Please repeat.")
 
         return
 
@@ -433,7 +450,7 @@ class ControllerTBM3(GenericController):
     def main(self):
         print ("\n***** MAIN Executing *****\n")
         #go to home position
-        #self.move_to_location("home",1) #TODO check number of retries
+        #dar self.move_to_location("home",1) #TODO check number of retries
 
         #wait for call
         self.say("Waiting to be called by granny annie.")
@@ -441,7 +458,7 @@ class ControllerTBM3(GenericController):
 
         #request location
         #self.say("Waiting for granny annie's location") - removed as delay seems to prevent user location callback from firing
-        self.wait_for_user_location()
+        #dar self.wait_for_user_location()
 
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
@@ -456,13 +473,10 @@ class ControllerTBM3(GenericController):
 
 
 if __name__ == '__main__':
-    import sys
-    print("\n***")
-    for p in sys.path:
-        print(p)
+
+
     rospy.init_node('annies_comfort', anonymous=False)
     rospy.loginfo("annies comfort controller has started")
-
     controller = ControllerTBM3()
     #controller.main()
     rospy.spin()
