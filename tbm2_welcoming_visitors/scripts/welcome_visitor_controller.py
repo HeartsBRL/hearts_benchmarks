@@ -153,8 +153,12 @@ class ControllerTBM2(GenericController):
         '''
         rospy.loginfo("bell_callback")
         if self.called == False:
-            self.called = True#TODO uncomment this:
+            self.called = True
             self.say("I'm on my way")
+
+
+
+
 
             if self.move_to_location("entrance", 3) == False:
                 self.say("I am unable to move to the front door")
@@ -169,7 +173,7 @@ class ControllerTBM2(GenericController):
                 #TODO raise torso - use pose movement
 
             self.say("please stand close to my face and look into my eyes so that I can recognise you")
-
+            #
                 #TODO use new calls
             #visitor = None
             Recog_visitor_msg = Face_recog_verdict() #DANIEL
@@ -235,8 +239,8 @@ class ControllerTBM2(GenericController):
             self.called = False
             self.recognition = None
 
-        # else:
-            # rospy.loginfo("no faces detected")
+        else:
+            rospy.loginfo("no faces detected")
 
 ##############################################NEEDS INCLUSION IN ROBOT BEHAVIOUR###############################
     def function_to_be_called_by_process_face_methods(self): # DANIEL
@@ -424,10 +428,13 @@ class ControllerTBM2(GenericController):
                 self.toggle_stt('off')
                 rospy.sleep(1)
                 self.say("I did not understand, please tell me again.")
-                rospy.sleep(5)
+                rospy.sleep(2)
 
         self.say("Now you are done, I will follow you to the door. Please lead the way.")
         rospy.sleep(3)
+
+        self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.")
+        #rospy.sleep(4)
 
 
         # 9. move to hallway
@@ -443,7 +450,7 @@ class ControllerTBM2(GenericController):
         if self.move_to_location("home", 3) == False:
             return
 
-
+            #TODO FIX THE WHILE LOOP
     #PLUMBER HERE #DANIEL 1st OCT 2018
     def process_face_plumber(self):
         # ask plumber where they would like to go
@@ -459,97 +466,97 @@ class ControllerTBM2(GenericController):
         #     self.ready = True
         #     self.toggle_stt('off')
 
+        while not 'bathroom' in answer and 'bath room' in answer and 'kitchen' in answer:
+
+            #go to the room, or not
+            if 'bathroom' in answer or 'bath room' in answer:
+                self.say("Please follow me to the bathroom.")
+                #TODO implement following behaviour
+                # for now just navigate to the location
+                if self.move_to_location("plumber_bathroom", 3) == False:
+                    return
+                self.say("We are now at the bathroom.")
+                #wait for plumber to finish
+
+                #wait for answer
+                #TODO confirm they are actually done?
+                self.say("Please tell me when you are ready to leave.")
+                #TODO loop until "ready" said? or timeout to repeat command?
+                self.ready = False
+                while self.ready == False:
+                    #listen for reply, act accordingly
+                    self.toggle_stt('on')
+
+                    answer = None
+                    while answer is None:
+                        answer = self.speech
+                        rospy.sleep(0.2)
+                    self.toggle_stt('off')
+                    if 'ready' in answer:
+                        self.ready = True
+                        self.toggle_stt('off')
+                    else:
+                        self.ready = False
+                        #rospy.loginfo("visitor not recognized")
+                        self.toggle_stt('off')
+                        rospy.sleep(1)
+                        self.say("I did not understand, please tell me again.")
+                        rospy.sleep(5)
+
+                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                rospy.sleep(3)
+                if self.move_to_location("entrance", 3) == False:
+                                return
 
 
-        #go to the room, or not
-        if 'bathroom' in answer or 'bath room' in answer:
-            self.say("Please follow me to the bathroom.")
-            #TODO implement following behaviour
-            # for now just navigate to the location
-            if self.move_to_location("plumber_bathroom", 3) == False:
-                return
-            self.say("We are now at the bathroom.")
-            #wait for plumber to finish
-
-            #wait for answer
-            #TODO confirm they are actually done?
-            self.say("Please tell me when you are ready to leave.")
-            #TODO loop until "ready" said? or timeout to repeat command?
-            self.ready = False
-            while self.ready == False:
-                #listen for reply, act accordingly
-                self.toggle_stt('on')
-
-                answer = None
-                while answer is None:
-                    answer = self.speech
-                    rospy.sleep(0.2)
+            elif 'kitchen' in answer:
                 self.toggle_stt('off')
-                if 'ready' in answer:
-                    self.ready = True
+                self.say("Please follow me to the kitchen.")
+                #TODO implement 'following' behaviour
+
+                # for now just navigate to the location
+                if self.move_to_location("kitchen", 3) == False:
+                    return
+
+                self.say("We are now at the kitchen.")
+
+
+                self.say("Please tell me when you are ready to leave.")
+
+                #wait for plumber to finish
+                #TODO loop until "ready" said? or timeout to repeat command?
+                self.ready = False
+                while self.ready == False:
+                    #listen for reply, act accordingly
+                    self.toggle_stt('on')
+
+                    answer = None
+                    while answer is None:
+                        answer = self.speech
+                        rospy.sleep(0.2)
                     self.toggle_stt('off')
-                else:
-                    self.ready = False
-                    #rospy.loginfo("visitor not recognized")
-                    self.toggle_stt('off')
-                    rospy.sleep(1)
-                    self.say("I did not understand, please tell me again.")
-                    rospy.sleep(5)
+                    if 'ready' in answer:
+                        self.ready = True
+                        self.toggle_stt('off')
+                    else:
+                        self.ready = False
+                        rospy.loginfo("visitor not recognized")
+                        self.toggle_stt('off')
+                        rospy.sleep(1)
+                        self.say("I did not understand, please tell me again.")
+                        rospy.sleep(5)
 
-            self.say("Now you are done, I will follow you to the door. Please lead the way.")
-            rospy.sleep(3)
-            if self.move_to_location("entrance", 3) == False:
-                            return
+                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                rospy.sleep(3)
+                if self.move_to_location("entrance", 3) == False:
+                    return
 
-
-        elif 'kitchen' in answer:
-            self.toggle_stt('off')
-            self.say("Please follow me to the kitchen.")
-            #TODO implement 'following' behaviour
-
-            # for now just navigate to the location
-            if self.move_to_location("kitchen", 3) == False:
-                return
-
-            self.say("We are now at the kitchen.")
-
-
-            self.say("Please tell me when you are ready to leave.")
-
-            #wait for plumber to finish
-            #TODO loop until "ready" said? or timeout to repeat command?
-            self.ready = False
-            while self.ready == False:
-                #listen for reply, act accordingly
-                self.toggle_stt('on')
-
-                answer = None
-                while answer is None:
-                    answer = self.speech
-                    rospy.sleep(0.2)
+            else:
+                self.ready = False
                 self.toggle_stt('off')
-                if 'ready' in answer:
-                    self.ready = True
-                    self.toggle_stt('off')
-                else:
-                    self.ready = False
-                    rospy.loginfo("visitor not recognized")
-                    self.toggle_stt('off')
-                    rospy.sleep(1)
-                    self.say("I did not understand, please tell me again.")
-                    rospy.sleep(5)
-
-            self.say("Now you are done, I will follow you to the door. Please lead the way.")
-            rospy.sleep(3)
-            if self.move_to_location("entrance", 3) == False:
-                return
-
-        else:
-            self.ready = False
-            self.toggle_stt('off')
-            rospy.sleep(1)
-            self.say("I did not understand, please tell me again.")
-            rospy.sleep(5)
+                rospy.sleep(1)
+                self.say("I did not understand, please tell me again.")
+                rospy.sleep(2)
 
 
 
@@ -570,5 +577,5 @@ if __name__ == '__main__':
     rospy.init_node("task_controller", anonymous=True)
     rospy.loginfo("initialized controller node")
     newcontroller = ControllerTBM2()
-    newcontroller.move_to_location("kitchen", 3)
+    newcontroller.move_to_location("home", 3)
     rospy.spin()
