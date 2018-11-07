@@ -170,7 +170,7 @@ class ControllerTBM1(GenericController):
 
 			#listen for answer,
 			self.toggle_stt('on')
-			self.stt_callback()
+			
 
 
 
@@ -178,6 +178,7 @@ class ControllerTBM1(GenericController):
 
 			#ask for the room where the furniture is
 			self.say("Please tell me which room the"+furniture+"has been moved to.")
+
 
 
 			# go to the room
