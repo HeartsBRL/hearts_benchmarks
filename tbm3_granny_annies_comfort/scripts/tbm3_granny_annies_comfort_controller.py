@@ -458,7 +458,7 @@ class ControllerTBM3(GenericController):
 
         #request location
         #self.say("Waiting for granny annie's location") - removed as delay seems to prevent user location callback from firing
-        #dar self.wait_for_user_location()
+        self.wait_for_user_location()
 
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
