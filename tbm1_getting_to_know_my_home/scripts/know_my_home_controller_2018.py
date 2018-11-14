@@ -12,12 +12,11 @@
 
 import rospy
 import time
-from std_msgs.msg import String
-from std_msgs.msg import Empty
+from std_msgs.msg import String, Empty
 from geometry_msgs.msg import Pose2D, Pose, Twist, PoseStamped
 #from turtlesim.msg import Pose
 from math import cos, sin
-#from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from rospy.rostime import Duration
 #from move_base_msgs.msg import MoveBaseActionFeedback
 from roah_rsbb_comm_ros.msg import Benchmark, BenchmarkState
@@ -28,22 +27,23 @@ from navigation_camera_mgr_example import NavigationCameraMgr
 from python_support_library.generic_controller import GenericController
 
 class ControllerTBM1(GenericController):
-
     def __init__(self):
         # init the generic stuff from GenericController
         super(ControllerTBM1, self).__init__()
 
+        #init tbm1 specific stuff
 
-        ### Publishers - sends out goal locations, movement/turns, and speech
-        self.pubGoal = rospy.Publisher('hearts/navigation/goal/location', String, queue_size=10)
+
+        ### init publishers - sends out goal locations, movement/turns, and speech
+        self.pubGoal =  rospy.Publisher('hearts/navigation/goal/location', String, queue_size=10)
         self.pub_talk = rospy.Publisher('/hearts/tts', String, queue_size = 10)
-        self.pub_pic = rospy.Publisher('/hearts/camera/snapshot', String, queue_size = 10)
+        self.pub_pic =  rospy.Publisher('/hearts/camera/snapshot', String, queue_size = 10)
         self.pub_head = rospy.Publisher('/head_controller/command',JointTrajectory, queue_size = 10)
         self.pub_move = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size = 10)
-        self.pub_dummy = rospy.Publisher('/move_base/feedback', MoveBaseActionFeedback, queue_size = 10)
+        #self.pub_dummy = rospy.Publisher('/move_base/feedback', MoveBaseActionFeedback, queue_size = 10)
 
-        ### Subscribers - must listen for speech commands, location
-        rospy.Subscriber('/move_base/feedback', MoveBaseActionFeedback, self.current_pose_callback)
+        ### init subscribers - must listen for speech commands, location
+        #rospy.Subscriber('/move_base/feedback', MoveBaseActionFeedback, self.current_pose_callback)
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
 
         self.prepare = rospy.ServiceProxy('/roah_rsbb/end_prepare', std_srvs.srv.Empty)
@@ -51,10 +51,10 @@ class ControllerTBM1(GenericController):
 
         self.outfolder = rospy.get_param('output_path')
 
-        self.objects = ['Coke','Water','Juice','Apple',
-         'Lemon','Rice','Pringles','Kleenex',
-         'Sponge','Soap','Whiteboard Cleaner','Cup',
-         'Glass','Candle','Reading Glasses']
+
+        # init vars
+        self.objects = ['coke','water','juice','apple']
+
 
         # Dining_table onwards are not movable furniture
         self.furniture = ['Trash_bin','Plant','Side_table_1','Dining_chair','Kitchen_chair','Coffee_table','Arm_Chair_1','Arm_Chair_2',
@@ -62,22 +62,49 @@ class ControllerTBM1(GenericController):
         self.rooms = ['Entrance_hall','Hallway','Kitchen', 'Bedroom', 'Living_room', 'Dining_room', 'hall']
         self.doors = ['Door_bedroom_1','Door_bedroom_2','Door_entrance','Door_bathroom']
 
-        #Commands no longer allowed
-        self.tbm1_commands_dict = {
-            "move": ["forward", "backward"],
-            "turn": ["right", "left"],
-            "go": self.rooms,
-            "look": ["up", "down", "right", "left"],
-            "here": [],
-            "see": self.objects,}
 
 
-        # Disable head manager
+        # disable head manager
         head_mgr = NavigationCameraMgr()
         head_mgr.head_mgr_as("disable")
 
-    def benchmark_state_callback(self, data):
 
+
+    def run(self):
+
+        self.say("Have any doors changed?")
+        detected, word = self.stt_detect_words(["yes", "yeah", "ya", "ye", "yay", "yo"], 3)
+        if detected:
+            self.process_doors()
+        else:
+            self.say("Okay, I understand that no doors have changed")
+
+
+
+
+
+        # detected, word = self.stt_detect_words(["water"], 3)
+        # rospy.loginfo(detected)
+        # if detected: # if the function returns true
+        #     self.say("I HEAR YOU.")
+        #     if word == "juice":
+        #         self.say("I like juice")
+        #     else:
+        #         self.say("I don't like that")
+        #
+        # else:
+        #     self.say("I heard nothing")
+
+
+
+
+
+    def benchmark_state_callback(self, data):
+        '''
+        Trigged by subscriber: roah_rsbb/benchmark/state
+
+        Receive instructions from judges code to prepare, execute and stop.
+        '''
         if data.benchmark_state == BenchmarkState.STOP:
             rospy.loginfo("STOP")
         elif data.benchmark_state == BenchmarkState.PREPARE:
@@ -93,16 +120,16 @@ class ControllerTBM1(GenericController):
 
 
 
-    def search_for_changes(self,subject):
-        ################### DOORS ###################
-        rospy.sleep(2)
-        rospy.loginfo("TBM1 HAS BEGUN")
 
-        self.say("Have any doors changed?")
-        self.stt_detect_word("Yes")
-        self.say("I heared yes")
 
-        
+
+
+
+
+    def process_doors(self):
+        rospy.loginfo("Door process")
+
+
 #         if door_count < 1:
 #             # go to the next possible door location
 
@@ -137,7 +164,8 @@ class ControllerTBM1(GenericController):
 #         else:
 #             # go to home position
 
-
+    def objects(self):
+        rospy.loginfo("Object process")
 #     ################### OBJECTS ###################
 #         object_count = 0
 
@@ -168,14 +196,15 @@ class ControllerTBM1(GenericController):
 #         else:
 #             # do the next thing
 
-
+    def furniture(self):
+        rospy.loginfo("Furniture")
 #         ################### FURNITURE ###################
 #             # ask user for which furniture has changed
 #             self.say("Please tell me one item of furniture that has changed?") # uses the speech function in generic_controller
 
 #             #listen for answer,
 #             self.toggle_stt('on')
-            
+
 
 
 
@@ -218,7 +247,9 @@ class ControllerTBM1(GenericController):
 
 ###################### INIT ########################
 if __name__ == '__main__':
-    rospy.init_node('know_my_home', anonymous=True)
+    rospy.init_node('task_controller', anonymous=True)
     rospy.loginfo("know my home controller has started")
-    controller = ControllerTBM1()
+    newcontroller = ControllerTBM1()
+    #newcontroller.move_to_location("home", 3)
+    newcontroller.run()
     rospy.spin()
