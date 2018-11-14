@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+################################################################################
 # Filename: T2CFR.py
 # Created: ?? May 2017
 # Author : Zeke Steer 
@@ -8,7 +8,12 @@
 ################################################################################
 # Updates:
 #
-# 23 Nov 2017 Deek  - Implement "Python Support Library" ROS package  
+# 25 Oct 2018 Derek - Fixed bug where client.analyze(s) would ceased python program
+#                     with no msgs if it was passed unlikely words. The case was 
+#                     "Bangalore bengaluru" On TextRazor.com demo page this produces
+#                     an error which I could not trap with the documented error name.
+# 
+# 23 Nov 2017 Derek - Implement "Python Support Library" ROS package  
 #                     First shared module is tag_topics.py
 #
 # 07 Aug 2017 Derek - Make competion data path seperate from the one used to test
@@ -288,31 +293,37 @@ def get_actions_by_verb():
     return actions_by_verb
 
 def get_cfr(s):
+    try:
+        response = client.analyze(s)
 
-    response = client.analyze(s)
-  
-    actions_by_verb = get_actions_by_verb()
-    root = get_root(response.words())
-    cmds = [ ]
-    get_cmds(root, actions_by_verb, cmds)
+        actions_by_verb = get_actions_by_verb()
+        root = get_root(response.words())
+        cmds = [ ]
+        get_cmds(root, actions_by_verb, cmds)
 
-    indexes_by_cmd = { }
-    for cmd in cmds:
-        index = 0
-        while (index != -1):
-            index = s.find(cmd.verb, index)
-            if index in indexes_by_cmd.values():
-                index = index + 1
-            else:
-                indexes_by_cmd[cmd] = index
-                break
-    sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
+        indexes_by_cmd = { }
+        for cmd in cmds:
+            index = 0
+            while (index != -1):
+                index = s.find(cmd.verb, index)
+                if index in indexes_by_cmd.values():
+                    index = index + 1
+                else:
+                    indexes_by_cmd[cmd] = index
+                    break
+        sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
 
-    cmd_strs = [ ]
-    for cmd in sorted_cmds:
-        cmd_strs.append(str(cmd[0]))
+        cmd_strs = [ ]
+        for cmd in sorted_cmds:
+            cmd_strs.append(str(cmd[0]))
 
-    cfr = "#".join(cmd_strs)
+        cfr = "#".join(cmd_strs)
+
+    #except TextRazorAnalysisException, rc: # didn't work - inknown global name???
+    except:
+        print("\033[0m;31;40m ##### Error in TextRazor: client.analyze(s) Failed!\033[0m;1;37;40m")
+        cfr = "ERROR IN TEXTRAZOR()" # () used to trigger "NO INTERPRETATION"
+
     return cfr
 
 def get_actions_by_verb():
@@ -360,6 +371,7 @@ def callback(s):
 
     print("*** T2CFR.py - calling    msg.data = get_cfr(str1)\n*** to derive CFR syntax from interpreted Text")
     msg = String()
+    print("#### before msg data")
     msg.data = get_cfr(str1)
   
  # check the CFR command has arguments ie NOT Motion()
