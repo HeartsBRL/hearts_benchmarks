@@ -160,6 +160,7 @@ class th:
         # all the returned Topic data
         toggle = True 
         while toggle:
+           #print("txt cnt: "+str(self.txt_cnt)+" ----- cfr cnt: "+str(self.cfr_cnt)) 
            if self.txt_cnt == len_csv and self.cfr_cnt == len_csv : 
                print("\n***** "+str(len_csv)+" audio files have been processed in Test harness mode")
                toggle = False  

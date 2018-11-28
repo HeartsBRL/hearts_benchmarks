@@ -1,0 +1,6 @@
+<launch>
+   <!--   Listen for Speech RECOGNIION TOPICS             -->
+
+   <node name='SR_Listen'       pkg='fbm3_speech_understanding' type='listen.py'   output='screen' />
+
+</launch>

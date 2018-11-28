@@ -7,8 +7,10 @@
 #          convert to CFR format.  
 ################################################################################
 # Updates:
-#
-# 25 Oct 2018 Derek - Fixed bug where client.analyze(s) would ceased python program
+# 22 Nov 2018 Derek - removed duplicate "def" get_actions_by_verb.
+#                   - added "file exits" check for training verbs file
+# 
+# 25 Oct 2018 Derek - Fixed bug where client.analyze(s) would cease python program
 #                     with no msgs if it was passed unlikely words. The case was 
 #                     "Bangalore bengaluru" On TextRazor.com demo page this produces
 #                     an error which I could not trap with the documented error name.
@@ -29,10 +31,14 @@ from std_msgs.msg import String
 import operator
 import random
 import textrazor
-import python_support_library.tag_topics  as TT
+import python_support_library.tag_topics   as TT
+import python_support_library.text_colours as TC
 import os
 
-o_tt=TT.tag_topics()
+
+o_tt = TT.tag_topics()
+prt  = TC.tc()
+
 run_mode        = rospy.get_param('SR_TH')
 ERLDATAPATHOUT  = rospy.get_param("SR_ERL_DATAPATHOUT")
 
@@ -284,58 +290,71 @@ def get_cmds(verb, actions_by_verb, cmds):
             set_cmd(child, cmd)
                     
 def get_actions_by_verb():
+    prt.debug("In get actions by verb")
     actions_by_verb = { }
     VERBSFILE=rospy.get_param('SR_VERBSFILE')
-    with open(VERBSFILE, "r") as file:
-        for line in file.readlines():
-            tokens = line.strip().split(",") 
-            actions_by_verb[tokens[0]] = tokens[1]
+
+    if os.path.isfile(VERBSFILE):
+        with open(VERBSFILE, "r") as file:
+            for line in file.readlines():
+                tokens = line.strip().split(",") 
+                actions_by_verb[tokens[0]] = tokens[1]
+    else:
+        prt.error("\nError in "+cname+": Verbs file not found\n"+"\n"+VERBSFILE+"\n")
+        #rospy.signal_shutdown("########## Forced Shutdown #########")
+        prt.info("\n##### KILLing ALL Nodes but .....\n#     please use CTRL-C to complete the node shutdown process\n")
+        os.system("rosnode kill -a")
+        
+
     return actions_by_verb
 
 def get_cfr(s):
     try:
         response = client.analyze(s)
-
-        actions_by_verb = get_actions_by_verb()
-        root = get_root(response.words())
-        cmds = [ ]
-        get_cmds(root, actions_by_verb, cmds)
-
-        indexes_by_cmd = { }
-        for cmd in cmds:
-            index = 0
-            while (index != -1):
-                index = s.find(cmd.verb, index)
-                if index in indexes_by_cmd.values():
-                    index = index + 1
-                else:
-                    indexes_by_cmd[cmd] = index
-                    break
-        sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
-
-        cmd_strs = [ ]
-        for cmd in sorted_cmds:
-            cmd_strs.append(str(cmd[0]))
-
-        cfr = "#".join(cmd_strs)
-
-    #except TextRazorAnalysisException, rc: # didn't work - inknown global name???
     except:
-        print("\033[0m;31;40m ##### Error in TextRazor: client.analyze(s) Failed!\033[0m;1;37;40m")
-        cfr = "ERROR IN TEXTRAZOR()" # () used to trigger "NO INTERPRETATION"
+        #except TextRazorAnalysisException, rc: # didn't work - inknown global name???
+        prt.error("##### Error in TextRazor: client.analyze(s) Failed!")
+        prt.error("##### text used was, s= "+s)
+        cfr = "ERROR IN TEXTRAZOR()" #  "()"   used to trigger "NO INTERPRETATION"
+
+    actions_by_verb = get_actions_by_verb()
+    root = get_root(response.words())
+    cmds = [ ]
+    get_cmds(root, actions_by_verb, cmds)
+
+    indexes_by_cmd = { }
+    for cmd in cmds:
+        index = 0
+        while (index != -1):
+            index = s.find(cmd.verb, index)
+            if index in indexes_by_cmd.values():
+                index = index + 1
+            else:
+                indexes_by_cmd[cmd] = index
+                break
+    sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
+
+    cmd_strs = [ ]
+    for cmd in sorted_cmds:
+        cmd_strs.append(str(cmd[0]))
+
+    cfr = "#".join(cmd_strs)
 
     return cfr
 
-def get_actions_by_verb():
-    actions_by_verb = { }
-    VERBSFILE=rospy.get_param('SR_VERBSFILE')
-    with open(VERBSFILE, "r") as file:
-        for line in file.readlines():
-            tokens = line.strip().split(",") 
-            actions_by_verb[tokens[0]] = tokens[1]
-    return actions_by_verb
 
-pub_topic = 'CFR_Out'
+# def kill_nodes():    
+
+#     nodes = os.popen("rosnode list").readlines()
+
+#     for i in range(len(nodes)):
+#         nodes[i] = nodes[i].replace("\n","")
+#         prt.debug("i: "+str(i)+"  "+nodes[i])
+
+#     os.system("rosnode kill -a")
+
+
+pub_topic = "CFR_Out"
 sub_topic = "/hearts/stt"
 
 # zeke's key:
@@ -395,6 +414,7 @@ def callback(s):
     
     # ERL formatted results file
     writeresults(str2,str1,msg.data)  
-
+    
+cname = "t2cfr.py"
 rospy.Subscriber(sub_topic, String, callback) 
 rospy.spin()
