@@ -1,21 +1,21 @@
 <launch>
     <!-- name of $USER's catkin workspace  --> 
-    <arg name="WORKSPACE" value="catkin_ws"   />
+    <arg name="WORKSPACE" value="workspaces/hearts_erl"   />
 
      <!-- ERL COMPETITION USB memory stick ID - Location of .wav files and destination for the results.txt file --> 
-    <arg name="ERL_USB_MEM" value="DISK_IMG" />
+    <arg name="ERL_USB_MEM" value="HEARTS" />
 
     <param name='SR_BRL_DATAPATHOUT' value='/home/$(env USER)/Documents/BRL_speech_results/' />
-    <param name='SR_VERBSFILE'   value='/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/fbm3_speech_understanding/data_in/TrainingDatasetVerbs.csv' />
+    <param name='SR_VERBSFILE'   value='/home/$(env USER)/$(arg WORKSPACE)/src/hearts_benchmarks/fbm3_speech_understanding/data_in/TrainingDatasetVerbs.csv' />
 
     <node name='SR_T2CFR' pkg='fbm3_speech_understanding' type='t2cfr.py' output='screen' />
 
     <include file="$(find hearts_stt)/launch/hearts_stt.launch">
-        <arg name="SR_speechrec_engine" value="google_cloud" />
+        <arg name="SR_speechrec_engine" value="google" />
         <arg name="SR_TH" value="" />
-        <arg name="SR_GCP_KEYWORDSFILE" value="/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/hearts_stt/data_in/CFR/Barcelona_2017_all_dicts.txt" />
+        <arg name="SR_GCP_KEYWORDSFILE" value="/home/$(env USER)/$(arg WORKSPACE)/src/hearts_hri/hearts_stt/data_in/CFR/Barcelona_2017_all_dicts.txt" />
         <arg name="SR_ERL_DATAPATHOUT" value="/media/$(env USER)/$(arg ERL_USB_MEM)/" />
-        <arg name="SR_ENERGY_THRESHOLD" value="2000" />
-        <arg name="listen" value="listen" />
+        <arg name="SR_ENERGY_THRESHOLD" value="1998" />
+        <arg name="listen" value="Listen" />
     </include>
 </launch>

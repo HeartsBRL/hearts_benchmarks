@@ -290,7 +290,6 @@ def get_cmds(verb, actions_by_verb, cmds):
             set_cmd(child, cmd)
                     
 def get_actions_by_verb():
-    prt.debug("In get actions by verb")
     actions_by_verb = { }
     VERBSFILE=rospy.get_param('SR_VERBSFILE')
 
@@ -363,8 +362,6 @@ sub_topic = "/hearts/stt"
 textrazor.api_key = "211ef8b5891adff67b329277425597a000d96bd443eeca0fe977819e"
 client = textrazor.TextRazor(extractors=["entities", "dependency-trees", "phrases", "words"])
 
-#cfr = get_cfr(str1)
-#print("CFR = "+cfr)
 pub = rospy.Publisher(pub_topic, String, queue_size=10) 
 
 rospy.init_node('cfr_node', anonymous=True)
@@ -388,9 +385,9 @@ def callback(s):
         # strip off #index# prefix used by TH mode 
         index, str1 = o_tt.get_key(str1)
 
-    print("*** T2CFR.py - calling    msg.data = get_cfr(str1)\n*** to derive CFR syntax from interpreted Text")
+    prt.info("*** T2CFR.py - calling    msg.data = get_cfr(str1)\n*** to derive CFR syntax from interpreted Text")
     msg = String()
-    print("#### before msg data")
+
     msg.data = get_cfr(str1)
   
  # check the CFR command has arguments ie NOT Motion()

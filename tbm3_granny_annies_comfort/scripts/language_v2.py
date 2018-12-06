@@ -3,16 +3,19 @@ import string
 import re
 import json
 
+import python_support_library.text_colours as TC
 
-class tc: # Termianl "text colour" control
-    HEADER    = '\033[95m' # purple
-    OKBLUE    = '\033[94m' # blue
-    OKGREEN   = '\033[92m' # green
-    WARNING   = '\033[93m' # yellow
-    FAIL      = '\033[91m' # red
-    ENDC      = '\033[0m'  # revert to normal text
-    BOLD      = '\033[1m'
-    UNDERLINE = '\033[4m'
+prt = TC.tc()
+
+# class tc: # Termianl "text colour" control
+#     HEADER    = '\033[95m' # purple
+#     OKBLUE    = '\033[94m' # blue
+#     OKGREEN   = '\033[92m' # green
+#     WARNING   = '\033[93m' # yellow
+#     FAIL      = '\033[91m' # red
+#     ENDC      = '\033[0m'  # revert to normal text
+#     BOLD      = '\033[1m'
+#     UNDERLINE = '\033[4m'
 
 
 class Objective:
@@ -763,10 +766,10 @@ class Analysis(object):
             loc_no_ = item.replace('_',' ')
             if loc_no_ in keylist:
                 found += 1
-                #print(tc.OKGREEN+loc_no_+tc.ENDC)   
+                prt.debug(loc_no_)   
             else:
                 missed += 1
-                #print(tc.FAIL+loc_no_+tc.ENDC)
+                prt.debug(loc_no_)
 
         return (found,missed)
     #*********************************************************************************
