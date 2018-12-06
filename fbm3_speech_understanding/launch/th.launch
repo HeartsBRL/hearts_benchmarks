@@ -3,6 +3,7 @@
     <arg name="WORKSPACE" value="workspaces/hearts_erl/src/"   />
 
      <!-- ERL COMPETITION USB memory stick ID - Location of .wav files and destination for the results.txt file --> 
+    <arg name="ERL_ROOT"    value="home"   /> 
     <arg name="ERL_USB_MEM" value="HEARTS" />
 
     <param name='SR_BRL_DATAPATHOUT' value='/home/$(env USER)/Documents/BRL_speech_results/' />
@@ -13,8 +14,8 @@
     <!-- if SR_ERL_AUDIOPATH is defined then SR_BRL_AUDIO_DIR is ignored.  -->
     <param name='SR_BRL_AUDIO_DIR' value='/home/$(env USER)/Documents/uwe/' />
 
-    <!-- param name='SR_ERL_AUDIO_DIR' value='/media/$(env USER)/$(arg ERL_USB_MEM)/' -->
-    <param name='SR_ERL_AUDIO_DIR' value='/media/$(env USER)/$(arg ERL_USB_MEM)/' />
+    <!-- param name='SR_ERL_AUDIO_DIR' value='/$(arg ERL_ROOT)/$(env USER)/$(arg ERL_USB_MEM)/' -->
+    <param name='SR_ERL_AUDIO_DIR' value='/$(arg ERL_ROOT)/$(env USER)/$(arg ERL_USB_MEM)/' />
 
     <node name='SR_TH' pkg='fbm3_speech_understanding' type='th.py' output='screen' />
     <node name='SR_T2CFR' pkg='fbm3_speech_understanding' type='t2cfr.py' output='screen' />
@@ -23,7 +24,7 @@
         <arg name="SR_speechrec_engine" value="google" />
         <arg name="SR_TH" value="TH" />
         <arg name="SR_GCP_KEYWORDSFILE" value="/home/$(env USER)/$(arg WORKSPACE)/src/brl-hearts/hearts_stt/data_in/CFR/xxxBarcelona_2017_all_dicts.txt" />
-        <arg name="SR_ERL_DATAPATHOUT" value="/media/$(env USER)/$(arg ERL_USB_MEM)/" />
+        <arg name="SR_ERL_DATAPATHOUT" value="/$(arg ERL_ROOT)/$(env USER)/$(arg ERL_USB_MEM)/" />
         <arg name="SR_ENERGY_THRESHOLD" value="2011" />
         <arg name="listen" value="" />
     </include>

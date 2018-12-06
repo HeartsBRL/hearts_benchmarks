@@ -314,31 +314,35 @@ def get_cfr(s):
         #except TextRazorAnalysisException, rc: # didn't work - inknown global name???
         prt.error("##### Error in TextRazor: client.analyze(s) Failed!")
         prt.error("##### text used was, s= "+s)
+        response = None
+        
+    if response != None:
+        actions_by_verb = get_actions_by_verb()
+        root = get_root(response.words())
+        cmds = [ ]
+        get_cmds(root, actions_by_verb, cmds)
+
+        indexes_by_cmd = { }
+        for cmd in cmds:
+            index = 0
+            while (index != -1):
+                index = s.find(cmd.verb, index)
+                if index in indexes_by_cmd.values():
+                    index = index + 1
+                else:
+                    indexes_by_cmd[cmd] = index
+                    break
+        sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
+
+        cmd_strs = [ ]
+        for cmd in sorted_cmds:
+            cmd_strs.append(str(cmd[0]))
+
+        cfr = "#".join(cmd_strs)
+        
+    else:
         cfr = "ERROR IN TEXTRAZOR()" #  "()"   used to trigger "NO INTERPRETATION"
-
-    actions_by_verb = get_actions_by_verb()
-    root = get_root(response.words())
-    cmds = [ ]
-    get_cmds(root, actions_by_verb, cmds)
-
-    indexes_by_cmd = { }
-    for cmd in cmds:
-        index = 0
-        while (index != -1):
-            index = s.find(cmd.verb, index)
-            if index in indexes_by_cmd.values():
-                index = index + 1
-            else:
-                indexes_by_cmd[cmd] = index
-                break
-    sorted_cmds = sorted(indexes_by_cmd.items(), key=operator.itemgetter(1))
-
-    cmd_strs = [ ]
-    for cmd in sorted_cmds:
-        cmd_strs.append(str(cmd[0]))
-
-    cfr = "#".join(cmd_strs)
-
+        
     return cfr
 
 
@@ -367,6 +371,7 @@ pub = rospy.Publisher(pub_topic, String, queue_size=10)
 rospy.init_node('cfr_node', anonymous=True)
 
 def writeresults(WAV,S2T,CFR):
+    S2T = S2T.lower()
     resultsfile = ERLDATAPATHOUT+"results.txt"
     # ERL only want raw "file name" on USB stick
     wavfile = os.path.basename(WAV)
