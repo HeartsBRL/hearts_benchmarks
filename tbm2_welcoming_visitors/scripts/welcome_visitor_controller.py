@@ -210,7 +210,6 @@ class ControllerTBM2(GenericController):
                         rospy.loginfo("detected deliman")
                         self.process_face_deliman()
 
-
                     elif 'plumber' in answer:
                         self.good_answer = True
                         self.toggle_stt('off')
@@ -440,6 +439,8 @@ class ControllerTBM2(GenericController):
         # 9. move to hallway
         if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
             return
+            
+       self.toggle_follow('on')
 
         # 10. bid farewell
         self.say("Thank you for visiting. Please close the door behind you. Goodbye!")
