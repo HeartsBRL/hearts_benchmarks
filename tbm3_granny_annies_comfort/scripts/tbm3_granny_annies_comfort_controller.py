@@ -22,7 +22,11 @@ from   roah_rsbb_comm_ros.srv import Percentage
 from random import *
 from python_support_library.generic_controller import GenericController
 
+import python_support_library.text_colours as TC
 import language_v2 as nlp
+
+prt = TC.tc()
+
 
 class ControllerTBM3(GenericController):
 
@@ -35,10 +39,10 @@ class ControllerTBM3(GenericController):
         self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal',          Pose2D, queue_size=10)
 
         #Subscribers
-        self.listen4cmd('on')
-        self.listen4cmd('off')
-        self.listen4ans('on')
-        self.listen4ans('off') # why?
+        # self.listen4cmd('on') # DAR probably remove these 4 items
+        # self.listen4cmd('off')
+        # self.listen4ans('on')
+        # self.listen4ans('off') # why?
 
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
 
@@ -141,19 +145,25 @@ class ControllerTBM3(GenericController):
 
     def listen4cmd(self,status):
         if status == 'on' :
-            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+            self.toggle_stt('on')
             print('***** Listening for a COMMAND')
+            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+
         else:
-            self.sub_cmd.unregister()
+            self.toggle_stt('off')
             print('***** NOT! Listening for a COMMAND')
+            self.sub_cmd.unregister()
+
 
         return
 
     def listen4ans(self,status):
         if status == 'on' :
+            self.toggle_stt('on')
             self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
             print('***** Listening for an ANSWER')
         else:
+            self.toggle_stt('off')
             self.sub_ans.unregister()
             print('***** NOT! Listening for an ANSWER')
 
@@ -215,25 +225,38 @@ class ControllerTBM3(GenericController):
         ###### NEW CODE for sppech processing        #####
         self.analysis = nlp.Analysis()
         self.analysis.getcompdata()
-        self.theobjectives = self.analysis.defineobjectives(speech)
+        commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
+        if commandcount == 3 :
+            talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-        talkback      = self.analysis.getconfirmationtext(self.theobjectives)
+            prt.debug("command count rtn to GA controller = "+str(commandcount))
+            prt.info("***** Tiago confirmation to Granny Annie: \n"+talkback+"\n")
+            self.say("You requested that I "+talkback+'. Shall I do this now?')
+            ###### end of code for NEW speech processing #####
 
-
-        print("***** nlp 1")
-        print("*****\n"+talkback+ "\n")
-        self.say("You requested that I "+talkback+'. Shall I do this now?')
-        ###### end of code for NEW speech processing #####
-
-        # self.code2exec = executeobjectives(theobjectives)
-        #get confirmation of command
-        self.listen4cmd('off')
-        self.listen4ans('on')
-
-       # else:
-            #  self.say("Sorry, your command was not understood. Please repeat.")
-
+            # self.code2exec = executeobjectives(theobjectives)
+            #get confirmation of command
+            self.listen4cmd('off')
+            self.listen4ans('on')
+        else:
+            prt.info("command count = "+str(commandcount)+" so cannot proceed")
+            txtcmds = self.num2text(commandcount)
+            self.say("I have received "+txtcmds+" but expected three. Please repeat command.")
+       
         return
+
+    def num2text(self,number):    
+        if      number == 0:
+            txt = "zero commands"
+        elif number == 1:  
+            txt = "one command"
+        elif number == 2:  
+            txt = "two commands"    
+        elif number  > 3:  
+            txt = "more than three commands"       
+
+        return txt
+
 
     def bld_lookupkey(self,speech):
 
@@ -439,10 +462,12 @@ class ControllerTBM3(GenericController):
         self.wait_to_arrive(5)
 
         ## Interactions
-    def say(self, text):
-        rospy.sleep(1)
-        self.tts_pub.publish(text)
-        rospy.sleep(5)
+    # def say(self, text):
+    #    prt.todo("Remove def say - use generic text: "+text)
+    #     rospy.sleep(1)
+    #     self.tts_pub.publish(text)
+    #     prt.debug("sleep set to 25 in - def says")
+    #     rospy.sleep(25)
 
     def device_operationsself(self):
         pass
@@ -462,8 +487,9 @@ class ControllerTBM3(GenericController):
 
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
-        self.move_to_pose2D(self.user_location)
-        self.wait_to_arrive(5)
+        prt.todo("Remove comments for navigation to GA")
+        #dar self.move_to_pose2D(self.user_location)
+        #dar self.wait_to_arrive(5)
         self.say("How can I help you today? Please give me a command")
 
         self.listen4cmd('on')

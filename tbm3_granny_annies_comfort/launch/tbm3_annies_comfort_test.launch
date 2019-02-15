@@ -1,7 +1,7 @@
 <launch>
   <include file="$(find hearts_stt)/launch/hearts_stt.launch">
    <arg name="SR_speechrec_engine" value="google" />
-   <arg name="SR_ENERGY_THRESHOLD" value="600" />
+   <arg name="SR_ENERGY_THRESHOLD" value="2000" />
    <arg name="listen" value="" />
   </include>   
   
