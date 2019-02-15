@@ -2,6 +2,8 @@ import numpy as np
 import string
 import re
 import json
+import rospy
+from std_msgs.msg      import String
 
 import python_support_library.text_colours as TC
 
@@ -399,7 +401,7 @@ class Objective:
     def get(self):
         #check that we have previously located the object
         obj = self.object[0]
-        print("in get: obj= "+obj)
+        #print("in get: obj= "+obj)
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
             print("in get: FROM location coords for: " + obj)
@@ -536,6 +538,7 @@ class Analysis(object):
         brlcoms    = []
         taskflags  = []
         objectives = []
+        self.commandcount = 0
         
         #iterate through task looking for any commands, store them and their indexes in relevant list
         start = 0
@@ -547,10 +550,11 @@ class Analysis(object):
             for cmd  in self.commands:       
 
                 if cmd[1] ==  word:
+                    self.commandcount += 1
                     comstype.append(cmd[0])
                     brlcoms.append(cmd[2])
                     coms.append(word) 
-                    #print("taskP[start:]"+taskP[start:]+str(start))
+                    prt.debug("taskP[start:]"+taskP[start:]+str(start))
 
                     index = taskP[start:].find(test)
                     if index >-1:
@@ -558,17 +562,22 @@ class Analysis(object):
                         start = taskflags[ptr]
                         ptr  += 1
 
+        prt.info("Objectify Command count = "+str(self.commandcount))       
+        if self.commandcount == 3:         
+            #use the indices of commands to split task into objectives
+            objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
+            objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
+            objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
+            #DAR
+            # print("taskflags[0]+1 :"+str(taskflags[0]+1))
+            # print("taskflags[1]+1 :"+str(taskflags[1]+1))
+            # print("taskflags[2]+1 :"+str(taskflags[2]+1))
+            # print("len(taskP)     :"+str(len(taskP)))
+            return [objective1,objective2,objective3]
+        else:
+            return []
 
-        #use the indices of commands to split task into objectives
-        objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
-        objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
-        objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
-        #DAR
-        # print("taskflags[0]+1 :"+str(taskflags[0]+1))
-        # print("taskflags[1]+1 :"+str(taskflags[1]+1))
-        # print("taskflags[2]+1 :"+str(taskflags[2]+1))
-        # print("len(taskP)     :"+str(len(taskP)))
-        return [objective1,objective2,objective3]
+        
 
     def resolveReferences(self,objectives):
         #if an objective references an object or person mentioned earlier, look at the previous objective and copy object or person data into current objective
@@ -689,7 +698,7 @@ class Analysis(object):
                 self.people.append(word)
 
             else:
-                print('***** ERROR in file: not a I or P flag! see file: '+ objects_file)
+                prt.error('Objects file: not a I or P flag! see file: '+ objects_file)
 
     #*********************************************************************************
     def parse_locations(self):
@@ -709,7 +718,7 @@ class Analysis(object):
 
         # build locations list from unique keys in dctionary        
         for key in locs_dict:
-            print("key: "+key)
+            #print("key: "+key)
             locs_list.append(key)
 
         # find any space delimited location and replace the ' ' with '_'    
@@ -788,8 +797,8 @@ class Analysis(object):
         self.parse_ERL_data()
 
         self.locations       = self.parse_locations() # note 2 or more word locations returned with "_" instead of " "
-        for loc  in self.locations:
-            print(loc)
+        #for loc  in self.locations:
+            #print(loc)
 
 
     def checklocations(self):
@@ -798,7 +807,7 @@ class Analysis(object):
         navjson_file = 'locations.json'
 
         found,missed = self.check_locations(self.locations, navjson_file)
-        print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+        prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
         # for cmd in commands:
         #     print(cmd)
         # for per in people:
@@ -818,24 +827,24 @@ class Analysis(object):
 
         #create objectives from task text
         objectives = self.objectify(taskP)
+        if self.commandcount == 3:
+            #use task text to fill relevant variables in each objective
+            objectives[0].parse()
+            objectives[1].parse()
+            objectives[2].parse()
 
-        #use task text to fill relevant variables in each objective
-        objectives[0].parse()
-        objectives[1].parse()
-        objectives[2].parse()
+            #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
+            self.resolveReferences(objectives)
 
-        #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
-        self.resolveReferences(objectives)
+            # map ERL verb to BRL equivalent
+            #     this also deals with "take" which can be manipulating OR accompanying 
+            # deal with locations of known objects (no location verbally given) eg Find John
+            # 
+            objectives[0].process_objective()
+            objectives[1].process_objective()
+            objectives[2].process_objective()
 
-        # map ERL verb to BRL equivalent
-        #     this also deals with "take" which can be manipulating OR accompanying 
-        # deal with locations of known objects (no location verbally given) eg Find John
-        # 
-        objectives[0].process_objective()
-        objectives[1].process_objective()
-        objectives[2].process_objective()
-
-        return objectives
+        return self.commandcount, objectives
 
     def getconfirmationtext(self,objectives):
         acttxt_0 = objectives[0].confirmationtext

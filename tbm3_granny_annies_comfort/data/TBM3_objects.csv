@@ -37,10 +37,11 @@ I,Coke,        Kitchen counter,60,    Coffee table,30,    Dining table,10
 I,Water,       Kitchen counter,60,    Coffee table,30,    Dining table,10
 I,Juice,       Kitchen counter,60,    Coffee table,30,    Dining table,10
 
-I,Apple,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,Apple,       Kitchen table,60,      Kitchen counter,30, kitchen cabinet,10
 I,Lemon,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
 I,Rice,        Kitchen table,60,      Kitchen counter,30, Coffee table,10
 I,Pringles,    Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,bottle,      Kitchen table,60,      Kitchen counter,30, Coffee table,10
 
 I,Kleenex,     Bathroom drawer,60,    Side table 2,30,    Kitchen counter,10
 I,Sponge,      Bathroom drawer,60,    Side table 2,30,    Kitchen counter,10
@@ -57,7 +58,7 @@ I,xdummy,      Entrance hall,60,     trash bin,30,        Plant,10
 I,xdummy,      Closet,60,            Bed,30,              side table 1,10
 I,xdummy,      Bookshelf,60,         Sofa,30,             Arm chair 1,10
 I,xdummy,      Arm chair two,60,     TV Table,30,         Arm chair one,10
-I,xdummy,      arm chair 2,60,       hallway,30,           xxxxxx,10 
+I,xdummy,      arm chair 2,60,       hallway,30,           exit,10 
 
 
 ##########################################################################
