@@ -52,6 +52,10 @@ I,Cup,         Coffee table,60,       Kitchen table,30,   Dining table,10
 I,Glass,       Coffee table,60,       Kitchen table,30,   Dining table,10
 I,Candle,      Side table 2,60,       Coffee table,30,    Dining table,10
 
+I, pear,       kitchen table,60,      Furniture_14,30,  coffee table,10
+I, pair,       kitchen table,60,      Furniture_14,30,  coffee table,10
+I, glasses,    kitchen counter,60,    Furniture_02,30,  Furniture_03,10
+
 ###### just Locations  #####
 
 I,xdummy,      Entrance hall,60,     trash bin,30,        Plant,10
