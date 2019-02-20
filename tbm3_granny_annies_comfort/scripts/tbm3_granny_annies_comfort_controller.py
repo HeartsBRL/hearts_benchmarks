@@ -196,6 +196,9 @@ class ControllerTBM3(GenericController):
             self.listen4ans('off')
             self.listen4cmd('on')
         elif "stop"  in words:
+            # re-establish subscribers
+            self.listen4ans('off')
+            self.listen4cmd('on')
             self.say("OK I will shut down now")  
             sleep(20)
 
