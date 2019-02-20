@@ -29,11 +29,9 @@ class Objective:
         #publishers
         self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
 
-
-
         Objective.instances += 1
 
-        self.analysis = analysis
+        self.analysis   = analysis
 
         self.instance   = Objective.instances
 
@@ -55,7 +53,6 @@ class Objective:
         self.confirmationtext = ""
         self.success = False
 
-
         self.load_json_coords()
 
 
@@ -69,11 +66,9 @@ class Objective:
 
     
     def load_json_coords(self): 
-
-        #todo put file name in launch file
-        #TODO set json file to be the same as the general navigation one
-        filein = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/locations.json'
-        with open(filein) as fh:
+        prt.todo("update  launch file for permanet Json_locations file path")
+        jsonfilein = rospy.get_param("JSON_locations_file")
+        with open(jsonfilein) as fh:
             data = json.load(fh)
 
         # get top level keys - ie the location names
@@ -88,7 +83,7 @@ class Objective:
 
             self.storefoundloc(key,coordslist)
 
-        #TODO remove temp "user"coords and get from GA's tablet
+        prt.todo("GET proper coords of GA's location fom her tablet?")
         coordslist=[111,222,-99.9]
         self.storefoundloc('user',coordslist)    
 
@@ -328,13 +323,16 @@ class Objective:
  
         return
 
-    def execute(self):
-        print("***** EXECUTE for instance = "+str(self.instance))
+    def execute(self, actionnum):
+        prt.info("\n***** EXECUTE for ACTION No: "+str(actionnum))
         if   self.comtype[0] == 's':
+            prt.info("*** action is: SEARCHING")
             self.search()
         elif self.comtype[0] == 'm':
+            prt.info("*** action is: MANIPULATING")
             self.get()
         elif self.comtype[0] == 'a': 
+            prt.info("*** action is: ACCOMPANY")
             self.accompany()  
 
         return
@@ -349,13 +347,18 @@ class Objective:
                 obj    = self.object[0]
                 frmLoc = self.fromLocation[i]
                 coords = self.getfoundloc(frmLoc)
-                print("in search: FROM loc  = "+frmLoc)  
-                print(coords)              
-                print("in search: find object: "+ obj)
+                prt.info("in search: FROM loc  = "+frmLoc)  
+                prt.info("in Search: From coords:")
+                for item in coords:
+                    prt.info(str(item))            
+                prt.info("in search: find object: "+ obj)
                 self.say("I am looking for "+ obj)
+                prt.todo("remove forcing logic for oject")
+                if i == 1:
+                    found = True
                 if found:
                     print("in search: store coords of found location for object")
-                    coords = [1,2,3] #todo used coords return from search code
+                    coords = [1,2,3] #todo use coords return from search code
                     print(coords)
                     self.storefoundloc(obj, coords)
                     found = True
@@ -367,6 +370,9 @@ class Objective:
                 per =  self.person[0]
                 print("in search: person loc= "+self.fromLocation[i])
                 print("in search: find person: "+ per)
+                prt.todo("remove forcing logic for person")
+                if i == 1:
+                    found = True
                 if found:
                     print("in search: store coords of found location for person")
                     coords = [11,22,33]  #todo used coords return from search code
@@ -399,7 +405,7 @@ class Objective:
 
     ###### MANIPULATE 
     def get(self):
-        #check that we have previously located the object
+        #check if we have previously located the object
         obj = self.object[0]
         #print("in get: obj= "+obj)
         if Objective.founditems.has_key(obj):
@@ -409,18 +415,28 @@ class Objective:
         else:
             # use FROM field 
             frmLoc = self.fromLocation[0]
-            if frmLoc:
-                if Objective.founditems.has_key(obj):
-                    coords = Objective.founditems[frmLoc]
-                    print("in get: use FROM location to find coords: " + frmLoc)
-                    print(coords)
-                else:
-                    print("in get: !!!!! no FROM location available !!!!!")
-                    return # can not proceed
-        #todo
+            prt.debug("in get: frmLoc: "+ frmLoc)
+            if len(frmLoc) > 0:
+
+                # prt.debug("******* obj: "+obj)
+                # prt.debug("*************************founditems")
+                # for KEY in Objective.founditems:
+                #     print("key: "+KEY+"--- "+str(Objective.founditems[KEY]))
+                # prt.debug("*************************")
+
+
+                coords = Objective.founditems[frmLoc]
+                print("in get: use FROM location to find coords: " + frmLoc)
+                print(coords)
+            else:
+                prt.warn("in get: !!!!! no FROM location available !!!!!")
+                return # can not proceed
+
+
+        prt.todo("sortout pickup flag logic")
         pickupOK = True
         print("in get: Navigate to the FROM coords")
-        print("in get: pick up the: "+self.object[0])
+        print("in get: pick up the: "+ obj)
 
         print("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
@@ -775,38 +791,40 @@ class Analysis(object):
             loc_no_ = item.replace('_',' ')
             if loc_no_ in keylist:
                 found += 1
-                prt.debug(loc_no_)   
+                prt.result(loc_no_)   
             else:
                 missed += 1
-                prt.debug(loc_no_)
+                prt.error(loc_no_)
 
         return (found,missed)
     #*********************************************************************************
     def getcompdata(self):
         #todo put in launch file
-        ERL_data_file   = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/TBM3_objects.csv'
-        ERL_verb_file   = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/TBM3_verbs.csv'
+        ERL_objects_file = rospy.get_param("TBM3_objects_file")
+        ERL_verbs_file   = rospy.get_param("TBM3_verbs_file")
 
-        self.ERL_data        = self.read_ERL_data(ERL_data_file)
+        self.ERL_data        = self.read_ERL_data(ERL_objects_file)
 
         # for line in ERL_data:
         #     print (line[0],line[1],line[2],line[3],line[4])
 
-        self.commands        = self.read_ERL_verb(ERL_verb_file)
+        self.commands        = self.read_ERL_verb(ERL_verbs_file)
 
         self.parse_ERL_data()
 
         self.locations       = self.parse_locations() # note 2 or more word locations returned with "_" instead of " "
         #for loc  in self.locations:
             #print(loc)
+        self.checklocations()
 
 
     def checklocations(self):
     #check that all "locations" found are in the Navigation locations.json file
     #navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
-        navjson_file = 'locations.json'
+        prt.todo("not urgent - but remove duplicate use of json file name")
+        jsonfilein = rospy.get_param("JSON_locations_file")
 
-        found,missed = self.check_locations(self.locations, navjson_file)
+        found,missed = self.check_locations(jsonfilein)
         prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
         # for cmd in commands:
         #     print(cmd)
@@ -859,9 +877,9 @@ class Analysis(object):
 
     def executeobjectives(self,objectives):
         ### then pass data on to the actions(x3) driver!!
-        objectives[0].execute()
-        objectives[1].execute()
-        objectives[2].execute()
+        objectives[0].execute(1)
+        objectives[1].execute(2)
+        objectives[2].execute(3)
 
 if __name__ == '__main__':
     pass

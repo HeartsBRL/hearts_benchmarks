@@ -172,14 +172,18 @@ class ControllerTBM3(GenericController):
     def hearAnswer_callback(self,data):
         speech = str(data)
         speech = speech.lower()
+        speech = speech.replace('"','')
         rospy.loginfo('*** Heard an answer : '+speech+'\n')
-        words  = speech.split(' ')
 
+        words  = speech.split(' ')
+        prt.debug("words list in YES/NO section")
+        for item in words:
+            prt.debug(">"+item+"<")
         if 'yes' in words:
-            self.say("OK then I will do that")
+            self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
-            self.say("The task is complete. Please give me another command")
+            self.say("The task is now complete. Do you have another command ")
 
             # re-establish subscribers
             self.listen4ans('off')
@@ -191,6 +195,12 @@ class ControllerTBM3(GenericController):
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
+        elif "stop"  in words:
+            # re-establish subscribers
+            self.listen4ans('off')
+            self.listen4cmd('on')
+            self.say("OK I will shut down now")  
+            sleep(20)
 
         else:
             self.say("Please answer with yes please or no thank you")
@@ -226,7 +236,14 @@ class ControllerTBM3(GenericController):
         self.analysis = nlp.Analysis()
         self.analysis.getcompdata()
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
+
         if commandcount == 3 :
+            prt.debug("******************************************************")
+            self.theobjectives[0].printme_final()
+            self.theobjectives[1].printme_final()
+            self.theobjectives[2].printme_final()
+            prt.debug("******************************************************")
+
             talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
             prt.debug("command count rtn to GA controller = "+str(commandcount))
