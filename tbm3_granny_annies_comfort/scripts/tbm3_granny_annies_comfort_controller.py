@@ -486,11 +486,19 @@ class ControllerTBM3(GenericController):
 
         ## Interactions
     def say(self, text):
+        delayconst  = 0.125 #seconds per character
+        nchars      = len(text)
+        delay = delayconst * nchars
+
+        prt.debug("speech is: "+text)
+        prt.debug("nchars is: "+str(nchars))
+        prt.debug("Delay = "   +str(delay))
+
         prt.todo("Remove def say - use generic def say: "+text)
-        rospy.sleep(1)
+        #rospy.sleep(1)
         self.tts_pub.publish(text)
-        prt.debug("sleep set to 5 as was in - def says")
-        rospy.sleep(5)
+        prt.debug("sleep set to 5 as was in - def says - see if truncation stops??")
+        rospy.sleep(delay)
 
     def device_operationsself(self):
         pass
@@ -518,8 +526,33 @@ class ControllerTBM3(GenericController):
         self.listen4cmd('on')
 
         rospy.loginfo("End of MAIN programme")
+    ### taken from generic controller
+    ###
+    ### extract content of speech recognition
+    def stt_callback(self,data): #from tbm3
+        '''
+        to use in code use self.speech
+        e.g. answer = self.speech
+        '''
+        speech = str(data.data)
+        speech = speech.lower()
+        prt.debug(" in Dereks sst_callback")
+        prt.debug("in TBM3 : GA controller overloaded stt - unedited speech follows....")
+        prt.debug(str(speech))
+        # remove the ROS msg "Data:" value from speech
+        item = 'data:'
+        if item in speech:
+            speech = speech.replace(item,'')
+            rospy.loginfo('*** Heard speech:\n'+speech+'\n')
 
+        # switch off as already handled by other code     
+        # check that text has been returned
+        # if "bad_recognition" in speech:
+        #     self.say("Sorry, no words were recognised.")
 
+        self.speech = speech
+
+    ### listen for a specific word in SPEECH
 
 if __name__ == '__main__':
 

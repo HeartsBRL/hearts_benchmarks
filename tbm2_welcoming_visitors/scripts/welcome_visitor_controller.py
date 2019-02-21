@@ -440,7 +440,7 @@ class ControllerTBM2(GenericController):
         if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
             return
             
-       self.toggle_follow('on')
+       #self.toggle_follow('on')
 
         # 10. bid farewell
         self.say("Thank you for visiting. Please close the door behind you. Goodbye!")

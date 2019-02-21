@@ -67,7 +67,8 @@ class Objective:
     
     def load_json_coords(self): 
 
-        jsonfilein = rospy.get_param("TBM3_locations_json")
+        jsonfilein = rospy.get_param("locations_json")
+        prt.debug("###### locations.json: "+jsonfilein)
         with open(jsonfilein) as fh:
             data = json.load(fh)
 
@@ -83,7 +84,7 @@ class Objective:
 
             self.storefoundloc(key,coordslist)
 
-        prt.todo("GET proper coords of GA's location fom her tablet?")
+        prt.todo("GET proper coords of GA's location fom her tablet?????")
         coordslist=[111,222,-99.9]
         self.storefoundloc('user',coordslist)    
 
@@ -363,7 +364,7 @@ class Objective:
 
                 if found:
                     prt.info("in search: store coords of found location for object")
-                    coords = [1,2,3] #todo use coords return from search code
+                    coords = [1,2,3] #todo use coords returneds from search code
                     prt.info(str(coords))
                     self.storefoundloc(obj, returncoords)
                     found = True
@@ -426,16 +427,15 @@ class Objective:
             # use FROM field 
             frmLoc = self.fromLocation[0]
             prt.debug("in get: frmLoc: "+ frmLoc)
-            if len(frmLoc) > 0:
+
+            if Objective.founditems.has_key(frmLoc):
 
                 # prt.debug("******* obj: "+obj)
                 # prt.debug("*************************founditems")
                 # for KEY in Objective.founditems:
                 #     print("key: "+KEY+"--- "+str(Objective.founditems[KEY]))
                 # prt.debug("*************************")
-
-
-                coords = self.analysis.locations[frmLoc]
+                coords = Objective.founditems[frmLoc]
                 prt.info("in get: use FROM location to find coords: " + frmLoc)
                 prt.info(str(coords))
             else:
@@ -445,19 +445,19 @@ class Objective:
 
         prt.todo("sortout pickup  logic with user interaction")
         pickupOK = True
-        prt.info("in get: Navigate to the FROM coords")
+        prt.info("in get: ########## Navigate to the FROM coords")
         prt.info("in get: pick up the: "+ obj)
 
         prt.info("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
         prt.info("in get: toLoc : "+toLoc)
-        if Objective.founditems.has_key(obj):
-            coords = Objective.founditems[obj]
+        if Objective.founditems.has_key(toLoc):
+            coords = Objective.founditems[toLoc]
         
-            prt.info("in get: coords for TO location for " + toLoc )
+            prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
             prt.info(str(coords))
         else:
-            prt.error("in get: cannot find TO coords for: " + toLoc)
+            prt.error("in get: cannot find TO coords for obj: "+"TO is: " + toLoc)
 
 
         if pickupOK == True:
@@ -517,8 +517,8 @@ class Objective:
 
         elif self.brlcommand[0] == 'follow':           
             #todo
-            prt.info("in accomapny: Say Ready to follow you" + per)
-            self.say("Hello "+per+" please lead on and I will foilow ")
+            prt.info("in accomapny: Say Ready to follow you " + per)
+            self.say("Hello "+per+" please lead on and I will follow ")
             prt.todo("in accompany: listen for stop  command from user")
 
         #todo store status
@@ -830,10 +830,8 @@ class Analysis(object):
 
 
     def checklocations(self):
-    #check that all "locations" found are in the Navigation locations.json file
-    #navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
-        prt.todo("not urgent - but remove duplicate use of json file name")
-        jsonfilein = rospy.get_param("TBM3_locations_json")
+        #check that all "ERL competition locations" found are in the Navigation locations.json file
+        jsonfilein = rospy.get_param("locations_json")
 
         found,missed = self.check_locations(jsonfilein)
         prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
