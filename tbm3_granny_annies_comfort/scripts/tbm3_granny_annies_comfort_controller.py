@@ -439,37 +439,43 @@ class ControllerTBM3(GenericController):
         self.wait = True
 
     def user_location_callback(self, msg):
+        # this is Granny Annie's location being the 'user'!
+
         rospy.loginfo("Waiting for user location callback")
         rospy.loginfo(msg)
-        found = False
 
+        self.user_location = msg
+        '''
         print("msg.x     from GA tablet: "+str(msg.x))
         print("msg.x     from GA tablet: "+str(msg.y))
         print("msg.theta from GA tablet: "+str(msg.theta))
 
 
 
+        #Edinburgh 2018 code for remapping test bed coords to the Tiago ones
         for idx in range (0,2):
-            '''if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
-                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :'''
+            if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
+                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :
 
             # assign the coords in our system
             # msg.x = self.ulocx[idx]
             # msg.y = self.ulocy[idx]
             # msg.theta = self.uloct[idx]
-            self.user_location = msg
+
             found = True
 
         if not found :
             print("Re-mapping for Grany Annie location failed!")
             print("\n***** STOPPING PROGRAM *****\n")
             quit()
-        print("remapped granny location")
-        print("X     : "+str(self.user_location.x))
-        print("Y     : "+str(self.user_location.y))
-        print("theta : "+str(self.user_location.theta))
+        '''
+        prt.result(" Granny Annies location:")
+        prt.result(" X     : "+str(self.user_location.x))
+        prt.result(" Y     : "+str(self.user_location.y))
+        prt.result(" theta : "+str(self.user_location.theta))
 
-        ##Navigation Functions
+        return
+    ## Navigation Functions
     def move_to_pose2D(self, target_location_2D):
         ##publish granny annie's location
         rospy.loginfo("Moving to Pose2D")
@@ -479,12 +485,12 @@ class ControllerTBM3(GenericController):
         self.wait_to_arrive(5)
 
         ## Interactions
-    # def say(self, text):
-    #    prt.todo("Remove def say - use generic text: "+text)
-    #     rospy.sleep(1)
-    #     self.tts_pub.publish(text)
-    #     prt.debug("sleep set to 25 in - def says")
-    #     rospy.sleep(25)
+    def say(self, text):
+        prt.todo("Remove def say - use generic def say: "+text)
+        rospy.sleep(1)
+        self.tts_pub.publish(text)
+        prt.debug("sleep set to 5 as was in - def says")
+        rospy.sleep(5)
 
     def device_operationsself(self):
         pass

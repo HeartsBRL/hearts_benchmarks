@@ -66,8 +66,8 @@ class Objective:
 
     
     def load_json_coords(self): 
-        prt.todo("update  launch file for permanet Json_locations file path")
-        jsonfilein = rospy.get_param("JSON_locations_file")
+
+        jsonfilein = rospy.get_param("TBM3_locations_json")
         with open(jsonfilein) as fh:
             data = json.load(fh)
 
@@ -198,6 +198,7 @@ class Objective:
         wordstring = ""
         if   action_type == 'a':
             wordstring = self.command[0]
+            per = 'unknown'
             if self.person:
                 per = self.person[0]
                 if  per == 'user':
@@ -341,52 +342,61 @@ class Objective:
     def search(self):
         found = False #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
+            frmLoc = self.fromLocation[i]
 
+            ##### OBJECT SEARCH
             if len(self.object) >0:
                 #todo
                 obj    = self.object[0]
-                frmLoc = self.fromLocation[i]
                 coords = self.getfoundloc(frmLoc)
                 prt.info("in search: FROM loc  = "+frmLoc)  
                 prt.info("in Search: From coords:")
                 for item in coords:
                     prt.info(str(item))            
                 prt.info("in search: find object: "+ obj)
-                self.say("I am looking for "+ obj)
-                prt.todo("remove forcing logic for oject")
+                self.say("I am looking for object "+ obj +" on the "+frmLoc)
+                
+                prt.todo("remove forcing logic for ojbect & replace with OBJECT SEARCHING code")
                 if i == 1:
                     found = True
+                    returncoords = [11,22,33]
+
                 if found:
-                    print("in search: store coords of found location for object")
+                    prt.info("in search: store coords of found location for object")
                     coords = [1,2,3] #todo use coords return from search code
-                    print(coords)
-                    self.storefoundloc(obj, coords)
+                    prt.info(str(coords))
+                    self.storefoundloc(obj, returncoords)
                     found = True
                     self.say("I have found "+obj)
                     break
 
+            ##### PERSON SEARCH
             if len(self.person) >0:  
                 #todo
                 per =  self.person[0]
-                print("in search: person loc= "+self.fromLocation[i])
-                print("in search: find person: "+ per)
-                prt.todo("remove forcing logic for person")
+                prt.info("in search: person loc= "+self.fromLocation[i])
+                prt.info("in search: find person: "+ per)
+                self.say("I am looking for a person called  "+ per +" in the "+frmLoc+" location")
+
+                prt.todo("remove forcing logic for person & replace with PERSON SEARCHING code")
                 if i == 1:
                     found = True
+                    returncoords = [1,2,3]
+
                 if found:
-                    print("in search: store coords of found location for person")
+                    prt.info("in search: store coords of found location for person")
                     coords = [11,22,33]  #todo used coords return from search code
-                    self.storefoundloc(per, coords)
-                    print(coords)
+                    self.storefoundloc(per, returncoords)
+                    prt.info(str(coords))
                     found = True
                     break
 
         #todo store status   
         if not found:
-            print("in search: !!!!! FROM Location NOT FOUND !!!!!")   
+            prt.error("in search: !!!!! 'FROM' Location NOT FOUND !!!!!")   
 
-        print("in search: store status of task")           
-        print("in search: ALL DONE")
+        prt.todo("in search: store status of task")           
+        prt.info("in search: ALL DONE")
 
         return        
 
@@ -410,8 +420,8 @@ class Objective:
         #print("in get: obj= "+obj)
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
-            print("in get: FROM location coords for: " + obj)
-            print(coords)
+            prt.info("in get: FROM location coords for: " + obj)
+            prt.info(str(coords))
         else:
             # use FROM field 
             frmLoc = self.fromLocation[0]
@@ -425,94 +435,95 @@ class Objective:
                 # prt.debug("*************************")
 
 
-                coords = Objective.founditems[frmLoc]
-                print("in get: use FROM location to find coords: " + frmLoc)
-                print(coords)
+                coords = self.analysis.locations[frmLoc]
+                prt.info("in get: use FROM location to find coords: " + frmLoc)
+                prt.info(str(coords))
             else:
-                prt.warn("in get: !!!!! no FROM location available !!!!!")
+                prt.error("in get: !!!!! no FROM location available !!!!!")
                 return # can not proceed
 
 
-        prt.todo("sortout pickup flag logic")
+        prt.todo("sortout pickup  logic with user interaction")
         pickupOK = True
-        print("in get: Navigate to the FROM coords")
-        print("in get: pick up the: "+ obj)
+        prt.info("in get: Navigate to the FROM coords")
+        prt.info("in get: pick up the: "+ obj)
 
-        print("in get: TO location is : "+ self.toLocation[0])
+        prt.info("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
-        print("in get: toLoc : "+toLoc)
-        if Objective.founditems.has_key(toLoc):
-            coords = Objective.founditems[toLoc]
+        prt.info("in get: toLoc : "+toLoc)
+        if Objective.founditems.has_key(obj):
+            coords = Objective.founditems[obj]
         
-            print("in get: coords for TO location for " + toLoc )
-            print(coords)
+            prt.info("in get: coords for TO location for " + toLoc )
+            prt.info(str(coords))
         else:
-            print("in get: cannot find TO coords for: " + toLoc)
+            prt.error("in get: cannot find TO coords for: " + toLoc)
 
 
         if pickupOK == True:
             #todo 
-            print("in get: goto TO location")
-            print("in get: handover object:" + self.object[0])
+            prt.info("in get: goto TO location")
+            prt.info("in get: handover object:" + self.object[0])
 
         else:
-            print("in get: goto TO without object:" + self.object[0])        
+            prt.warn("in get: goto TO without object:" + self.object[0])        
 
-        print("in get: request that object taken from Tiago")    
+        prt.todo("in get: request that object taken from Tiago")    
 
         #todo store status
-        print("in get: store status of task")    
-        print("in get: ALL DONE")
+        prt.todo("in get: store status of task")    
+        prt.todo("in get: ALL DONE")
 
         return
 
     ##### ACCOMPANY
     def accompany(self):
-        #check that we have previously located the objectt
+        #check that we have previously located the person
         per = self.person[0]
 
         if Objective.founditems.has_key(per):
             coords = Objective.founditems[per]
-            print("in get: coords for person " + per)
-            print(coords)
+            prt.info("in get: coords for person " + per)
+            prt.info(str(coords))
         else:
-            print("in accompany: cannot find coords for: " + per + " so check FROM loc")
+            prt.error("in accompany: cannot find coords for: " + per + " so check FROM loc")
         
             # if location of person not previously known    
             if self.fromLocation:
                 #todo
-                print("in accompany: FROM Location defined")
+                prt.info("in accompany: FROM Location defined")
                 lenfrom = len(self.fromLocation)
                 if lenfrom == 1:
-                    print("in accompany: use FROM location as a single value")
+                    prt.info("in accompany: use FROM location as a single value ie loc is known")
                 else:              
                 #todo abort if FROM not available
-                    print("in accompany: FROM not available so abort task")
-               
+                    prt.error("in accompany: FROM not available so abort task")
+
+        ###################################################################################       
         if   self.brlcommand[0] == 'guide':
             #todo
             toLoc = self.toLocation[0]
 
             if Objective.founditems.has_key(toLoc):
                  coords = Objective.founditems[toLoc]
-                 print("in accompany: TO location is " + toLoc)
-                 print(coords)
-
-                 print("in accompany: Say follow me to "+ self.person[0])
+                 prt.info("in accompany: TO location is " + toLoc)
+                 prt.info(str(coords))
+                 self.say(per+" please follow me to the "+toLoc)
+                 prt.info("in accompany: Say follow me " +"to the "+toLoc)
 
             #todo         
-            print("in accompany: allow for user too far behind tiago??")
+            prt.todo("in accompany: allow for user too far behind tiago??")
 
 
         elif self.brlcommand[0] == 'follow':           
             #todo
-            print("in accomapny: Say Ready to follow you" + self.person[0])
-
-            print("in accompany: listen for stop following command")
+            prt.info("in accomapny: Say Ready to follow you" + per)
+            self.say("Hello "+per+" please lead on and I will foilow ")
+            prt.todo("in accompany: listen for stop  command from user")
 
         #todo store status
-        print("in accompany: store status of task")    
-        print("in accompany: ALL DONE")
+        prt.info("in accompany: store status of task")    
+        prt.info("in accompany: ALL DONE")
 
         return
 ##### end of objective class defn  #####
@@ -772,7 +783,7 @@ class Analysis(object):
     def check_locations(self,navjson_file):
 
 
-        # from pprint import pprint
+        #from pprint import pprint
 
         with open(navjson_file) as fh:
             data = json.load(fh)
@@ -822,7 +833,7 @@ class Analysis(object):
     #check that all "locations" found are in the Navigation locations.json file
     #navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
         prt.todo("not urgent - but remove duplicate use of json file name")
-        jsonfilein = rospy.get_param("JSON_locations_file")
+        jsonfilein = rospy.get_param("TBM3_locations_json")
 
         found,missed = self.check_locations(jsonfilein)
         prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")

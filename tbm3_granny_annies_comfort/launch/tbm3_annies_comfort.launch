@@ -5,31 +5,30 @@
    <arg name="listen" value="" />
   </include>
 
+   <arg name="TBM3_verbs"     default= "$(find tbm3_granny_annies_comfort)/data/TBM3_verbs.csv"   />
+   <arg name="TBM3_objects"   default= "$(find tbm3_granny_annies_comfort)/data/TBM3_objects.csv" />
+   <arg name="JSON_locations" default= "$(find hearts_navigation)/data/locations.json"   />
+   <arg name="JSON_locations" default= "$(find hearts_navigation)/data/locations.json" />
+
+   <param name="TBM3_objects_file"   value="$(arg TBM3_objects)"   />
+   <param name="TBM3_verbs_file"     value="$(arg TBM3_verbs)"     />  
+   <param name="locations_json"      value="$(arg JSON_locations)" />  
+
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
 
   <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort" type="tbm3_granny_annies_comfort_controller.py" output="screen" />
 
 
-  <!-- comment out the "servicer" node when actual benchmark box is being used and un-comment the
-      node: roah_rsbb_comm_ros
-  -->
-
-
-  <!-- <node name="servicer" pkg="tbm3_granny_annies_comfort" type="service.py" output="screen" /> -->
-
-
-
-
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
-    <param name="team_name" type="string" value="HEARTS" />
+    <param name="team_name"  type="string" value="HEARTS" />
     <param name="robot_name" type="string" value="Tiago" />
-        <param name="rsbb_key" type="string" value="YEnzHu6P" />
-    <param name="rsbb_host" type="string" value="10.2.0.10" />
-    <param name="rsbb_port" type="int" value="6666"/>
+      <param name="rsbb_key" type="string" value="FJK6LazOM" />
+    <param name="rsbb_host"  type="string" value="10.2.0.101" />
+    <param name="rsbb_port"  type="int"    value="6666"/>
   </node>
 
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
     <arg name="map_name" value="erl_2018" />
   </include>
-  <param name="locations_json" type="string" value="$(find hearts_navigation)/data/locations.json" />
+
 </launch>
