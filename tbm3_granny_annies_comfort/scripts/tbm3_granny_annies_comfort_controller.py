@@ -183,8 +183,8 @@ class ControllerTBM3(GenericController):
             self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
-            self.say("The task is now complete. Do you have another command ")
-
+            self.say("The tasks are now completed to your satifaction we trust")
+            prt.todo("Stop Program here!")
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
@@ -195,12 +195,6 @@ class ControllerTBM3(GenericController):
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
-        elif "stop"  in words:
-            # re-establish subscribers
-            self.listen4ans('off')
-            self.listen4cmd('on')
-            self.say("OK I will shut down now")  
-            sleep(20)
 
         else:
             self.say("Please answer with yes please or no thank you")

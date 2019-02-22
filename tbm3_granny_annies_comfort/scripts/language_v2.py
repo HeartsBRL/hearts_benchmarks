@@ -339,6 +339,7 @@ class Objective:
 
         return
 
+    #######################    
     ###### SEARCHING ######
     def search(self):
         found = False #todo should be False for final program!!
@@ -413,12 +414,13 @@ class Objective:
             coords = []
 
         return coords
-
-    ###### MANIPULATE 
+    #######################
+    ###### MANIPULATE #####
     def get(self):
         #check if we have previously located the object
         obj = self.object[0]
-        #print("in get: obj= "+obj)
+        prt.debug(("in get: obj= "+obj))
+
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
             prt.info("in get: FROM location coords for: " + obj)
@@ -463,12 +465,13 @@ class Objective:
         if pickupOK == True:
             #todo 
             prt.info("in get: goto TO location")
-            prt.info("in get: handover object:" + self.object[0])
+            prt.todo("in get: request that object taken from Tiago")
+            self.say("please take the "+obj+ "from me" )
 
         else:
-            prt.warn("in get: goto TO without object:" + self.object[0])        
-
-        prt.todo("in get: request that object taken from Tiago")    
+            prt.warn("in get: goto TO without object:" + self.object[0])   
+            self.say("now going to "+toLoc+" without the "+obj )     
+ 
 
         #todo store status
         prt.todo("in get: store status of task")    
@@ -492,18 +495,20 @@ class Objective:
             if self.fromLocation:
                 #todo
                 prt.info("in accompany: FROM Location defined")
-                lenfrom = len(self.fromLocation)
+                frmLoc  = self.fromLocation
+                lenfrom = len(frmLoc)
                 if lenfrom == 1:
-                    prt.info("in accompany: use FROM location as a single value ie loc is known")
+                    prt.info("in accompany: use FROM location as a single value ie loc is known is: "+str(frmLoc))
                 else:              
                 #todo abort if FROM not available
                     prt.error("in accompany: FROM not available so abort task")
 
         ###################################################################################       
-        if   self.brlcommand[0] == 'guide':
+        prt.debug("command is: "+str(self.command[0])) 
+        if   self.command[0] == 'guide':
             #todo
             toLoc = self.toLocation[0]
-
+            prt.info("toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
                  coords = Objective.founditems[toLoc]
                  prt.info("in accompany: TO location is " + toLoc)

@@ -7,7 +7,7 @@
   </include> 
 
  
-  <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch" />
+  <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate_test.launch" />
 
 
    <arg name="TBM3_verbs"     default= "$(find tbm3_granny_annies_comfort)/data/TBM3_verbs.csv"   />
