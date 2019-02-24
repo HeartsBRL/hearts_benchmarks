@@ -353,22 +353,20 @@ class Objective:
                 coords = self.getfoundloc(frmLoc)
                 prt.info("in search: FROM loc  = "+frmLoc)  
                 prt.info("in Search: From coords:")
-                for item in coords:
-                    prt.info(str(item))            
+           
                 prt.info("in search: find object: "+ obj)
                 self.say("I am looking for object "+ obj +" on the "+frmLoc)
                 
                 prt.todo("remove forcing logic for ojbect & replace with OBJECT SEARCHING code")
                 if i == 1:
                     found = True
-                    returncoords = [11,22,33]
 
                 if found:
-                    prt.info("in search: store coords of found location for object")
-                    coords = [1,2,3] #todo use coords returneds from search code
-                    prt.info(str(coords))
-                    self.storefoundloc(obj, returncoords)
                     found = True
+                    prt.info(str("Returned coords from object search code are:"+str(coords)))
+                    prt.info("in search: store coords of found location for person")
+                    self.storefoundloc(obj, coords)
+
                     self.say("I have found "+obj)
                     break
 
@@ -376,21 +374,23 @@ class Objective:
             if len(self.person) >0:  
                 #todo
                 per =  self.person[0]
-                prt.info("in search: person loc= "+self.fromLocation[i])
+                coords = self.getfoundloc(frmLoc)
+                prt.info("in search: person loc= "+frmLoc)
                 prt.info("in search: find person: "+ per)
-                self.say("I am looking for a person called  "+ per +" in the "+frmLoc+" location")
+                self.say("I am looking for a person called  "+ per +" in the "+frmLoc)
 
                 prt.todo("remove forcing logic for person & replace with PERSON SEARCHING code")
                 if i == 1:
                     found = True
-                    returncoords = [1,2,3]
 
                 if found:
+                    found = True  
+                    prt.info(str("Returned coords from object search code are:"+str(coords)))
                     prt.info("in search: store coords of found location for person")
-                    coords = [11,22,33]  #todo used coords return from search code
-                    self.storefoundloc(per, returncoords)
-                    prt.info(str(coords))
-                    found = True
+                    self.storefoundloc(per, coords)
+
+                    prt.info(str("Found coords for "+per+" search are:"+str(coords)))
+                    self.say("I have found "+per)
                     break
 
         #todo store status   
@@ -407,6 +407,8 @@ class Objective:
         Objective.founditems[object] = coords
 
         return
+
+
     def getfoundloc(self, key):
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
@@ -469,7 +471,7 @@ class Objective:
             self.say("please take the "+obj+ "from me" )
 
         else:
-            prt.warn("in get: goto TO without object:" + self.object[0])   
+            prt.warning("in get: goto TO without object:" + self.object[0])   
             self.say("now going to "+toLoc+" without the "+obj )     
  
 
@@ -510,14 +512,18 @@ class Objective:
             toLoc = self.toLocation[0]
             prt.info("toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
-                 coords = Objective.founditems[toLoc]
-                 prt.info("in accompany: TO location is " + toLoc)
-                 prt.info(str(coords))
-                 self.say(per+" please follow me to the "+toLoc)
-                 prt.info("in accompany: Say follow me " +"to the "+toLoc)
+                coords = Objective.founditems[toLoc]
 
-            #todo         
-            prt.todo("in accompany: allow for user too far behind tiago??")
+                self.say(per+" please follow me to the "+toLoc)
+                prt.info("in accompany: Say follow me " +"to the "+toLoc)
+                prt.info("in accompany: TO location is " + toLoc)
+                
+                ControllerTBM3.move_robot_to_coords(coords)
+
+                #update persons location to their new location
+                self.storefoundloc(per, toLoc)
+       
+                prt.todo("in accompany: for guiding -- allow for user too far behind tiago??")
 
 
         elif self.brlcommand[0] == 'follow':           
@@ -531,6 +537,8 @@ class Objective:
         prt.info("in accompany: ALL DONE")
 
         return
+
+
 ##### end of objective class defn  #####
 
 class Analysis(object):
@@ -837,7 +845,7 @@ class Analysis(object):
     def checklocations(self):
         #check that all "ERL competition locations" found are in the Navigation locations.json file
         jsonfilein = rospy.get_param("locations_json")
-
+        prt.todo("add json file exisits check in def language_v2.py")
         found,missed = self.check_locations(jsonfilein)
         prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
         # for cmd in commands:

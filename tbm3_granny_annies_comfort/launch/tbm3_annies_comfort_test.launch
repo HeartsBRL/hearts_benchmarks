@@ -6,15 +6,18 @@
    <arg name="listen" value="" />
   </include> 
 
- 
+ <!-- curently 24 Feb 2019 - fails as no module move_base_msgs.msg
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate_test.launch" />
+  hence param name entered below for the moment!! -->
 
+ <param name="locations_json" value="/home/derek/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/tbm3_locations.json" />
 
    <arg name="TBM3_verbs"     default= "$(find tbm3_granny_annies_comfort)/data/TBM3_verbs.csv"   />
    <arg name="TBM3_objects"   default= "$(find tbm3_granny_annies_comfort)/data/TBM3_objects.csv" />
 
-   <param name="TBM3_objects_file"    value="$(arg TBM3_objects)"   />
-   <param name="TBM3_verbs_file"      value="$(arg TBM3_verbs)"     />  
+   <param name="robot_in_use"         value="false"               />
+   <param name="TBM3_objects_file"    value="$(arg TBM3_objects)" />
+   <param name="TBM3_verbs_file"      value="$(arg TBM3_verbs)"   />  
 
 
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />

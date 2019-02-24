@@ -58,7 +58,11 @@ class ControllerTBM3(GenericController):
         self.blinds_max_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/max',   std_srvs.srv.Empty)
         self.blinds_min_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty)
         self.blinds_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',   Percentage)
+       
+        #ROS parameters
+        self.IROBOT = rospy.get_param("robot_in_use")
 
+        #Initialise variables
         self.user_location = None
 
         # Granny Annies position in our map's coord system
@@ -184,7 +188,7 @@ class ControllerTBM3(GenericController):
 
             self.analysis.executeobjectives(self.theobjectives)
             self.say("The tasks are now completed to your satifaction we trust")
-            prt.todo("Stop Program here!")
+            prt.todo(" **************Stop Program here!*****************")
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
@@ -497,6 +501,26 @@ class ControllerTBM3(GenericController):
     def device_operationsself(self):
         pass
 
+    def move_robot_to_coords(self,coords):
+        # indirection code to allow deveopment with no robot attached 
+        prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
+        if self.IROBOT:
+            prt.warning("ROBOT moving to : "+str(coords))
+            self.move_to_pose2D(coords)
+        else:
+            prt.warning("NO ROBOT available for software to control!")   
+            prt.warning("ROBOT will NOT moving to : "+str(coords)) 
+        return
+
+    def move_robot_to_location(self,location,trys):
+        # indirection code to allow deveopment with no robot attached
+        if self.IROBOT:
+            prt.warning("ROBOT moving to location : "+location)
+            self.move_to_location(location,trys)
+        else:  
+            prt.warning("NO ROBOT available for software to control!")   
+            prt.warning("ROBOT will NOT moving to : "+location+" with "+str(trys) )
+
     def main(self):
         print ("\n***** MAIN Executing *****\n")
         #go to home position
@@ -505,7 +529,7 @@ class ControllerTBM3(GenericController):
         #wait for call
         self.say("Waiting to be called by granny annie.")
         self.wait_for_call()
-
+        prt.debug("------  IROBOT : "+str(self.IROBOT))
         #request location
         #self.say("Waiting for granny annie's location") - removed as delay seems to prevent user location callback from firing
         self.wait_for_user_location()
@@ -513,7 +537,8 @@ class ControllerTBM3(GenericController):
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
         prt.todo("Remove comments for navigation to GA")
-        #dar self.move_to_pose2D(self.user_location)
+        self.move_robot_to_coords(self.user_location)
+        prt.todo("retries fr GA arriving???")
         #dar self.wait_to_arrive(5)
         self.say("How can I help you today? Please give me a command")
 

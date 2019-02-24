@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Created : 05 Feb 2019
+# Author  : Derek Ripper
+# Purpose : Simulate the SERVICE CALL - that displays MAP on GA'stablet
+#######################################################################################
+# Updates :
+#
+#########################################################################################
+
+rosservice call /roah_rsbb/tablet/map std_srvs.srv.Empty location_pose_2D
+# std_srvs.srv.Empty location_pose_2D
+
+#in python this works
+#s  = rospy.Service('/roah_rsbb/tablet/map', std_srvs.srv.Empty, location_pose_2D)
