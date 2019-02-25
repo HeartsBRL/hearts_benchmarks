@@ -357,10 +357,10 @@ class ControllerTBM2(GenericController):
             return
 
         # 5. speak to doctor, advise robot will wait
-        self.say("I will wait here while you see Grannie Annie. I will wait here.")
+        self.say("I will wait here while you see Grannie Annie.")
 
         # 6. wait until doctor exits the bedroom
-        rospy.sleep(3) #TODO is this here to give dr time to move out of sight?
+        #rospy.sleep(3) #TODO is this here to give dr time to move out of sight?
         #self.wait_for_scan_changed() # waits to detect face again
 
         #TODO confirm they are actually done?
