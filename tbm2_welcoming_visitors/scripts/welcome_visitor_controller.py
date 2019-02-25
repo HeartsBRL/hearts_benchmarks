@@ -172,13 +172,15 @@ class ControllerTBM2(GenericController):
 
                 #TODO raise torso - use pose movement
 
-            self.say("please stand close to my face and look into my eyes so that I can recognise you")
+
             #
                 #TODO use new calls
             #visitor = None
             Recog_visitor_msg = Face_recog_verdict() #DANIEL
             Recog_visitor_msg.scan_time = rospy.Duration(10)
             self.pub_face.publish(Recog_visitor_msg)
+
+            self.say("please stand close to my face and look into my eyes so that I can recognise you")
             visitor = self.detect_visitor_face()
 
             #visitor = "Unknown"
@@ -439,7 +441,7 @@ class ControllerTBM2(GenericController):
         # 9. move to hallway
         if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
             return
-            
+
        #self.toggle_follow('on')
 
         # 10. bid farewell
@@ -504,10 +506,19 @@ class ControllerTBM2(GenericController):
                         self.say("I did not understand, please tell me again.")
                         rospy.sleep(5)
 
-                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
                 rospy.sleep(3)
-                if self.move_to_location("entrance", 3) == False:
-                                return
+                self.toggle_follow('on')
+                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+                if detected:
+                    self.toggle_follow('off')
+                    self.say("Goodbye!")
+
+
+                # if self.move_to_location("entrance", 3) == False:
+                #                 return
+
+
 
 
             elif 'kitchen' in answer:
@@ -547,10 +558,18 @@ class ControllerTBM2(GenericController):
                         self.say("I did not understand, please tell me again.")
                         rospy.sleep(5)
 
-                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
                 rospy.sleep(3)
-                if self.move_to_location("entrance", 3) == False:
-                    return
+                self.toggle_follow('on')
+                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+                if detected:
+                    self.toggle_follow('off')
+                    self.say("Goodbye!")
+
+                # self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                # rospy.sleep(3)
+                # if self.move_to_location("entrance", 3) == False:
+                #     return
 
             else:
                 self.ready = False
