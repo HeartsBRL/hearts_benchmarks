@@ -180,6 +180,8 @@ class ControllerTBM2(GenericController):
             Recog_visitor_msg.scan_time = rospy.Duration(10)
             self.pub_face.publish(Recog_visitor_msg)
 
+            self.move_to_pose("look_into_my_eyes")
+            rospy.sleep(1)
             self.say("please stand close to my face and look into my eyes so that I can recognise you")
             visitor = self.detect_visitor_face()
 
@@ -346,7 +348,7 @@ class ControllerTBM2(GenericController):
         rospy.sleep(1)
 
         # move arm close in again so easier to move back to base
-        self.move_to_pose("hold_close") #TODO maybe tuck arm instead?
+        self.move_to_pose("home_direct") #TODO maybe tuck arm instead?
         rospy.sleep(1)
         #TODO say something before leaving?
         self.say("See you later Annie.")
@@ -402,7 +404,7 @@ class ControllerTBM2(GenericController):
             return
 
         # 5. speak to doctor, advise robot will wait
-        self.say("Please enter, I will wait here.")
+        self.say("Please get down to business with Grannie Annie. I will wait here.")
 
         # 6. wait until doctor exits the bedroom
         rospy.sleep(3) #TODO is this here to give dr time to move out of sight?
@@ -459,124 +461,134 @@ class ControllerTBM2(GenericController):
         # ask plumber where they would like to go
         self.say("Hello Plumber, which room would you like to go to?")
 
-        #listen for answer
-        answer = None
-        while answer is None:
-            answer = self.speech
-            rospy.sleep(0.2)
-        self.toggle_stt('off')
-        # if 'ready' in answer:
-        #     self.ready = True
+        # #listen for answer
+        # answer = None
+        # while answer is None:
+        #     answer = self.speech
+        #     rospy.sleep(0.2)
+        # self.toggle_stt('off')
+        # # if 'ready' in answer:
+        # #     self.ready = True
+        # #     self.toggle_stt('off')
+        #
+        # while not ('bathroom' in answer or 'bath room' in answer or 'kitchen' in answer):
+        #     rospy.sleep(0.1)
+
+        # listen for these words, retry 10 times
+        detected, answer = self.stt_detect_words(["bathroom", "bath", "kitchen"], 10)
+
+        #go to the room, or not
+        if 'bathroom' in answer or 'bath' in answer:
+            self.say("Please follow me to the bathroom.")
+            #TODO implement following behaviour
+            # for now just navigate to the location
+            if self.move_to_location("plumber_bathroom", 3) == False:
+                return
+            self.say("We are now at the bathroom.")
+            #wait for plumber to finish
+
+            #wait for answer
+            #TODO confirm they are actually done?
+
+
+
+
+            #TODO loop until "ready" said? or timeout to repeat command?
+            # self.ready = False
+            # while self.ready == False:
+            #     #listen for reply, act accordingly
+            #     self.toggle_stt('on')
+            #
+            #     answer = None
+            #     while answer is None:
+            #         answer = self.speech
+            #         rospy.sleep(0.2)
+            #     self.toggle_stt('off')
+            #     if 'ready' in answer:
+            #         self.ready = True
+            #         self.toggle_stt('off')
+            #     else:
+            #         self.ready = False
+            #         #rospy.loginfo("visitor not recognized")
+            #         self.toggle_stt('off')
+            #         rospy.sleep(1)
+            #         self.say("I did not understand, please tell me again.")
+            #         rospy.sleep(5)
+
+            self.say("Please tell me when you are ready to leave the bathroom.")
+            detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
+            if detected == True:
+                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
+                rospy.sleep(3)
+                self.toggle_follow('on')
+                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+                if detected:
+                    self.toggle_follow('off')
+                    self.say("Goodbye!")
+
+
+            # if self.move_to_location("entrance", 3) == False:
+            #                 return
+
+
+
+
+        elif 'kitchen' in answer:
+            self.toggle_stt('off')
+            self.say("Please follow me to the kitchen.")
+            #TODO implement 'following' behaviour
+
+            # for now just navigate to the location
+            if self.move_to_location("kitchen", 3) == False:
+                return
+
+            self.say("We are now at the kitchen.")
+
+
+            self.say("Please tell me when you are ready to leave.")
+
+            #wait for plumber to finish
+            #TODO loop until "ready" said? or timeout to repeat command?
+            self.ready = False
+            while self.ready == False:
+                #listen for reply, act accordingly
+                self.toggle_stt('on')
+
+                answer = None
+                while answer is None:
+                    answer = self.speech
+                    rospy.sleep(0.2)
+                self.toggle_stt('off')
+                if 'ready' in answer:
+                    self.ready = True
+                    self.toggle_stt('off')
+                else:
+                    self.ready = False
+                    rospy.loginfo("visitor not recognized")
+                    self.toggle_stt('off')
+                    rospy.sleep(1)
+                    self.say("I did not understand, please tell me again.")
+                    rospy.sleep(5)
+
+            self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
+            rospy.sleep(3)
+            self.toggle_follow('on')
+            detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+            if detected:
+                self.toggle_follow('off')
+                self.say("Goodbye!")
+
+            # self.say("Now you are done, I will follow you to the door. Please lead the way.")
+            # rospy.sleep(3)
+            # if self.move_to_location("entrance", 3) == False:
+            #     return
+
+        # else:
+        #     self.ready = False
         #     self.toggle_stt('off')
-
-        while not 'bathroom' in answer and 'bath room' in answer and 'kitchen' in answer:
-
-            #go to the room, or not
-            if 'bathroom' in answer or 'bath room' in answer:
-                self.say("Please follow me to the bathroom.")
-                #TODO implement following behaviour
-                # for now just navigate to the location
-                if self.move_to_location("plumber_bathroom", 3) == False:
-                    return
-                self.say("We are now at the bathroom.")
-                #wait for plumber to finish
-
-                #wait for answer
-                #TODO confirm they are actually done?
-                self.say("Please tell me when you are ready to leave.")
-                #TODO loop until "ready" said? or timeout to repeat command?
-                self.ready = False
-                while self.ready == False:
-                    #listen for reply, act accordingly
-                    self.toggle_stt('on')
-
-                    answer = None
-                    while answer is None:
-                        answer = self.speech
-                        rospy.sleep(0.2)
-                    self.toggle_stt('off')
-                    if 'ready' in answer:
-                        self.ready = True
-                        self.toggle_stt('off')
-                    else:
-                        self.ready = False
-                        #rospy.loginfo("visitor not recognized")
-                        self.toggle_stt('off')
-                        rospy.sleep(1)
-                        self.say("I did not understand, please tell me again.")
-                        rospy.sleep(5)
-
-                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
-                rospy.sleep(3)
-                self.toggle_follow('on')
-                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
-                if detected:
-                    self.toggle_follow('off')
-                    self.say("Goodbye!")
-
-
-                # if self.move_to_location("entrance", 3) == False:
-                #                 return
-
-
-
-
-            elif 'kitchen' in answer:
-                self.toggle_stt('off')
-                self.say("Please follow me to the kitchen.")
-                #TODO implement 'following' behaviour
-
-                # for now just navigate to the location
-                if self.move_to_location("kitchen", 3) == False:
-                    return
-
-                self.say("We are now at the kitchen.")
-
-
-                self.say("Please tell me when you are ready to leave.")
-
-                #wait for plumber to finish
-                #TODO loop until "ready" said? or timeout to repeat command?
-                self.ready = False
-                while self.ready == False:
-                    #listen for reply, act accordingly
-                    self.toggle_stt('on')
-
-                    answer = None
-                    while answer is None:
-                        answer = self.speech
-                        rospy.sleep(0.2)
-                    self.toggle_stt('off')
-                    if 'ready' in answer:
-                        self.ready = True
-                        self.toggle_stt('off')
-                    else:
-                        self.ready = False
-                        rospy.loginfo("visitor not recognized")
-                        self.toggle_stt('off')
-                        rospy.sleep(1)
-                        self.say("I did not understand, please tell me again.")
-                        rospy.sleep(5)
-
-                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
-                rospy.sleep(3)
-                self.toggle_follow('on')
-                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
-                if detected:
-                    self.toggle_follow('off')
-                    self.say("Goodbye!")
-
-                # self.say("Now you are done, I will follow you to the door. Please lead the way.")
-                # rospy.sleep(3)
-                # if self.move_to_location("entrance", 3) == False:
-                #     return
-
-            else:
-                self.ready = False
-                self.toggle_stt('off')
-                rospy.sleep(1)
-                self.say("I did not understand, please tell me again.")
-                rospy.sleep(2)
+        #     rospy.sleep(1)
+        #     self.say("I did not understand, please tell me again.")
+        #     rospy.sleep(2)
 
 
 

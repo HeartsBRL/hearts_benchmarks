@@ -19,6 +19,9 @@
   <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
   <node name="change_detector" pkg="tbm2_welcoming_visitors" type="change_detector.py" output="screen" />
   <!-- <node name="face_recognizer" pkg="aggregator" type="final_vision_aggregator.py" /> -->
+  
+  <include file="$(find cob_people_object_detection_tensorflow)/launch/alltogether.launch"/>
+
   <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" output="screen"  />
 
   <include file="$(find hearts_stt)/launch/hearts_stt.launch">
