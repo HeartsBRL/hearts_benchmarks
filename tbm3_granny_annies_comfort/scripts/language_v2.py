@@ -25,7 +25,8 @@ class Objective:
     founditems = {} # coords from Tiago of object and/or person found
                     # data format  {name : [x,y,theta]}
 
-    def __init__(self,sentence,com,brlcom,comtype,analysis):
+    def __init__(self,sentence,com,brlcom,comtype,analysis, tbm3ctrler):
+        self.tbm3ctrler = tbm3ctrler
         #publishers
         self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
 
@@ -55,13 +56,16 @@ class Objective:
 
         self.load_json_coords()
 
+        #from a ROS parameter in caller
+        self.IROBOT = self.tbm3ctrler.IROBOT
 
-    def say(self, text):
-        ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
-        rospy.loginfo("saying \"" + text + "\"")
-        rospy.sleep(1)
-        self.tts_pub.publish(text)
-        rospy.sleep(5)
+
+    # def say(self, text):
+    #     ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
+    #     rospy.loginfo("saying \"" + text + "\"")
+    #     rospy.sleep(1)
+    #     self.tts_pub.publish(text)
+    #     rospy.sleep(5)
 
 
     
@@ -85,7 +89,7 @@ class Objective:
             self.storefoundloc(key,coordslist)
 
         prt.todo("GET proper coords of GA's location fom her tablet?????")
-        coordslist=[111,222,-99.9]
+        coordobjectiveslist=[111,222,-99.9]
         self.storefoundloc('user',coordslist)    
 
     def parse(self):
@@ -355,7 +359,7 @@ class Objective:
                 prt.info("in Search: From coords:")
            
                 prt.info("in search: find object: "+ obj)
-                self.say("I am looking for object "+ obj +" on the "+frmLoc)
+                self.tbm3ctrler.say("I am looking for object "+ obj +" on the "+frmLoc)
                 
                 prt.todo("remove forcing logic for ojbect & replace with OBJECT SEARCHING code")
                 if i == 1:
@@ -367,7 +371,7 @@ class Objective:
                     prt.info("in search: store coords of found location for person")
                     self.storefoundloc(obj, coords)
 
-                    self.say("I have found "+obj)
+                    self.tbm3ctrler.say("I have found "+obj)
                     break
 
             ##### PERSON SEARCH
@@ -377,7 +381,7 @@ class Objective:
                 coords = self.getfoundloc(frmLoc)
                 prt.info("in search: person loc= "+frmLoc)
                 prt.info("in search: find person: "+ per)
-                self.say("I am looking for a person called  "+ per +" in the "+frmLoc)
+                self.tbm3ctrler.say("I am looking for a person called  "+ per +" in the "+frmLoc)
 
                 prt.todo("remove forcing logic for person & replace with PERSON SEARCHING code")
                 if i == 1:
@@ -390,7 +394,7 @@ class Objective:
                     self.storefoundloc(per, coords)
 
                     prt.info(str("Found coords for "+per+" search are:"+str(coords)))
-                    self.say("I have found "+per)
+                    self.tbm3ctrler.say("I have found "+per)
                     break
 
         #todo store status   
@@ -468,11 +472,11 @@ class Objective:
             #todo 
             prt.info("in get: goto TO location")
             prt.todo("in get: request that object taken from Tiago")
-            self.say("please take the "+obj+ "from me" )
+            self.tbm3ctrler.say("please take the "+obj+ "from me" )
 
         else:
             prt.warning("in get: goto TO without object:" + self.object[0])   
-            self.say("now going to "+toLoc+" without the "+obj )     
+            self.tbm3ctrler.say("now going to "+toLoc+" without the "+obj )     
  
 
         #todo store status
@@ -514,11 +518,11 @@ class Objective:
             if Objective.founditems.has_key(toLoc):
                 coords = Objective.founditems[toLoc]
 
-                self.say(per+" please follow me to the "+toLoc)
+                self.tbm3ctrler.say(per+" please follow me to the "+toLoc)
                 prt.info("in accompany: Say follow me " +"to the "+toLoc)
                 prt.info("in accompany: TO location is " + toLoc)
-                
-                ControllerTBM3.move_robot_to_coords(coords)
+                trys = 5
+                self.tbm3ctrler.move_robot_to_coords(coords,trys)
 
                 #update persons location to their new location
                 self.storefoundloc(per, toLoc)
@@ -529,7 +533,7 @@ class Objective:
         elif self.brlcommand[0] == 'follow':           
             #todo
             prt.info("in accomapny: Say Ready to follow you " + per)
-            self.say("Hello "+per+" please lead on and I will follow ")
+            self.tbm3ctrler.say("Hello "+per+" please lead on and I will follow ")
             prt.todo("in accompany: listen for stop  command from user")
 
         #todo store status
@@ -538,11 +542,23 @@ class Objective:
 
         return
 
+    # def move_robot_to_coords(self,coords):
+    #     # indirection code to allow deveopment with no robot attached 
+    #     prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
+    #     if self.IROBOT:
+    #         prt.warning("ROBOT moving to : "+str(coords))
+    #         self.move_to_pose2D(coords)
+    #     else:
+    #         prt.warning("NO ROBOT available for software to control!")   
+    #         prt.warning("ROBOT will NOT moving to : "+str(coords)) 
+    #     return
 
 ##### end of objective class defn  #####
 
 class Analysis(object):
-    def __init__(self):
+    def __init__(self,tbm3ctrler):
+        self.tbm3ctrler = tbm3ctrler
+
         self.ERL_data =None
         self.locations =None
         self.commands=None
@@ -605,9 +621,9 @@ class Analysis(object):
         prt.info("Objectify Command count = "+str(self.commandcount))       
         if self.commandcount == 3:         
             #use the indices of commands to split task into objectives
-            objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
-            objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
-            objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
+            objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self, self.tbm3ctrler)
+            objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self, self.tbm3ctrler)
+            objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self, self.tbm3ctrler)
             #DAR
             # print("taskflags[0]+1 :"+str(taskflags[0]+1))
             # print("taskflags[1]+1 :"+str(taskflags[1]+1))

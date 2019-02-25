@@ -28,6 +28,7 @@ import language_v2 as nlp
 prt = TC.tc()
 
 
+
 class ControllerTBM3(GenericController):
 
     def __init__(self):
@@ -231,15 +232,15 @@ class ControllerTBM3(GenericController):
         # if self.code2exec != None:
         #     #listen for "answer"
         ###### NEW CODE for sppech processing        #####
-        self.analysis = nlp.Analysis()
+        self.analysis = nlp.Analysis(self)
         self.analysis.getcompdata()
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
 
         if commandcount == 3 :
             prt.debug("******************************************************")
-            self.theobjectives[0].printme_final()
-            self.theobjectives[1].printme_final()
-            self.theobjectives[2].printme_final()
+            # self.theobjectives[0].printme_final()
+            # self.theobjectives[1].printme_final()
+            # self.theobjectives[2].printme_final()
             prt.debug("******************************************************")
 
             talkback      = self.analysis.getconfirmationtext(self.theobjectives)
@@ -501,12 +502,12 @@ class ControllerTBM3(GenericController):
     def device_operationsself(self):
         pass
 
-    def move_robot_to_coords(self,coords):
+    def move_robot_to_coords(self,coords,trys):
         # indirection code to allow deveopment with no robot attached 
         prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
         if self.IROBOT:
             prt.warning("ROBOT moving to : "+str(coords))
-            self.move_to_pose2D(coords)
+            self.move_to_coords(coords,trys)
         else:
             prt.warning("NO ROBOT available for software to control!")   
             prt.warning("ROBOT will NOT moving to : "+str(coords)) 
@@ -514,6 +515,7 @@ class ControllerTBM3(GenericController):
 
     def move_robot_to_location(self,location,trys):
         # indirection code to allow deveopment with no robot attached
+        
         if self.IROBOT:
             prt.warning("ROBOT moving to location : "+location)
             self.move_to_location(location,trys)
@@ -521,8 +523,41 @@ class ControllerTBM3(GenericController):
             prt.warning("NO ROBOT available for software to control!")   
             prt.warning("ROBOT will NOT moving to : "+location+" with "+str(trys) )
 
+    def move_to_coords(self, coords, num_retries):
+        #copied from move_to_location #Derek 
+        '''
+        Publish coords to move to to /hearts/navigation/goal/location and wait
+        for update on /hearts/navigation/status (either "Success" or "Failure")
+
+        If move not succesful, retry given number of times, changing orientation
+        by 1 radian on each retry.
+        '''
+        #self.cost_clear()
+        rospy.loginfo("moving to coords \"" + str(coords) + "\" (" + str(num_retries) + ")")
+        msg = Pose2D()
+        msg.x     = coords[0]
+        msg.y     = coords[1]
+        msg.theta = coords[2]
+        #########    
+        ###self.pub_location_goal.publish(msg)### as used in mve to location
+        #########
+        self.pose_2d_pub.publish(msg)
+
+        arrive_success = self.wait_to_arrive(num_retries)
+
+        if arrive_success == False:
+            rospy.loginfo("ERROR movement to \"" + target_location + "\" has failed")
+            self.say("Sorry, I am unable to move to "+target_location)
+            #TODO should an actual error be thrown here?
+            return False
+        else:
+            self.say("I have arrived at the "+target_location+" location")
+            return True
+
+
     def main(self):
         print ("\n***** MAIN Executing *****\n")
+        prt.debug(" I-Robot :"+str(self.IROBOT))
         #go to home position
         #dar self.move_to_location("home",1) #TODO check number of retries
 
@@ -537,7 +572,8 @@ class ControllerTBM3(GenericController):
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
         prt.todo("Remove comments for navigation to GA")
-        self.move_robot_to_coords(self.user_location)
+        trys=5
+        self.move_robot_to_coords(self.user_location,trys)
         prt.todo("retries fr GA arriving???")
         #dar self.wait_to_arrive(5)
         self.say("How can I help you today? Please give me a command")
