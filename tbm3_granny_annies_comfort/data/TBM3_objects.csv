@@ -29,7 +29,8 @@ P,Daniel,      Kitchen,60,            Living room,30,     Hallway,10
 P,Luis,        Kitchen,60,            Living room,30,     Hallway,10
 P,Paul,        Kitchen,60,            Living room,30,     Hallway,10
 
-P, user,       no_location1,60, no_location_2,30, no_location3,10
+#may not needed new code gives GA's coords from her tablet - Derek.
+#P, user,       no_location1,60, no_location_2,30, no_location3,10
 
 ######   objects   #####
 # Madrid 2018 - Oct 2018
@@ -37,7 +38,7 @@ I,Coke,        Kitchen counter,60,    Coffee table,30,    Dining table,10
 I,Water,       Kitchen counter,60,    Coffee table,30,    Dining table,10
 I,Juice,       Kitchen counter,60,    Coffee table,30,    Dining table,10
 
-I,Apple,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
+I,Apple,       Kitchen table,60,      Kitchen counter,30, kitchen cabinet,10
 I,Lemon,       Kitchen table,60,      Kitchen counter,30, Coffee table,10
 I,Rice,        Kitchen table,60,      Kitchen counter,30, Coffee table,10
 I,Pringles,    Kitchen table,60,      Kitchen counter,30, Coffee table,10
@@ -49,7 +50,10 @@ I,Whiteboard cleaner, Bathroom drawer,60, Side table 2,30, Kitchen counter,10
 
 I,Cup,         Coffee table,60,       Kitchen table,30,   Dining table,10
 I,Glass,       Coffee table,60,       Kitchen table,30,   Dining table,10
-I,Candle,      Side table 2,60,       Coffee table,30,    Dining table,10
+
+I,Candle,          Side table 2,60,       Coffee table,30,    Dining table,10
+I,Reading Glasses, Side table 2,60,       Coffee table,30,    Dining table,10
+
 
 ###### just Locations  #####
 
@@ -57,7 +61,7 @@ I,xdummy,      Entrance hall,60,     trash bin,30,        Plant,10
 I,xdummy,      Closet,60,            Bed,30,              side table 1,10
 I,xdummy,      Bookshelf,60,         Sofa,30,             Arm chair 1,10
 I,xdummy,      Arm chair two,60,     TV Table,30,         Arm chair one,10
-I,xdummy,      arm chair 2,60,       hallway,30,           xxxxxx,10 
+I,xdummy,      arm chair 2,60,       hallway,30,           exit,10 
 
 
 ##########################################################################
@@ -67,7 +71,7 @@ I,xdummy,      arm chair 2,60,       hallway,30,           xxxxxx,10
 ######   People   #####
 
 #P, john,       Room_4,60,            Room_5,30,        Room_6,10
-P, tracy,       Room_7,60,            Room_8,30,        Room_9,10
+#P, tracy,       Room_7,60,            Room_8,30,        Room_9,10
 #P, fred,       Room_7,60,            Room_8,30,        bedroom,10
 
 #P, user,       no_location1,60, no_location_2,30, no_location3,10

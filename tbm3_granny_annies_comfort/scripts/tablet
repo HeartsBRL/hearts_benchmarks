@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Created : 20 Feb 2019
+# Author  : Derek Ripper
+# Purpose : TBM3 - Simulate the Granny Annie  TABLET calling  for attention 
+#########################################################################################
+# Updates :
+#
+#########################################################################################
+
+
+# Granny Annie's tablet calls for attention
+rostopic pub --once /roah_rsbb/tablet/call std_msgs/Empty
+
+#Granny Annie's location coordinates
+rostopic pub --once   /roah_rsbb/tablet/position geometry_msgs/Pose2D "x: 0.01 
+y: -0.02
+theta: 1.1"

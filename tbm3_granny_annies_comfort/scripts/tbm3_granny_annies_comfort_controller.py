@@ -22,7 +22,11 @@ from   roah_rsbb_comm_ros.srv import Percentage
 from random import *
 from python_support_library.generic_controller import GenericController
 
+import python_support_library.text_colours as TC
 import language_v2 as nlp
+
+prt = TC.tc()
+
 
 class ControllerTBM3(GenericController):
 
@@ -35,10 +39,10 @@ class ControllerTBM3(GenericController):
         self.pose_2d_pub = rospy.Publisher('hearts/navigation/goal',          Pose2D, queue_size=10)
 
         #Subscribers
-        self.listen4cmd('on')
-        self.listen4cmd('off')
-        self.listen4ans('on')
-        self.listen4ans('off') # why?
+        # self.listen4cmd('on') # DAR probably remove these 4 items
+        # self.listen4cmd('off')
+        # self.listen4ans('on')
+        # self.listen4ans('off') # why?
 
         rospy.Subscriber("roah_rsbb/benchmark/state", BenchmarkState, self.benchmark_state_callback)
 
@@ -54,7 +58,11 @@ class ControllerTBM3(GenericController):
         self.blinds_max_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/max',   std_srvs.srv.Empty)
         self.blinds_min_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty)
         self.blinds_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',   Percentage)
+       
+        #ROS parameters
+        self.IROBOT = rospy.get_param("robot_in_use")
 
+        #Initialise variables
         self.user_location = None
 
         # Granny Annies position in our map's coord system
@@ -141,19 +149,25 @@ class ControllerTBM3(GenericController):
 
     def listen4cmd(self,status):
         if status == 'on' :
-            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+            self.toggle_stt('on')
             print('***** Listening for a COMMAND')
+            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+
         else:
-            self.sub_cmd.unregister()
+            self.toggle_stt('off')
             print('***** NOT! Listening for a COMMAND')
+            self.sub_cmd.unregister()
+
 
         return
 
     def listen4ans(self,status):
         if status == 'on' :
+            self.toggle_stt('on')
             self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
             print('***** Listening for an ANSWER')
         else:
+            self.toggle_stt('off')
             self.sub_ans.unregister()
             print('***** NOT! Listening for an ANSWER')
 
@@ -162,15 +176,19 @@ class ControllerTBM3(GenericController):
     def hearAnswer_callback(self,data):
         speech = str(data)
         speech = speech.lower()
+        speech = speech.replace('"','')
         rospy.loginfo('*** Heard an answer : '+speech+'\n')
-        words  = speech.split(' ')
 
+        words  = speech.split(' ')
+        prt.debug("words list in YES/NO section")
+        for item in words:
+            prt.debug(">"+item+"<")
         if 'yes' in words:
-            self.say("OK then I will do that")
+            self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
-            self.say("The task is complete. Please give me another command")
-
+            self.say("The tasks are now completed to your satifaction we trust")
+            prt.todo(" **************Stop Program here!*****************")
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
@@ -215,25 +233,45 @@ class ControllerTBM3(GenericController):
         ###### NEW CODE for sppech processing        #####
         self.analysis = nlp.Analysis()
         self.analysis.getcompdata()
-        self.theobjectives = self.analysis.defineobjectives(speech)
+        commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
 
-        talkback      = self.analysis.getconfirmationtext(self.theobjectives)
+        if commandcount == 3 :
+            prt.debug("******************************************************")
+            self.theobjectives[0].printme_final()
+            self.theobjectives[1].printme_final()
+            self.theobjectives[2].printme_final()
+            prt.debug("******************************************************")
 
+            talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-        print("***** nlp 1")
-        print("*****\n"+talkback+ "\n")
-        self.say("You requested that I "+talkback+'. Shall I do this now?')
-        ###### end of code for NEW speech processing #####
+            prt.debug("command count rtn to GA controller = "+str(commandcount))
+            prt.info("***** Tiago confirmation to Granny Annie: \n"+talkback+"\n")
+            self.say("You requested that I "+talkback+'. Shall I do this now?')
+            ###### end of code for NEW speech processing #####
 
-        # self.code2exec = executeobjectives(theobjectives)
-        #get confirmation of command
-        self.listen4cmd('off')
-        self.listen4ans('on')
-
-       # else:
-            #  self.say("Sorry, your command was not understood. Please repeat.")
-
+            # self.code2exec = executeobjectives(theobjectives)
+            #get confirmation of command
+            self.listen4cmd('off')
+            self.listen4ans('on')
+        else:
+            prt.info("command count = "+str(commandcount)+" so cannot proceed")
+            txtcmds = self.num2text(commandcount)
+            self.say("I have received "+txtcmds+" but expected three. Please repeat command.")
+       
         return
+
+    def num2text(self,number):    
+        if      number == 0:
+            txt = "zero commands"
+        elif number == 1:  
+            txt = "one command"
+        elif number == 2:  
+            txt = "two commands"    
+        elif number  > 3:  
+            txt = "more than three commands"       
+
+        return txt
+
 
     def bld_lookupkey(self,speech):
 
@@ -399,37 +437,43 @@ class ControllerTBM3(GenericController):
         self.wait = True
 
     def user_location_callback(self, msg):
+        # this is Granny Annie's location being the 'user'!
+
         rospy.loginfo("Waiting for user location callback")
         rospy.loginfo(msg)
-        found = False
 
+        self.user_location = msg
+        '''
         print("msg.x     from GA tablet: "+str(msg.x))
         print("msg.x     from GA tablet: "+str(msg.y))
         print("msg.theta from GA tablet: "+str(msg.theta))
 
 
 
+        #Edinburgh 2018 code for remapping test bed coords to the Tiago ones
         for idx in range (0,2):
-            '''if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
-                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :'''
+            if  msg.x > self.jlocxl[idx] and msg.x < self.jlocxh[idx] and \
+                msg.y > self.jlocyl[idx] and msg.y < self.jlocyh[idx]     :
 
             # assign the coords in our system
             # msg.x = self.ulocx[idx]
             # msg.y = self.ulocy[idx]
             # msg.theta = self.uloct[idx]
-            self.user_location = msg
+
             found = True
 
         if not found :
             print("Re-mapping for Grany Annie location failed!")
             print("\n***** STOPPING PROGRAM *****\n")
             quit()
-        print("remapped granny location")
-        print("X     : "+str(self.user_location.x))
-        print("Y     : "+str(self.user_location.y))
-        print("theta : "+str(self.user_location.theta))
+        '''
+        prt.result(" Granny Annies location:")
+        prt.result(" X     : "+str(self.user_location.x))
+        prt.result(" Y     : "+str(self.user_location.y))
+        prt.result(" theta : "+str(self.user_location.theta))
 
-        ##Navigation Functions
+        return
+    ## Navigation Functions
     def move_to_pose2D(self, target_location_2D):
         ##publish granny annie's location
         rospy.loginfo("Moving to Pose2D")
@@ -440,12 +484,42 @@ class ControllerTBM3(GenericController):
 
         ## Interactions
     def say(self, text):
-        rospy.sleep(1)
+        delayconst  = 0.125 #seconds per character
+        nchars      = len(text)
+        delay = delayconst * nchars
+
+        prt.debug("speech is: "+text)
+        prt.debug("nchars is: "+str(nchars))
+        prt.debug("Delay = "   +str(delay))
+
+        prt.todo("Remove def say - use generic def say: "+text)
+        #rospy.sleep(1)
         self.tts_pub.publish(text)
-        rospy.sleep(5)
+        prt.debug("sleep set to 5 as was in - def says - see if truncation stops??")
+        rospy.sleep(delay)
 
     def device_operationsself(self):
         pass
+
+    def move_robot_to_coords(self,coords):
+        # indirection code to allow deveopment with no robot attached 
+        prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
+        if self.IROBOT:
+            prt.warning("ROBOT moving to : "+str(coords))
+            self.move_to_pose2D(coords)
+        else:
+            prt.warning("NO ROBOT available for software to control!")   
+            prt.warning("ROBOT will NOT moving to : "+str(coords)) 
+        return
+
+    def move_robot_to_location(self,location,trys):
+        # indirection code to allow deveopment with no robot attached
+        if self.IROBOT:
+            prt.warning("ROBOT moving to location : "+location)
+            self.move_to_location(location,trys)
+        else:  
+            prt.warning("NO ROBOT available for software to control!")   
+            prt.warning("ROBOT will NOT moving to : "+location+" with "+str(trys) )
 
     def main(self):
         print ("\n***** MAIN Executing *****\n")
@@ -455,22 +529,49 @@ class ControllerTBM3(GenericController):
         #wait for call
         self.say("Waiting to be called by granny annie.")
         self.wait_for_call()
-
+        prt.debug("------  IROBOT : "+str(self.IROBOT))
         #request location
         #self.say("Waiting for granny annie's location") - removed as delay seems to prevent user location callback from firing
         self.wait_for_user_location()
 
         #navigate to the user's location
         self.say("hello granny annie, I am on my way to you.")
-        self.move_to_pose2D(self.user_location)
-        self.wait_to_arrive(5)
+        prt.todo("Remove comments for navigation to GA")
+        self.move_robot_to_coords(self.user_location)
+        prt.todo("retries fr GA arriving???")
+        #dar self.wait_to_arrive(5)
         self.say("How can I help you today? Please give me a command")
 
         self.listen4cmd('on')
 
         rospy.loginfo("End of MAIN programme")
+    ### taken from generic controller
+    ###
+    ### extract content of speech recognition
+    def stt_callback(self,data): #from tbm3
+        '''
+        to use in code use self.speech
+        e.g. answer = self.speech
+        '''
+        speech = str(data.data)
+        speech = speech.lower()
+        prt.debug(" in Dereks sst_callback")
+        prt.debug("in TBM3 : GA controller overloaded stt - unedited speech follows....")
+        prt.debug(str(speech))
+        # remove the ROS msg "Data:" value from speech
+        item = 'data:'
+        if item in speech:
+            speech = speech.replace(item,'')
+            rospy.loginfo('*** Heard speech:\n'+speech+'\n')
 
+        # switch off as already handled by other code     
+        # check that text has been returned
+        # if "bad_recognition" in speech:
+        #     self.say("Sorry, no words were recognised.")
 
+        self.speech = speech
+
+    ### listen for a specific word in SPEECH
 
 if __name__ == '__main__':
 

@@ -2,6 +2,8 @@ import numpy as np
 import string
 import re
 import json
+import rospy
+from std_msgs.msg      import String
 
 import python_support_library.text_colours as TC
 
@@ -27,11 +29,9 @@ class Objective:
         #publishers
         self.tts_pub = rospy.Publisher("/hearts/tts", String, queue_size=10)
 
-
-
         Objective.instances += 1
 
-        self.analysis = analysis
+        self.analysis   = analysis
 
         self.instance   = Objective.instances
 
@@ -53,7 +53,6 @@ class Objective:
         self.confirmationtext = ""
         self.success = False
 
-
         self.load_json_coords()
 
 
@@ -68,10 +67,9 @@ class Objective:
     
     def load_json_coords(self): 
 
-        #todo put file name in launch file
-        #TODO set json file to be the same as the general navigation one
-        filein = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/locations.json'
-        with open(filein) as fh:
+        jsonfilein = rospy.get_param("locations_json")
+        prt.debug("###### locations.json: "+jsonfilein)
+        with open(jsonfilein) as fh:
             data = json.load(fh)
 
         # get top level keys - ie the location names
@@ -86,7 +84,7 @@ class Objective:
 
             self.storefoundloc(key,coordslist)
 
-        #TODO remove temp "user"coords and get from GA's tablet
+        prt.todo("GET proper coords of GA's location fom her tablet?????")
         coordslist=[111,222,-99.9]
         self.storefoundloc('user',coordslist)    
 
@@ -201,6 +199,7 @@ class Objective:
         wordstring = ""
         if   action_type == 'a':
             wordstring = self.command[0]
+            per = 'unknown'
             if self.person:
                 per = self.person[0]
                 if  per == 'user':
@@ -326,59 +325,80 @@ class Objective:
  
         return
 
-    def execute(self):
-        print("***** EXECUTE for instance = "+str(self.instance))
+    def execute(self, actionnum):
+        prt.info("\n***** EXECUTE for ACTION No: "+str(actionnum))
         if   self.comtype[0] == 's':
+            prt.info("*** action is: SEARCHING")
             self.search()
         elif self.comtype[0] == 'm':
+            prt.info("*** action is: MANIPULATING")
             self.get()
         elif self.comtype[0] == 'a': 
+            prt.info("*** action is: ACCOMPANY")
             self.accompany()  
 
         return
 
+    #######################    
     ###### SEARCHING ######
     def search(self):
         found = False #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
+            frmLoc = self.fromLocation[i]
 
+            ##### OBJECT SEARCH
             if len(self.object) >0:
                 #todo
                 obj    = self.object[0]
-                frmLoc = self.fromLocation[i]
                 coords = self.getfoundloc(frmLoc)
-                print("in search: FROM loc  = "+frmLoc)  
-                print(coords)              
-                print("in search: find object: "+ obj)
-                self.say("I am looking for "+ obj)
-                if found:
-                    print("in search: store coords of found location for object")
-                    coords = [1,2,3] #todo used coords return from search code
-                    print(coords)
-                    self.storefoundloc(obj, coords)
+                prt.info("in search: FROM loc  = "+frmLoc)  
+                prt.info("in Search: From coords:")
+           
+                prt.info("in search: find object: "+ obj)
+                self.say("I am looking for object "+ obj +" on the "+frmLoc)
+                
+                prt.todo("remove forcing logic for ojbect & replace with OBJECT SEARCHING code")
+                if i == 1:
                     found = True
+
+                if found:
+                    found = True
+                    prt.info(str("Returned coords from object search code are:"+str(coords)))
+                    prt.info("in search: store coords of found location for person")
+                    self.storefoundloc(obj, coords)
+
                     self.say("I have found "+obj)
                     break
 
+            ##### PERSON SEARCH
             if len(self.person) >0:  
                 #todo
                 per =  self.person[0]
-                print("in search: person loc= "+self.fromLocation[i])
-                print("in search: find person: "+ per)
-                if found:
-                    print("in search: store coords of found location for person")
-                    coords = [11,22,33]  #todo used coords return from search code
-                    self.storefoundloc(per, coords)
-                    print(coords)
+                coords = self.getfoundloc(frmLoc)
+                prt.info("in search: person loc= "+frmLoc)
+                prt.info("in search: find person: "+ per)
+                self.say("I am looking for a person called  "+ per +" in the "+frmLoc)
+
+                prt.todo("remove forcing logic for person & replace with PERSON SEARCHING code")
+                if i == 1:
                     found = True
+
+                if found:
+                    found = True  
+                    prt.info(str("Returned coords from object search code are:"+str(coords)))
+                    prt.info("in search: store coords of found location for person")
+                    self.storefoundloc(per, coords)
+
+                    prt.info(str("Found coords for "+per+" search are:"+str(coords)))
+                    self.say("I have found "+per)
                     break
 
         #todo store status   
         if not found:
-            print("in search: !!!!! FROM Location NOT FOUND !!!!!")   
+            prt.error("in search: !!!!! 'FROM' Location NOT FOUND !!!!!")   
 
-        print("in search: store status of task")           
-        print("in search: ALL DONE")
+        prt.todo("in search: store status of task")           
+        prt.info("in search: ALL DONE")
 
         return        
 
@@ -387,6 +407,8 @@ class Objective:
         Objective.founditems[object] = coords
 
         return
+
+
     def getfoundloc(self, key):
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
@@ -394,109 +416,129 @@ class Objective:
             coords = []
 
         return coords
-
-    ###### MANIPULATE 
+    #######################
+    ###### MANIPULATE #####
     def get(self):
-        #check that we have previously located the object
+        #check if we have previously located the object
         obj = self.object[0]
-        print("in get: obj= "+obj)
+        prt.debug(("in get: obj= "+obj))
+
         if Objective.founditems.has_key(obj):
             coords = Objective.founditems[obj]
-            print("in get: FROM location coords for: " + obj)
-            print(coords)
+            prt.info("in get: FROM location coords for: " + obj)
+            prt.info(str(coords))
         else:
             # use FROM field 
             frmLoc = self.fromLocation[0]
-            if frmLoc:
-                if Objective.founditems.has_key(obj):
-                    coords = Objective.founditems[frmLoc]
-                    print("in get: use FROM location to find coords: " + frmLoc)
-                    print(coords)
-                else:
-                    print("in get: !!!!! no FROM location available !!!!!")
-                    return # can not proceed
-        #todo
-        pickupOK = True
-        print("in get: Navigate to the FROM coords")
-        print("in get: pick up the: "+self.object[0])
+            prt.debug("in get: frmLoc: "+ frmLoc)
 
-        print("in get: TO location is : "+ self.toLocation[0])
+            if Objective.founditems.has_key(frmLoc):
+
+                # prt.debug("******* obj: "+obj)
+                # prt.debug("*************************founditems")
+                # for KEY in Objective.founditems:
+                #     print("key: "+KEY+"--- "+str(Objective.founditems[KEY]))
+                # prt.debug("*************************")
+                coords = Objective.founditems[frmLoc]
+                prt.info("in get: use FROM location to find coords: " + frmLoc)
+                prt.info(str(coords))
+            else:
+                prt.error("in get: !!!!! no FROM location available !!!!!")
+                return # can not proceed
+
+
+        prt.todo("sortout pickup  logic with user interaction")
+        pickupOK = True
+        prt.info("in get: ########## Navigate to the FROM coords")
+        prt.info("in get: pick up the: "+ obj)
+
+        prt.info("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
-        print("in get: toLoc : "+toLoc)
+        prt.info("in get: toLoc : "+toLoc)
         if Objective.founditems.has_key(toLoc):
             coords = Objective.founditems[toLoc]
         
-            print("in get: coords for TO location for " + toLoc )
-            print(coords)
+            prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
+            prt.info(str(coords))
         else:
-            print("in get: cannot find TO coords for: " + toLoc)
+            prt.error("in get: cannot find TO coords for obj: "+"TO is: " + toLoc)
 
 
         if pickupOK == True:
             #todo 
-            print("in get: goto TO location")
-            print("in get: handover object:" + self.object[0])
+            prt.info("in get: goto TO location")
+            prt.todo("in get: request that object taken from Tiago")
+            self.say("please take the "+obj+ "from me" )
 
         else:
-            print("in get: goto TO without object:" + self.object[0])        
-
-        print("in get: request that object taken from Tiago")    
+            prt.warning("in get: goto TO without object:" + self.object[0])   
+            self.say("now going to "+toLoc+" without the "+obj )     
+ 
 
         #todo store status
-        print("in get: store status of task")    
-        print("in get: ALL DONE")
+        prt.todo("in get: store status of task")    
+        prt.todo("in get: ALL DONE")
 
         return
 
     ##### ACCOMPANY
     def accompany(self):
-        #check that we have previously located the objectt
+        #check that we have previously located the person
         per = self.person[0]
 
         if Objective.founditems.has_key(per):
             coords = Objective.founditems[per]
-            print("in get: coords for person " + per)
-            print(coords)
+            prt.info("in get: coords for person " + per)
+            prt.info(str(coords))
         else:
-            print("in accompany: cannot find coords for: " + per + " so check FROM loc")
+            prt.error("in accompany: cannot find coords for: " + per + " so check FROM loc")
         
             # if location of person not previously known    
             if self.fromLocation:
                 #todo
-                print("in accompany: FROM Location defined")
-                lenfrom = len(self.fromLocation)
+                prt.info("in accompany: FROM Location defined")
+                frmLoc  = self.fromLocation
+                lenfrom = len(frmLoc)
                 if lenfrom == 1:
-                    print("in accompany: use FROM location as a single value")
+                    prt.info("in accompany: use FROM location as a single value ie loc is known is: "+str(frmLoc))
                 else:              
                 #todo abort if FROM not available
-                    print("in accompany: FROM not available so abort task")
-               
-        if   self.brlcommand[0] == 'guide':
+                    prt.error("in accompany: FROM not available so abort task")
+
+        ###################################################################################       
+        prt.debug("command is: "+str(self.command[0])) 
+        if   self.command[0] == 'guide':
             #todo
             toLoc = self.toLocation[0]
-
+            prt.info("toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
-                 coords = Objective.founditems[toLoc]
-                 print("in accompany: TO location is " + toLoc)
-                 print(coords)
+                coords = Objective.founditems[toLoc]
 
-                 print("in accompany: Say follow me to "+ self.person[0])
+                self.say(per+" please follow me to the "+toLoc)
+                prt.info("in accompany: Say follow me " +"to the "+toLoc)
+                prt.info("in accompany: TO location is " + toLoc)
+                
+                ControllerTBM3.move_robot_to_coords(coords)
 
-            #todo         
-            print("in accompany: allow for user too far behind tiago??")
+                #update persons location to their new location
+                self.storefoundloc(per, toLoc)
+       
+                prt.todo("in accompany: for guiding -- allow for user too far behind tiago??")
 
 
         elif self.brlcommand[0] == 'follow':           
             #todo
-            print("in accomapny: Say Ready to follow you" + self.person[0])
-
-            print("in accompany: listen for stop following command")
+            prt.info("in accomapny: Say Ready to follow you " + per)
+            self.say("Hello "+per+" please lead on and I will follow ")
+            prt.todo("in accompany: listen for stop  command from user")
 
         #todo store status
-        print("in accompany: store status of task")    
-        print("in accompany: ALL DONE")
+        prt.info("in accompany: store status of task")    
+        prt.info("in accompany: ALL DONE")
 
         return
+
+
 ##### end of objective class defn  #####
 
 class Analysis(object):
@@ -536,6 +578,7 @@ class Analysis(object):
         brlcoms    = []
         taskflags  = []
         objectives = []
+        self.commandcount = 0
         
         #iterate through task looking for any commands, store them and their indexes in relevant list
         start = 0
@@ -547,10 +590,11 @@ class Analysis(object):
             for cmd  in self.commands:       
 
                 if cmd[1] ==  word:
+                    self.commandcount += 1
                     comstype.append(cmd[0])
                     brlcoms.append(cmd[2])
                     coms.append(word) 
-                    #print("taskP[start:]"+taskP[start:]+str(start))
+                    prt.debug("taskP[start:]"+taskP[start:]+str(start))
 
                     index = taskP[start:].find(test)
                     if index >-1:
@@ -558,17 +602,22 @@ class Analysis(object):
                         start = taskflags[ptr]
                         ptr  += 1
 
+        prt.info("Objectify Command count = "+str(self.commandcount))       
+        if self.commandcount == 3:         
+            #use the indices of commands to split task into objectives
+            objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
+            objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
+            objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
+            #DAR
+            # print("taskflags[0]+1 :"+str(taskflags[0]+1))
+            # print("taskflags[1]+1 :"+str(taskflags[1]+1))
+            # print("taskflags[2]+1 :"+str(taskflags[2]+1))
+            # print("len(taskP)     :"+str(len(taskP)))
+            return [objective1,objective2,objective3]
+        else:
+            return []
 
-        #use the indices of commands to split task into objectives
-        objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self)
-        objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self)
-        objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self)
-        #DAR
-        # print("taskflags[0]+1 :"+str(taskflags[0]+1))
-        # print("taskflags[1]+1 :"+str(taskflags[1]+1))
-        # print("taskflags[2]+1 :"+str(taskflags[2]+1))
-        # print("len(taskP)     :"+str(len(taskP)))
-        return [objective1,objective2,objective3]
+        
 
     def resolveReferences(self,objectives):
         #if an objective references an object or person mentioned earlier, look at the previous objective and copy object or person data into current objective
@@ -689,7 +738,7 @@ class Analysis(object):
                 self.people.append(word)
 
             else:
-                print('***** ERROR in file: not a I or P flag! see file: '+ objects_file)
+                prt.error('Objects file: not a I or P flag! see file: '+ objects_file)
 
     #*********************************************************************************
     def parse_locations(self):
@@ -709,7 +758,7 @@ class Analysis(object):
 
         # build locations list from unique keys in dctionary        
         for key in locs_dict:
-            print("key: "+key)
+            #print("key: "+key)
             locs_list.append(key)
 
         # find any space delimited location and replace the ' ' with '_'    
@@ -747,7 +796,7 @@ class Analysis(object):
     def check_locations(self,navjson_file):
 
 
-        # from pprint import pprint
+        #from pprint import pprint
 
         with open(navjson_file) as fh:
             data = json.load(fh)
@@ -766,39 +815,39 @@ class Analysis(object):
             loc_no_ = item.replace('_',' ')
             if loc_no_ in keylist:
                 found += 1
-                prt.debug(loc_no_)   
+                prt.result(loc_no_)   
             else:
                 missed += 1
-                prt.debug(loc_no_)
+                prt.error(loc_no_)
 
         return (found,missed)
     #*********************************************************************************
     def getcompdata(self):
         #todo put in launch file
-        ERL_data_file   = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/TBM3_objects.csv'
-        ERL_verb_file   = '/home/derek/workspaces/hearts_erl/src/hearts_benchmarks/tbm3_granny_annies_comfort/data/TBM3_verbs.csv'
+        ERL_objects_file = rospy.get_param("TBM3_objects_file")
+        ERL_verbs_file   = rospy.get_param("TBM3_verbs_file")
 
-        self.ERL_data        = self.read_ERL_data(ERL_data_file)
+        self.ERL_data        = self.read_ERL_data(ERL_objects_file)
 
         # for line in ERL_data:
         #     print (line[0],line[1],line[2],line[3],line[4])
 
-        self.commands        = self.read_ERL_verb(ERL_verb_file)
+        self.commands        = self.read_ERL_verb(ERL_verbs_file)
 
         self.parse_ERL_data()
 
         self.locations       = self.parse_locations() # note 2 or more word locations returned with "_" instead of " "
-        for loc  in self.locations:
-            print(loc)
+        #for loc  in self.locations:
+            #print(loc)
+        self.checklocations()
 
 
     def checklocations(self):
-    #check that all "locations" found are in the Navigation locations.json file
-    #navjson_file =           '~/workspaces/hearts_erl/src/hearts_navigation/hearts_navigation/data/locations.json'
-        navjson_file = 'locations.json'
-
-        found,missed = self.check_locations(self.locations, navjson_file)
-        print ("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+        #check that all "ERL competition locations" found are in the Navigation locations.json file
+        jsonfilein = rospy.get_param("locations_json")
+        prt.todo("add json file exisits check in def language_v2.py")
+        found,missed = self.check_locations(jsonfilein)
+        prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
         # for cmd in commands:
         #     print(cmd)
         # for per in people:
@@ -818,24 +867,24 @@ class Analysis(object):
 
         #create objectives from task text
         objectives = self.objectify(taskP)
+        if self.commandcount == 3:
+            #use task text to fill relevant variables in each objective
+            objectives[0].parse()
+            objectives[1].parse()
+            objectives[2].parse()
 
-        #use task text to fill relevant variables in each objective
-        objectives[0].parse()
-        objectives[1].parse()
-        objectives[2].parse()
+            #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
+            self.resolveReferences(objectives)
 
-        #attempt to change reference words (him, her etc) into the names of the objects/people they are referencing
-        self.resolveReferences(objectives)
+            # map ERL verb to BRL equivalent
+            #     this also deals with "take" which can be manipulating OR accompanying 
+            # deal with locations of known objects (no location verbally given) eg Find John
+            # 
+            objectives[0].process_objective()
+            objectives[1].process_objective()
+            objectives[2].process_objective()
 
-        # map ERL verb to BRL equivalent
-        #     this also deals with "take" which can be manipulating OR accompanying 
-        # deal with locations of known objects (no location verbally given) eg Find John
-        # 
-        objectives[0].process_objective()
-        objectives[1].process_objective()
-        objectives[2].process_objective()
-
-        return objectives
+        return self.commandcount, objectives
 
     def getconfirmationtext(self,objectives):
         acttxt_0 = objectives[0].confirmationtext
@@ -850,9 +899,9 @@ class Analysis(object):
 
     def executeobjectives(self,objectives):
         ### then pass data on to the actions(x3) driver!!
-        objectives[0].execute()
-        objectives[1].execute()
-        objectives[2].execute()
+        objectives[0].execute(1)
+        objectives[1].execute(2)
+        objectives[2].execute(3)
 
 if __name__ == '__main__':
     pass
