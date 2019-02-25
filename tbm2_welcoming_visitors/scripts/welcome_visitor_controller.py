@@ -182,7 +182,7 @@ class ControllerTBM2(GenericController):
 
             self.move_to_pose("look_into_my_eyes")
             rospy.sleep(1)
-            self.say("please stand close to my face and look into my eyes so that I can recognise you")
+            self.say("please stand close to my face and look into my eyes so that I can recognise you (this may take some time).")
             visitor = self.detect_visitor_face()
 
             #visitor = "Unknown"
