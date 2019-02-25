@@ -8,13 +8,13 @@
 
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
   <include file="$(find hearts_navigation)/launch/hearts_navigation_navigate.launch">
-    <arg name="map_name" value="brl_post_madrid" />
+    <arg name="map_name" value="brl_feb_comp" />
   </include>
   <node pkg="roah_rsbb_comm_ros" type="comm" name="roah_rsbb_comm" respawn="true">
-    <param name="team_name" type="string" value="HEARTS" />
+    <param name="team_name" type="string" value="Hearts" />
     <param name="robot_name" type="string" value="Tiago" />
-    <param name="rsbb_key" type="string" value="YEnzHu6P" />
-    <param name="rsbb_host" type="string" value="10.2.0.10" />
+    <param name="rsbb_key" type="string" value="FJK6LazOM" />
+    <param name="rsbb_host" type="string" value="10.2.0.101" />
   </node>
   <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
   <node name="change_detector" pkg="tbm2_welcoming_visitors" type="change_detector.py" output="screen" />
