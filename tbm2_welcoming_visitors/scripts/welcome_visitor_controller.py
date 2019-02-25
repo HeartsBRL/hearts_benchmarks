@@ -267,12 +267,11 @@ class ControllerTBM2(GenericController):
         self.move_to_pose("give_receive")
         self.move_to_pose("open_gripper")
 
-        self.say("Please place the parcel in my hand.")
-        self.say("I will close it in 3,2,1.") #TODO maybe a better set of words to use?
-
+        self.say("Please place the parcel in my hand. I will close it in ") #TODO maybe a better set of words to use?
 
         # close gripper
         self.move_to_pose("close_gripper")
+        self.say("3, 2, 1.")
         #TODO some sort of check to make sure object is in gripper
 
         self.say("Thank you for the parcel, I will give it to Granny Annie now")
@@ -311,7 +310,7 @@ class ControllerTBM2(GenericController):
             return
 
     def process_face_deliman(self):
-        self.say("Hello deliman, please come in and close the door behind you.")
+        self.say("Hello deli man, please come in and close the door behind you.")
 
         # 5. speak to the deliman, instruct to follow robot: "Please follow me"
         self.say("Please follow me to the kitchen")
@@ -411,10 +410,10 @@ class ControllerTBM2(GenericController):
             # for now just navigate to the location
             if self.move_to_location("plumber_bathroom", 3) == False:
                 return
-            self.say("We are now at the bathroom.")
+            self.say("The bathroom is to my right, please go in")
 
             #wait for plumber to finish
-            self.say("Please tell me when you are ready to leave the bathroom.")
+            self.say("Please tell me when you are ready to leave.")
 
             #wait for plumber to finish
             detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
