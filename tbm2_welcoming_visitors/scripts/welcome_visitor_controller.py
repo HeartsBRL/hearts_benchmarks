@@ -267,12 +267,11 @@ class ControllerTBM2(GenericController):
         self.move_to_pose("give_receive")
         self.move_to_pose("open_gripper")
 
-        self.say("Please place the parcel in my hand.")
-        self.say("I will close it in 3,2,1.") #TODO maybe a better set of words to use?
-
+        self.say("Please place the parcel in my hand. I will close it in ") #TODO maybe a better set of words to use?
 
         # close gripper
         self.move_to_pose("close_gripper")
+        self.say("3, 2, 1.")
         #TODO some sort of check to make sure object is in gripper
 
         self.say("Thank you for the parcel, I will give it to Granny Annie now")
