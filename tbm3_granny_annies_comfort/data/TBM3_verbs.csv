@@ -15,10 +15,11 @@
 #         Field 3   = BRL equivalent verb
 #-------------------------------------------------------
 A,accompany,     follow
-A,escort,        guide
+A,escort,        follow
 A,follow,        follow
 A,guide,         guide
 A,lead,          guide
+A,leading,       guide
 
 # NB verb "take" can be either acompanying OR manipulating.
 # As list of verbs needs to be unique, this decison on what
