@@ -179,7 +179,7 @@ class ControllerTBM2(GenericController):
             Recog_visitor_msg = Face_recog_verdict() #DANIEL
             Recog_visitor_msg.scan_time = rospy.Duration(10)
             self.pub_face.publish(Recog_visitor_msg)
-            
+
             self.say("please stand close to my face and look into my eyes so that I can recognise you")
             visitor = self.detect_visitor_face()
 
