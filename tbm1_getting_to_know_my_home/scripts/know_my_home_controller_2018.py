@@ -127,8 +127,6 @@ class ControllerTBM1(GenericController):
         self.say("Have any doors changed?")
         #detected, word = self.stt_detect_words(["yes", "yeah", "ya", "ye", "yay", "yo"], 3)
 
-        detected = True
-        word = "entrance"
 
         ######TESTING TESTING 1,2,1,2,1,2,
         if detected: # if the function returns true

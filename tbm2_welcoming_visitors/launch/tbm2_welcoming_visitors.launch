@@ -19,7 +19,13 @@
   <node name="welcome_visitor_controller" pkg="tbm2_welcoming_visitors" type="welcome_visitor_controller.py" output="screen" />
   <node name="change_detector" pkg="tbm2_welcoming_visitors" type="change_detector.py" output="screen" />
   <!-- <node name="face_recognizer" pkg="aggregator" type="final_vision_aggregator.py" /> -->
+
+  <include file="$(find cob_people_object_detection_tensorflow)/launch/alltogether.launch"/>
+
   <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" output="screen"  />
+
+  <node name="following" pkg="hearts_following" type="continuity.py" />
+  <node name="point_broadcaster" pkg="hearts_vision" type="point_broadcaster.py" />
 
   <include file="$(find hearts_stt)/launch/hearts_stt.launch">
    <arg name="SR_speechrec_engine" value="google" />
@@ -28,8 +34,9 @@
   </include>
 <!-- ASK DANIEL TO UNCOMMENT THIS -->
   <!-- <node name="person_tracking" pkg="aggregator" type="person_tracking_TBM2_controller.py" output="screen"  /> -->
-  <node name="motion_player" pkg="hearts_arm_control" type="motion_player.py" />
   <rosparam file="$(find hearts_arm_control)/config/hearts_motions.yaml" command="load" />
+  <node name="motion_player" pkg="hearts_arm_control" type="motion_player.py" />
+
   <!--include file="$(find hearts_person_tracker)/launch/hearts_person_tracker.launch">
 </include-->
   <!-- <node name="webcam_publisher" pkg="hearts_webcam" type="hearts_webcam" output="screen" args="1" /> -->
