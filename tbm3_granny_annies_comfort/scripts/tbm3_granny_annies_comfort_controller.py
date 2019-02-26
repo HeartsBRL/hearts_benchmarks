@@ -153,6 +153,7 @@ class ControllerTBM3(GenericController):
         print('***** Listening for a COMMAND')
         if status == 'on' :
             self.toggle_stt('on')
+           
             while self.speech == None:
                 print("##### in loop for COMMAND")
                 rospy.sleep(0.1)
@@ -179,6 +180,7 @@ class ControllerTBM3(GenericController):
         if status == 'on' :
             print('***** Listening for an ANSWER revised code')
             self.toggle_stt('on')
+            
             while self.speech == None:
                 print("##### in loop for answer")
                 rospy.sleep(0.1)
@@ -211,8 +213,11 @@ class ControllerTBM3(GenericController):
             self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
+
             self.say("The tasks are now completed to your satifaction we trust")
             prt.todo(" **************Stop Program here!*****************")
+            prt.warning("stt: we are python quitting!")
+            quit()
             # re-establish subscribers
             self.listen4ans('off')
             self.listen4cmd('on')
@@ -226,7 +231,7 @@ class ControllerTBM3(GenericController):
 
         else:
             self.say("Please answer with yes please or no thank you")
-
+            self.listen4ans('on')
         return
 
     def heardCommand(self,data):
@@ -243,6 +248,7 @@ class ControllerTBM3(GenericController):
         # check that text has been returned
         if "bad_recognition" in speech:
             self.say("Sorry, no words were recognised. Please repeat.")
+            self.listen4cmd('on')
             return
 
         # lookupkey = self.bld_lookupkey(speech)
@@ -281,6 +287,7 @@ class ControllerTBM3(GenericController):
             prt.info("command count = "+str(commandcount)+" so cannot proceed")
             txtcmds = self.num2text(commandcount)
             self.say("I have received "+txtcmds+" but expected three. Please repeat command.")
+            self.listen4cmd('on')
        
         return
 
@@ -603,7 +610,7 @@ class ControllerTBM3(GenericController):
         self.say("How can I help you today? Please give me a command")
 
         self.listen4cmd('on')
-
+        prt.error("dropped out of def main")
         rospy.loginfo("End of MAIN programme")
     ### taken from generic controller
     ###

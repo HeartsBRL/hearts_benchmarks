@@ -346,6 +346,7 @@ class Objective:
     #######################    
     ###### SEARCHING ######
     def search(self):
+        prt.info("***** in Execute SEARCH Section*****")
         found = False #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
             frmLoc = self.fromLocation[i]
@@ -356,7 +357,7 @@ class Objective:
                 obj    = self.object[0]
                 coords = self.getfoundloc(frmLoc)
                 prt.info("in search: FROM loc  = "+frmLoc)  
-                prt.info("in Search: From coords:")
+                prt.info("in Search: From coords:"+str(coords))
            
                 prt.info("in search: find object: "+ obj)
                 self.tbm3ctrler.say("I am looking for object "+ obj +" on the "+frmLoc)
@@ -368,10 +369,10 @@ class Objective:
                 if found:
                     found = True
                     prt.info(str("Returned coords from object search code are:"+str(coords)))
-                    prt.info("in search: store coords of found location for person")
-                    self.storefoundloc(obj, coords)
+                    prt.info("in search: store coords of found location for object")
 
-                    self.tbm3ctrler.say("I have found "+obj)
+                    self.storefoundloc(obj, coords)
+                    self.tbm3ctrler.say("I have found the "+obj+" at the "+frmLoc)
                     break
 
             ##### PERSON SEARCH
@@ -423,6 +424,7 @@ class Objective:
     #######################
     ###### MANIPULATE #####
     def get(self):
+        prt.info("***** in Execute MANIPULATE section *****")
         #check if we have previously located the object
         obj = self.object[0]
         prt.debug(("in get: obj= "+obj))
@@ -487,6 +489,7 @@ class Objective:
 
     ##### ACCOMPANY
     def accompany(self):
+        prt.info("***** in Execute ACCOMPANY section*****")
         #check that we have previously located the person
         per = self.person[0]
 
