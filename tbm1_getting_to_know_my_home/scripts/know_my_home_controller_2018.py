@@ -125,13 +125,13 @@ class ControllerTBM1(GenericController):
 
         # ask about doors
         self.say("Have any doors changed?")
-        #detected, word = self.stt_detect_words(["yes", "yeah", "ya", "ye", "yay", "yo"], 3)
+        detected, word = self.stt_detect_words(["yes", "yeah", "ya", "ye", "yay", "yo"], 3)
 
 
         ######TESTING TESTING 1,2,1,2,1,2,
         if detected: # if the function returns true
             self.say("Which door has changed?")
-            #detected, word = self.stt_detect_words(self.doors, 3)
+            detected, word = self.stt_detect_words(self.doors, 3)
             #TODO catch the None before it causes problems
             self.say("Okay I will look at the "+str(word)+" door")
             if detected:
