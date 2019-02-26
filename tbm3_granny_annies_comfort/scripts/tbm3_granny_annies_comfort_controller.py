@@ -2,7 +2,7 @@
 ##############################################################################################
 # Author  : Derek Ripper/Joe Daly
 # Created : Dec 2017
-# Purpose : To fulfil ERL-SR competition Bench Mark TBM3 - Grannie Annies comfort
+# Purpose : To fulfil ERL-SR competition Bench Mark  - Grannie Annies comfort
 #           Written for the 22-26 Jan 2018 ERL competition in Edinburgh.
 #
 ##############################################################################################
@@ -487,16 +487,16 @@ class ControllerTBM3(GenericController):
     def say(self, text):
         delayconst  = 0.125 #seconds per character
         nchars      = len(text)
-        delay = delayconst * nchars
+        # delay = delayconst * nchars
 
-        prt.debug("speech is: "+text)
-        prt.debug("nchars is: "+str(nchars))
-        prt.debug("Delay = "   +str(delay))
+        # prt.debug("speech is: "+text)
+        # prt.debug("nchars is: "+str(nchars))
+        prt.debug("Delay for speech = "   +str(delay))
 
-        prt.todo("Remove def say - use generic def say: "+text)
+        prt.todo("Remove def say from TBM3 controller - use generic def say instead: ")
         #rospy.sleep(1)
         self.tts_pub.publish(text)
-        prt.debug("sleep set to 5 as was in - def says - see if truncation stops??")
+        prt.debug("sleep set to be proportional to nu iof chars - to see if truncation stops??")
         rospy.sleep(delay)
 
     def device_operationsself(self):
