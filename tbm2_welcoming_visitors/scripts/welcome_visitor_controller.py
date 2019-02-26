@@ -185,6 +185,8 @@ class ControllerTBM2(GenericController):
             self.say("please stand close to my face and look into my eyes so that I can recognise you (this may take some time).")
             visitor = self.detect_visitor_face()
 
+            self.move_to_pose("home_direct")
+
             #visitor = "Unknown"
             if visitor == "postman":
                 rospy.loginfo("detected postman")
