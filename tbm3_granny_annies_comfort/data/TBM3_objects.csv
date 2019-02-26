@@ -31,7 +31,7 @@ P,Paul,        Kitchen,60,            Living room,30,     Hallway,10
 
 #may not needed new code gives GA's coords from her tablet - Derek.
 #P, user,       no_location1,60, no_location_2,30, no_location3,10
-
+P, Pool,       Kitchen,60,            Living room,30,     Hallway,10
 ######   objects   #####
 # Madrid 2018 - Oct 2018
 I,Coke,        Kitchen counter,60,    Coffee table,30,    Dining table,10
@@ -61,7 +61,7 @@ I,xdummy,      Entrance hall,60,     trash bin,30,        Plant,10
 I,xdummy,      Closet,60,            Bed,30,              side table 1,10
 I,xdummy,      Bookshelf,60,         Sofa,30,             Arm chair 1,10
 I,xdummy,      Arm chair two,60,     TV Table,30,         Arm chair one,10
-I,xdummy,      arm chair 2,60,       hallway,30,           exit,10 
+I,xdummy,      arm chair 2,60,       hallway,30,          home,10
 
 
 ##########################################################################

@@ -149,32 +149,55 @@ class ControllerTBM3(GenericController):
         }
 
     def listen4cmd(self,status):
+        prt.debug("listen4cmd - revised code")
+        print('***** Listening for a COMMAND')
         if status == 'on' :
             self.toggle_stt('on')
-            print('***** Listening for a COMMAND')
-            self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
+            while self.speech == None:
+                print("##### in loop for COMMAND")
+                rospy.sleep(0.1)
+
+            self.toggle_stt("off")     
+
+            speech2text = self.speech    
+  
+            prt.debug("CMD speech2text: "+str(speech2text) )
+            self.heardCommand(speech2text)
+
+
+            #self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.hearCommand_callback)
 
         else:
             self.toggle_stt('off')
             print('***** NOT! Listening for a COMMAND')
-            self.sub_cmd.unregister()
+            #self.sub_cmd.unregister()
 
 
         return
 
     def listen4ans(self,status):
         if status == 'on' :
+            print('***** Listening for an ANSWER revised code')
             self.toggle_stt('on')
-            self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
-            print('***** Listening for an ANSWER')
+            while self.speech == None:
+                print("##### in loop for answer")
+                rospy.sleep(0.1)
+
+            self.toggle_stt("off")    
+
+            speech2text = self.speech  
+            prt.debug("ANS speech2text: "+str(speech2text) )
+            #self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
+            self.heardAnswer(speech2text)
+
         else:
             self.toggle_stt('off')
-            self.sub_ans.unregister()
+            #self.sub_ans.unregister()
             print('***** NOT! Listening for an ANSWER')
 
         return
 
-    def hearAnswer_callback(self,data):
+    def heardAnswer(self,data):
         speech = str(data)
         speech = speech.lower()
         speech = speech.replace('"','')
@@ -206,8 +229,8 @@ class ControllerTBM3(GenericController):
 
         return
 
-    def hearCommand_callback(self,data):
-
+    def heardCommand(self,data):
+        prt.debug("in heardcommand_callback - speech: "+str(data))
         speech = str(data)
         speech = speech.lower()
         rospy.loginfo('*** Heard a command\n'+speech+'\n')
@@ -237,11 +260,11 @@ class ControllerTBM3(GenericController):
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
 
         if commandcount == 3 :
-            prt.debug("******************************************************")
-            # self.theobjectives[0].printme_final()
-            # self.theobjectives[1].printme_final()
-            # self.theobjectives[2].printme_final()
-            prt.debug("******************************************************")
+            prt.debug("***********printme_final    *******************************************")
+            self.theobjectives[0].printme_final()
+            self.theobjectives[1].printme_final()
+            self.theobjectives[2].printme_final()
+            prt.debug("***********printme_final END*******************************************")
 
             talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
@@ -487,17 +510,18 @@ class ControllerTBM3(GenericController):
     def say(self, text):
         delayconst  = 0.125 #seconds per character
         nchars      = len(text)
-        # delay = delayconst * nchars
+        delay = delayconst * nchars
 
         # prt.debug("speech is: "+text)
         # prt.debug("nchars is: "+str(nchars))
-        prt.debug("Delay for speech = "   +str(delay))
+        prt.debug("Delay for speech in seconds = "   +str(delay))
 
         prt.todo("Remove def say from TBM3 controller - use generic def say instead: ")
         #rospy.sleep(1)
         self.tts_pub.publish(text)
-        prt.debug("sleep set to be proportional to nu iof chars - to see if truncation stops??")
-        rospy.sleep(delay)
+        rospy.sleep(delay+1)
+        prt.debug("sleep set to be proportional to num of chars - to see if truncation stops??")
+
 
     def device_operationsself(self):
         pass
@@ -559,7 +583,7 @@ class ControllerTBM3(GenericController):
         print ("\n***** MAIN Executing *****\n")
         prt.debug(" I-Robot :"+str(self.IROBOT))
         #go to home position
-        #dar self.move_to_location("home",1) #TODO check number of retries
+        self.move_robot_to_location("home",1) #TODO check number of retries?
 
         #wait for call
         self.say("Waiting to be called by granny annie.")
