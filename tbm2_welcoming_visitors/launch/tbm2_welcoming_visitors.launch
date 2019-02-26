@@ -25,7 +25,7 @@
   <node name="face_recognizer" pkg="aggregator" type="face_recog_TBM2_controller.py" output="screen"  />
 
   <node name="following" pkg="hearts_following" type="continuity.py" />
-  <node name="point_broadcaster" pkg="hearts_vision" type="point_broadcaster.py" />
+  <node name="point_broadcaster" pkg="aggregator" type="point_broadcaster.py" />
 
   <include file="$(find hearts_stt)/launch/hearts_stt.launch">
    <arg name="SR_speechrec_engine" value="google" />
