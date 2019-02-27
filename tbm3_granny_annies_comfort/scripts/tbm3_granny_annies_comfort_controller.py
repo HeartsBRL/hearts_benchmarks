@@ -59,7 +59,7 @@ class ControllerTBM3(GenericController):
         self.blinds_max_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/max',   std_srvs.srv.Empty)
         self.blinds_min_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/min',   std_srvs.srv.Empty)
         self.blinds_set_service =   rospy.ServiceProxy('/roah_rsbb/devices/blinds/set',   Percentage)
-       
+
         #ROS parameters
         self.IROBOT = rospy.get_param("robot_in_use")
 
@@ -153,15 +153,15 @@ class ControllerTBM3(GenericController):
         print('***** Listening for a COMMAND')
         if status == 'on' :
             self.toggle_stt('on')
-           
+
             while self.speech == None:
                 print("##### in loop for COMMAND")
                 rospy.sleep(0.1)
 
-            self.toggle_stt("off")     
+            self.toggle_stt("off")
 
-            speech2text = self.speech    
-  
+            speech2text = self.speech
+
             prt.debug("CMD speech2text: "+str(speech2text) )
             self.heardCommand(speech2text)
 
@@ -180,14 +180,14 @@ class ControllerTBM3(GenericController):
         if status == 'on' :
             print('***** Listening for an ANSWER revised code')
             self.toggle_stt('on')
-            
+
             while self.speech == None:
                 print("##### in loop for answer")
                 rospy.sleep(0.1)
 
-            self.toggle_stt("off")    
+            self.toggle_stt("off")
 
-            speech2text = self.speech  
+            speech2text = self.speech
             prt.debug("ANS speech2text: "+str(speech2text) )
             #self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.hearAnswer_callback)
             self.heardAnswer(speech2text)
@@ -288,18 +288,18 @@ class ControllerTBM3(GenericController):
             txtcmds = self.num2text(commandcount)
             self.say("I have received "+txtcmds+" but expected three. Please repeat command.")
             self.listen4cmd('on')
-       
+
         return
 
-    def num2text(self,number):    
+    def num2text(self,number):
         if      number == 0:
             txt = "zero commands"
-        elif number == 1:  
+        elif number == 1:
             txt = "one command"
-        elif number == 2:  
-            txt = "two commands"    
-        elif number  > 3:  
-            txt = "more than three commands"       
+        elif number == 2:
+            txt = "two commands"
+        elif number  > 3:
+            txt = "more than three commands"
 
         return txt
 
@@ -515,7 +515,7 @@ class ControllerTBM3(GenericController):
 
         ## Interactions
     def say(self, text):
-        delayconst  = 0.125 #seconds per character
+        delayconst  = 0.1 #seconds per character
         nchars      = len(text)
         delay = delayconst * nchars
 
@@ -534,28 +534,28 @@ class ControllerTBM3(GenericController):
         pass
 
     def move_robot_to_coords(self,coords,trys):
-        # indirection code to allow deveopment with no robot attached 
+        # indirection code to allow deveopment with no robot attached
         prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
         if self.IROBOT:
             prt.warning("ROBOT moving to coords: "+str(coords))
             self.move_to_coords(coords,trys)
         else:
-            prt.warning("NO ROBOT available for software to control!")   
-            prt.warning("ROBOT will NOT moving to : "+str(coords)) 
+            prt.warning("NO ROBOT available for software to control!")
+            prt.warning("ROBOT will NOT moving to : "+str(coords))
         return
 
     def move_robot_to_location(self,location,trys):
         # indirection code to allow deveopment with no robot attached
-        
+
         if self.IROBOT:
             prt.warning("ROBOT moving to location : "+location)
             self.move_to_location(location,trys)
-        else:  
-            prt.warning("NO ROBOT available for software to control!")   
+        else:
+            prt.warning("NO ROBOT available for software to control!")
             prt.warning("ROBOT will NOT moving to : "+location+" with "+str(trys) )
 
     def move_to_coords(self, coords, num_retries):
-        #copied from move_to_location #Derek 
+        #copied from move_to_location #Derek
         '''
         Publish coords to move to to /hearts/navigation/goal/location and wait
         for update on /hearts/navigation/status (either "Success" or "Failure")
@@ -566,10 +566,19 @@ class ControllerTBM3(GenericController):
         #self.cost_clear()
         rospy.loginfo("moving to coords \"" + str(coords) + "\" (" + str(num_retries) + ")")
         msg = Pose2D()
-        msg.x     = coords[0]
-        msg.y     = coords[1]
-        msg.theta = coords[2]
-        #########    
+        prt.debug("######## COORDS HERE ########")
+        print coords
+        print type(coords)
+
+        if isinstance(coords, list):
+            msg.x     = coords[0]
+            msg.y     = coords[1]
+            msg.theta = coords[2]
+        else :#TODO this is dangerous, might not be right message type
+            msg.x     = coords.x
+            msg.y     = coords.y
+            msg.theta = coords.theta
+        #########
         ###self.pub_location_goal.publish(msg)### as used in mve to location
         #########
         self.pose_2d_pub.publish(msg)
@@ -577,12 +586,13 @@ class ControllerTBM3(GenericController):
         arrive_success = self.wait_to_arrive(num_retries)
 
         if arrive_success == False:
-            rospy.loginfo("ERROR movement to \"" + target_location + "\" has failed")
-            self.say("Sorry, I am unable to move to "+target_location)
+            rospy.loginfo("ERROR movement has failed")
+            self.say("Sorry, I am unable to move to get there")
             #TODO should an actual error be thrown here?
+            print coords
             return False
         else:
-            self.say("I have arrived at the "+target_location+" location")
+            self.say("I have arrived")
             return True
 
 
@@ -631,7 +641,7 @@ class ControllerTBM3(GenericController):
             speech = speech.replace(item,'')
             rospy.loginfo('*** Heard speech:\n'+speech+'\n')
 
-        # switch off as already handled by other code     
+        # switch off as already handled by other code
         # check that text has been returned
         # if "bad_recognition" in speech:
         #     self.say("Sorry, no words were recognised.")
