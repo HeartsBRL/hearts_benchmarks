@@ -525,9 +525,9 @@ class Objective:
                 lenfrom = len(frmLoc)
                 if lenfrom == 1:
                     prt.info("in accompany: use FROM location as a single value ie loc is known is: "+str(frmLoc))
-                else:              
+            else:              
                 #todo abort if FROM not available
-                    prt.error("in accompany: FROM not available so abort task")
+                prt.error("in accompany: FROM not available so abort task")
 
         ###################################################################################       
         prt.debug("command is: "+str(self.command[0])) 
@@ -539,19 +539,20 @@ class Objective:
             if Objective.founditems.has_key(toLoc):
                 tocoords = Objective.founditems[toLoc]
                 self.tbm3ctrler.say("I am moving to meet "+per)
-                ntry = 5
-                rcto   = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntry)
+                ntry  = 5
+                rcfrm = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntry)
                 self.tbm3ctrler.say(per+"Hello "+per+" please follow me to the "+toLoc)
                 prt.info("in accompany: Say follow  me " +"to the "+toLoc)
                 prt.info("in accompany: TO location is " + toLoc)
                 ntry = 5
-                rc   = self.tbm3ctrler.move_robot_to_coords(tocoords,ntry)
-
+                rcto = self.tbm3ctrler.move_robot_to_coords(tocoords,ntry)
+                self.tbm3ctrler.say(per+" We have arrived at the "+toLoc)
                 #update persons location to their new location
                 self.storefoundloc(per, toLoc)
        
                 prt.todo("in accompany: for guiding -- allow for user too far behind tiago??")
-
+            else:
+                prt.error("in accompany: for guiding -- The goto TO location not found")
 
         elif self.brlcommand[0] == 'follow':           
             #todo
@@ -565,16 +566,6 @@ class Objective:
 
         return
 
-    # def move_robot_to_coords(self,coords):
-    #     # indirection code to allow deveopment with no robot attached 
-    #     prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
-    #     if self.IROBOT:
-    #         prt.warning("ROBOT moving to : "+str(coords))
-    #         self.move_to_pose2D(coords)
-    #     else:
-    #         prt.warning("NO ROBOT available for software to control!")   
-    #         prt.warning("ROBOT will NOT moving to : "+str(coords)) 
-    #     return
 
 ##### end of objective class defn  #####
 

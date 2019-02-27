@@ -216,7 +216,7 @@ class ControllerTBM3(GenericController):
 
             self.say("The tasks are now completed to your satifaction we trust")
             prt.todo(" **************Stop Program here!*****************")
-            prt.warning("stt: we are python quitting!")
+            prt.warning("TBM3 controller: now are quitting python!")
             quit()
             # re-establish subscribers
             self.listen4ans('off')
