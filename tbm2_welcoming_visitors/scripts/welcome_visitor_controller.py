@@ -368,10 +368,12 @@ class ControllerTBM2(GenericController):
         if detected == True:
             self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
             #rospy.sleep(3)
+            self.toggle_vision('on')
             self.toggle_follow('on')
 
             detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
             if detected:
+                self.toggle_vision('off')
                 self.toggle_follow('off')
                 self.say("Goodbye!")
 
@@ -420,9 +422,11 @@ class ControllerTBM2(GenericController):
             if detected == True:
                 self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
                 #rospy.sleep(3)
+                self.toggle_vision('on')
                 self.toggle_follow('on')
                 detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
                 if detected:
+                    self.toggle_vision('off')
                     self.toggle_follow('off')
                     self.say("Goodbye!",0)
 
@@ -450,9 +454,11 @@ class ControllerTBM2(GenericController):
             if detected == True:
                 self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
                 #rospy.sleep(3)
+                self.toggle_vision('on')
                 self.toggle_follow('on')
                 detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
                 if detected:
+                    self.toggle_vision('off')
                     self.toggle_follow('off')
                     self.say("Goodbye!",0)
 
