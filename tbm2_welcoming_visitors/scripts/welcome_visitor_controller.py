@@ -365,24 +365,23 @@ class ControllerTBM2(GenericController):
         #TODO confirm they are actually done?
         detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
         if detected == True:
-            self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
-            #rospy.sleep(3)
-            self.toggle_vision('on')
-            self.toggle_follow('on')
+            self.say("Now you are done, I will follow you to the door.")#" Please lead the way and let me know when you are ready to leave.")
+            # #rospy.sleep(3)
+            # self.toggle_vision('on')
+            # self.toggle_follow('on')
+            #
+            # detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+            # if detected:
+            #     self.toggle_vision('off')
+            #     self.toggle_follow('off')
+            #     #self.say("Goodbye!")
 
-            detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
-            if detected:
-                self.toggle_vision('off')
-                self.toggle_follow('off')
-                #self.say("Goodbye!")
-
-        #self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.")
-        #rospy.sleep(4)
-
+        self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.")
+        rospy.sleep(4)
 
         # 9. move to hallway
-        #if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
-        #    return
+        if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
+           return
 
        #self.toggle_follow('on')
 
@@ -419,21 +418,21 @@ class ControllerTBM2(GenericController):
             #wait for plumber to finish
             detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
             if detected == True:
-                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
-                #rospy.sleep(3)
-                self.toggle_vision('on')
-                self.toggle_follow('on')
-                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
-                if detected:
-                    self.toggle_vision('off')
-                    self.toggle_follow('off')
-                    self.say("Goodbye!",0)
+                # self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
+                # #rospy.sleep(3)
+                # self.toggle_vision('on')
+                # self.toggle_follow('on')
+                # detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+                # if detected:
+                #     self.toggle_vision('off')
+                #     self.toggle_follow('off')
+                #     self.say("Goodbye!",0)
 
                     ## Old version that does not use following behavior
-                    # self.say("Now you are done, I will follow you to the door. Please lead the way.")
-                    # rospy.sleep(3)
-                    # if self.move_to_location("entrance", 3) == False:
-                    #     return
+                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                rospy.sleep(3)
+                if self.move_to_location("entrance", 3) == False:
+                    return
 
 
 
@@ -451,21 +450,21 @@ class ControllerTBM2(GenericController):
             #wait for plumber to finish
             detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
             if detected == True:
-                self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
-                #rospy.sleep(3)
-                self.toggle_vision('on')
-                self.toggle_follow('on')
-                detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
-                if detected:
-                    self.toggle_vision('off')
-                    self.toggle_follow('off')
-                    self.say("Goodbye!",0)
+                # self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
+                # #rospy.sleep(3)
+                # self.toggle_vision('on')
+                # self.toggle_follow('on')
+                # detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
+                # if detected:
+                #     self.toggle_vision('off')
+                #     self.toggle_follow('off')
+                #     self.say("Goodbye!",0)
 
                     ## Old version that does not use following behavior
-                    #self.say("Now you are done, I will follow you to the door. Please lead the way.")
-                    #rospy.sleep(3)
-                    #if self.move_to_location("entrance", 3) == False:
-                    #     return
+                self.say("Now you are done, I will follow you to the door. Please lead the way.")
+                rospy.sleep(3)
+                if self.move_to_location("entrance", 3) == False:
+                    return
 
 
         if self.move_to_location("home", 3) == False:
