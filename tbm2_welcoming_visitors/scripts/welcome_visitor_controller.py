@@ -208,7 +208,7 @@ class ControllerTBM2(GenericController):
                         rospy.sleep(0.2)
                     self.toggle_stt('off')
                     print(answer)
-                    if 'deliman' in answer or 'deli man' in answer:
+                    if 'deliman' in answer or 'deli man' in answer or 'jelly man' in answer or 'belly man' in answer or 'daily man' in answer or 'dle man' in answer:
                         self.good_answer = True
                         self.toggle_stt('off')
                         rospy.loginfo("detected deliman")
@@ -236,7 +236,7 @@ class ControllerTBM2(GenericController):
                         rospy.loginfo("visitor not recognized")
                         self.toggle_stt('off')
                         rospy.sleep(1)
-                        self.say("I did not understand, please tell me again.")
+                        self.say("I did not understand, please tell me again.", 3)
                         rospy.sleep(1)
                         print "now"
             self.called = False
