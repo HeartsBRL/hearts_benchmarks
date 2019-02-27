@@ -170,13 +170,13 @@ class ControllerTBM2(GenericController):
             # TODO detect door is opened
             #rospy.sleep(3)
 
-            # raise torso 
+            # raise torso
             self.move_to_pose("look_into_my_eyes")
 
             rospy.sleep(1)
             self.say("please stand very close to my face and look into my eyes so that I can recognise you. this might take some time.")
             rospy.sleep(1)
-            
+
             #message vision to start
             Recog_visitor_msg = Face_recog_verdict() #DANIEL
             Recog_visitor_msg.scan_time = rospy.Duration(10)
@@ -192,7 +192,7 @@ class ControllerTBM2(GenericController):
             elif visitor == "doctor":
                 rospy.loginfo("detected doctor")
                 self.process_face_doctor()
-            # elif visitor == "Unknown": 
+            # elif visitor == "Unknown":
             else:#TODO handle no face seen case
                 rospy.loginfo("do not recognize face")
                 self.say("I do not recognise your face. Who are you?")
@@ -267,7 +267,7 @@ class ControllerTBM2(GenericController):
         self.move_to_pose("give_receive")
         self.move_to_pose("open_gripper")
 
-        self.say("Please place the parcel in my hand.") 
+        self.say("Please place the parcel in my hand.")
         self.say("I will close it in 3, 2, 1.",3)
         # close gripper
         self.move_to_pose("close_gripper")
@@ -356,14 +356,13 @@ class ControllerTBM2(GenericController):
             return
 
         # 5. speak to doctor, advise robot will wait
-        self.say("I will wait here while you see Grannie Annie.")
+        self.say("I will wait here while you see Grannie Annie. Please say ready when you are ready to leave.")
 
         # 6. wait until doctor exits the bedroom
         #rospy.sleep(3) #TODO is this here to give dr time to move out of sight?
         #self.wait_for_scan_changed() # waits to detect face again
 
         #TODO confirm they are actually done?
-        self.say("Please say ready when you are ready to leave.")
         detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
         if detected == True:
             self.say("Now you are done, I will follow you to the door. Please lead the way and let me know when you are ready to leave.")
@@ -373,7 +372,7 @@ class ControllerTBM2(GenericController):
             detected, word_detected = self.stt_detect_words(["stop", "ready", "goodbye", "leave", "leaving"], 100)
             if detected:
                 self.toggle_follow('off')
-                self.say("Goodbye!")
+                #self.say("Goodbye!")
 
         #self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.")
         #rospy.sleep(4)
