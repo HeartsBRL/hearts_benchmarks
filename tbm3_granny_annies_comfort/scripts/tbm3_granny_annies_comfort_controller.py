@@ -537,7 +537,7 @@ class ControllerTBM3(GenericController):
         # indirection code to allow deveopment with no robot attached 
         prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
         if self.IROBOT:
-            prt.warning("ROBOT moving to : "+str(coords))
+            prt.warning("ROBOT moving to coords: "+str(coords))
             self.move_to_coords(coords,trys)
         else:
             prt.warning("NO ROBOT available for software to control!")   

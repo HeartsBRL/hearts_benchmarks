@@ -350,38 +350,41 @@ class Objective:
         found = False #todo should be False for final program!!
         for i in range(0,len(self.fromLocation)):
             frmLoc = self.fromLocation[i]
-
-            ##### OBJECT SEARCH
+            frmcoords = self.getfoundloc(frmLoc)
+            prt.info("in search: FROM loc  = "+frmLoc)  
+            prt.info("in Search: From coords:"+str(frmcoords))
+            ##### OBJECT type SEARCH
             if len(self.object) >0:
                 #todo
                 obj    = self.object[0]
-                coords = self.getfoundloc(frmLoc)
-                prt.info("in search: FROM loc  = "+frmLoc)  
-                prt.info("in Search: From coords:"+str(coords))
            
                 prt.info("in search: find object: "+ obj)
                 self.tbm3ctrler.say("I am looking for object "+ obj +" on the "+frmLoc)
-                
+                ntrys = 5
+                rc = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntrys)
+
                 prt.todo("remove forcing logic for ojbect & replace with OBJECT SEARCHING code")
                 if i == 1:
                     found = True
 
                 if found:
                     found = True
-                    prt.info(str("Returned coords from object search code are:"+str(coords)))
+                    prt.info("Returned coords from object search code are:"+str(coords))
                     prt.info("in search: store coords of found location for object")
 
                     self.storefoundloc(obj, coords)
-                    self.tbm3ctrler.say("I have found the "+obj+" at the "+frmLoc)
+                    self.tbm3ctrler.say("I have found the "+obj+" at tlocation "+frmLoc)
                     break
 
-            ##### PERSON SEARCH
+            ##### PERSON type SEARCH
             if len(self.person) >0:  
                 #todo
                 per =  self.person[0]
                 coords = self.getfoundloc(frmLoc)
                 prt.info("in search: person loc= "+frmLoc)
                 prt.info("in search: find person: "+ per)
+                ntrys = 5
+                rcfrm = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntrys)
                 self.tbm3ctrler.say("I am looking for a person called  "+ per +" in the "+frmLoc)
 
                 prt.todo("remove forcing logic for person & replace with PERSON SEARCHING code")
@@ -390,12 +393,12 @@ class Objective:
 
                 if found:
                     found = True  
-                    prt.info(str("Returned coords from object search code are:"+str(coords)))
+                    prt.info(str("Returned coords from object search code are:"+str(frmcoords)))
                     prt.info("in search: store coords of found location for person")
                     self.storefoundloc(per, coords)
 
-                    prt.info(str("Found coords for "+per+" search are:"+str(coords)))
-                    self.tbm3ctrler.say("I have found "+per)
+                    prt.info(str("Found coords for "+per+" search are:"+str(frmcoords)))
+                    self.tbm3ctrler.say("I have found "+per+" in the"+frmLoc)
                     break
 
         #todo store status   
@@ -445,9 +448,9 @@ class Objective:
                 # for KEY in Objective.founditems:
                 #     print("key: "+KEY+"--- "+str(Objective.founditems[KEY]))
                 # prt.debug("*************************")
-                coords = Objective.founditems[frmLoc]
+                frmcoords = Objective.founditems[frmLoc]
                 prt.info("in get: use FROM location to find coords: " + frmLoc)
-                prt.info(str(coords))
+                prt.info(str(frmcoords))
             else:
                 prt.error("in get: !!!!! no FROM location available !!!!!")
                 return # can not proceed
@@ -462,23 +465,37 @@ class Objective:
         toLoc = self.toLocation[0]
         prt.info("in get: toLoc : "+toLoc)
         if Objective.founditems.has_key(toLoc):
-            coords = Objective.founditems[toLoc]
+            tocoords = Objective.founditems[toLoc]
         
             prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
-            prt.info(str(coords))
+            prt.info(str(tocoords))
         else:
             prt.error("in get: cannot find TO coords for obj: "+"TO is: " + toLoc)
 
 
         if pickupOK == True:
             #todo 
-            prt.info("in get: goto TO location")
+            prt.info("in get: goto FROM location"+frmLoc)
+            self.tbm3ctrler.say("I am going to the "+frmLoc)
+            ntrys = 5
+            rcfrm = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntrys) 
+            self.tbm3ctrler.say("I have arrived at the "+frmLoc)
+
+            self.tbm3ctrler.say("I now need to pick up the "+obj)
+
+
             prt.todo("in get: request that object taken from Tiago")
             self.tbm3ctrler.say("please take the "+obj+ "from me" )
+            ntrys = 5
+            rcto  =  self.tbm3ctrler.move_robot_to_coords(tocoords,ntrys)
+            self.tbm3ctrler.say("I have arrived at the "+toLoc+" with the " +obj)
 
         else:
             prt.warning("in get: goto TO without object:" + self.object[0])   
-            self.tbm3ctrler.say("now going to "+toLoc+" without the "+obj )     
+            self.tbm3ctrler.say("now going to "+toLoc+" without the "+obj ) 
+            rcfrm =  self.tbm3ctrler.move_robot_to_coords(tocoords)
+            self.tbm3ctrler.say("I have arrived at the "+toLoc+" without the " +obj)
+    
  
 
         #todo store status
@@ -494,9 +511,9 @@ class Objective:
         per = self.person[0]
 
         if Objective.founditems.has_key(per):
-            coords = Objective.founditems[per]
+            frmcoords = Objective.founditems[per]
             prt.info("in get: coords for person " + per)
-            prt.info(str(coords))
+            prt.info(str(frmcoords))
         else:
             prt.error("in accompany: cannot find coords for: " + per + " so check FROM loc")
         
@@ -514,18 +531,21 @@ class Objective:
 
         ###################################################################################       
         prt.debug("command is: "+str(self.command[0])) 
+
         if   self.command[0] == 'guide':
             #todo
             toLoc = self.toLocation[0]
             prt.info("toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
-                coords = Objective.founditems[toLoc]
-
-                self.tbm3ctrler.say(per+" please follow me to the "+toLoc)
-                prt.info("in accompany: Say follow me " +"to the "+toLoc)
+                tocoords = Objective.founditems[toLoc]
+                self.tbm3ctrler.say("I am moving to meet "+per)
+                ntry = 5
+                rcto   = self.tbm3ctrler.move_robot_to_coords(frmcoords,ntry)
+                self.tbm3ctrler.say(per+"Hello "+per+" please follow me to the "+toLoc)
+                prt.info("in accompany: Say follow  me " +"to the "+toLoc)
                 prt.info("in accompany: TO location is " + toLoc)
-                trys = 5
-                self.tbm3ctrler.move_robot_to_coords(coords,trys)
+                ntry = 5
+                rc   = self.tbm3ctrler.move_robot_to_coords(tocoords,ntry)
 
                 #update persons location to their new location
                 self.storefoundloc(per, toLoc)
