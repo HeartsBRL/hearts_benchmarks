@@ -3,8 +3,8 @@
     <arg name="WORKSPACE" value="workspaces/hearts_erl"   />
 
      <!-- ERL COMPETITION USB memory stick ID - Location of .wav files and destination for the results.txt file --> 
-    <arg name="ERL_ROOT"    value="home"   />
-    <arg name="ERL_USB_MEM" value="HEARTS" />
+    <arg name="ERL_ROOT"    value="media"   />
+    <arg name="ERL_USB_MEM" value="BCA3-57E7" />
 
     <param name='SR_BRL_DATAPATHOUT' value='/home/$(env USER)/Documents/BRL_speech_results/' />
     <param name='SR_VERBSFILE'   value='/home/$(env USER)/$(arg WORKSPACE)/src/hearts_benchmarks/fbm3_speech_understanding/data_in/TrainingDatasetVerbs.csv' />
