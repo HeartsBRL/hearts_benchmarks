@@ -260,7 +260,7 @@ class ControllerTBM2(GenericController):
         self.say("Hello postman, I will receive the post mail, please stand back while I move my arm")
 
         #TODO check postman has stood back/area is clear for movement
-        rospy.sleep(2)
+        rospy.sleep(1)
 
 
         # move to receive pose
