@@ -513,21 +513,21 @@ class ControllerTBM3(GenericController):
 
         self.wait_to_arrive(5)
 
-        ## Interactions
-    def say(self, text):
-        delayconst  = 0.1 #seconds per character
-        nchars      = len(text)
-        delay = delayconst * nchars
-
-        # prt.debug("speech is: "+text)
-        # prt.debug("nchars is: "+str(nchars))
-        prt.debug("Delay for speech in seconds = "   +str(delay))
-
-        prt.todo("Remove def say from TBM3 controller - use generic def say instead: ")
-        #rospy.sleep(1)
-        self.tts_pub.publish(text)
-        rospy.sleep(delay+1)
-        prt.debug("sleep set to be proportional to num of chars - to see if truncation stops??")
+#        ## Interactions
+ #   def say(self, text):
+  #      delayconst  = 0.1 #seconds per character
+   #     nchars      = len(text)
+    #    delay = delayconst * nchars
+#
+ #       # prt.debug("speech is: "+text)
+  #      # prt.debug("nchars is: "+str(nchars))
+   #     prt.debug("Delay for speech in seconds = "   +str(delay))
+#
+ #       prt.todo("Remove def say from TBM3 controller - use generic def say instead: ")
+  #      #rospy.sleep(1)
+   #     self.tts_pub.publish(text)
+    #    rospy.sleep(delay+1)
+     #   prt.debug("sleep set to be proportional to num of chars - to see if truncation stops??")
 
 
     def device_operationsself(self):
