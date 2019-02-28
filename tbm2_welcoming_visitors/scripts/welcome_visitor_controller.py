@@ -208,7 +208,7 @@ class ControllerTBM2(GenericController):
                         rospy.sleep(0.2)
                     self.toggle_stt('off')
                     print(answer)
-                    if 'deliman' in answer or 'deli man' in answer or 'jelly man' in answer or 'belly man' in answer or 'daily man' in answer or 'dle man' in answer:
+                    if 'deliman' in answer or 'deli man' in answer or 'jelly' in answer or 'belly' in answer or 'daily' in answer or 'dle man' in answer:
                         self.good_answer = True
                         self.toggle_stt('off')
                         rospy.loginfo("detected deliman")
@@ -376,8 +376,8 @@ class ControllerTBM2(GenericController):
             #     self.toggle_follow('off')
             #     #self.say("Goodbye!")
 
-        self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.",0)
-        rospy.sleep(4)
+        #self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.",0)
+        rospy.sleep(1)
 
         # 9. move to hallway
         if self.move_to_location("entrance", 3) == False: #TODO follow dr, don't just run them over!
