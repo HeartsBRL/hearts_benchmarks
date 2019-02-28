@@ -292,7 +292,7 @@ class ControllerTBM2(GenericController):
         # move arm to offer parcel
         self.move_to_pose("give_receive")
 
-        self.say("Hello Grannie Annie. Please take the parcel from my hand") #TODO maybe a better set of words to use?
+        self.say("Hello Grannie Annie, the postman has bought you a parcel. Please take the parcel from my hand") #TODO maybe a better set of words to use?
 
         #TODO release if yes
         # self.say("I am letting go now.")
@@ -376,7 +376,7 @@ class ControllerTBM2(GenericController):
             #     self.toggle_follow('off')
             #     #self.say("Goodbye!")
 
-        self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.")
+        self.say("Please note, following behaviour is currently not implemented. I will simply go to the door.",0)
         rospy.sleep(4)
 
         # 9. move to hallway
@@ -410,10 +410,7 @@ class ControllerTBM2(GenericController):
             # for now just navigate to the location
             if self.move_to_location("plumber_bathroom", 3) == False:
                 return
-            self.say("The bathroom is to my right, please go in")
-
-            #wait for plumber to finish
-            self.say("Please tell me when you are ready to leave.")
+            self.say("The bathroom is to my right, please go in. Please tell me when you are ready to leave.")
 
             #wait for plumber to finish
             detected, answer = self.stt_detect_words(["ready", "goodbye", "leave", "leaving"], 100)
@@ -430,7 +427,7 @@ class ControllerTBM2(GenericController):
 
                     ## Old version that does not use following behavior
                 self.say("Now you are done, I will follow you to the door. Please lead the way.")
-                rospy.sleep(3)
+                rospy.sleep(1)
                 if self.move_to_location("entrance", 3) == False:
                     return
 
@@ -466,7 +463,7 @@ class ControllerTBM2(GenericController):
                 if self.move_to_location("entrance", 3) == False:
                     return
 
-
+        self.say("Thank you for visiting, goodbye",0)
         if self.move_to_location("home", 3) == False:
             return
 
