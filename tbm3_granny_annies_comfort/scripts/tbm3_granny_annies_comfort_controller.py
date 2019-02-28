@@ -535,7 +535,7 @@ class ControllerTBM3(GenericController):
 
     def move_robot_to_coords(self,coords,trys):
         # indirection code to allow deveopment with no robot attached
-        prt.todo("in robot_move_to: ADD CODE -if needed to reformat coordsfor pose2D??" )
+
         if self.IROBOT:
             prt.warning("ROBOT moving to coords: "+str(coords))
             self.move_to_coords(coords,trys)
@@ -611,12 +611,12 @@ class ControllerTBM3(GenericController):
         self.wait_for_user_location()
 
         #navigate to the user's location
-        self.say("hello granny annie, I am on my way to you.")
+        self.say("I am on my way to you.")
         prt.todo("Remove comments for navigation to GA")
         trys=5
         self.move_robot_to_coords(self.user_location,trys)
         prt.todo("retries fr GA arriving???")
-        #dar self.wait_to_arrive(5)
+
         self.say("How can I help you today? Please give me a command")
 
         self.listen4cmd('on')

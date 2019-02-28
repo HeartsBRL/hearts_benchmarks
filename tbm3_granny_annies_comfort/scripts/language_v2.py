@@ -85,12 +85,13 @@ class Objective:
             y          = data[key]['y']
             theta      = data[key]['theta']
             coordslist = [x,y,theta]
-
-            self.storefoundloc(key,coordslist)
-
-        prt.todo("GET proper coords of GA's location fom her tablet?????")
-        coordobjectiveslist=[111,222,-99.9]
-        self.storefoundloc('user',coordslist)    
+            #json names are nw xxx_yyy! not xxx yyy.
+            prt.debug("old key:"+str(key))
+            newkey = key.replace('_',' ')
+            prt.debug("new key:"+str(newkey))
+            self.storefoundloc(newkey,coordslist)
+            #todo should not be here i thinks? as was temp fix for testing
+        #self.storefoundloc('user',coordslist)    
 
     def parse(self):
         #reads sentence and stores key words
@@ -393,9 +394,9 @@ class Objective:
 
                 if found:
                     found = True  
-                    prt.info(str("Returned coords from object search code are:"+str(frmcoords)))
+                    prt.info(str("Returned coords from person search code are:"+str(frmcoords)))
                     prt.info("in search: store coords of found location for person")
-                    self.storefoundloc(per, coords)
+                    self.storefoundloc(per, frmcoords)
 
                     prt.info(str("Found coords for "+per+" search are:"+str(frmcoords)))
                     self.tbm3ctrler.say("I have found "+per+" in the"+frmLoc)
@@ -418,6 +419,12 @@ class Objective:
 
 
     def getfoundloc(self, key):
+        prt.debug("getfoundloc: loc is "+str(key))
+        ###key_No_ = key.replace('_',' ')
+       
+        for iii in Objective.founditems:
+            prt.debug("founditems item : "+str(iii))
+            
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
         else:
@@ -433,7 +440,7 @@ class Objective:
         prt.debug(("in get: obj= "+obj))
 
         if Objective.founditems.has_key(obj):
-            coords = Objective.founditems[obj]
+            coords = self.getfoundloc(obj)
             prt.info("in get: FROM location coords for: " + obj)
             prt.info(str(coords))
         else:
@@ -463,9 +470,10 @@ class Objective:
 
         prt.info("in get: TO location is : "+ self.toLocation[0])
         toLoc = self.toLocation[0]
-        prt.info("in get: toLoc : "+toLoc)
+        prt.info("in manipulate get: toLoc : "+toLoc)
         if Objective.founditems.has_key(toLoc):
-            tocoords = Objective.founditems[toLoc]
+            prt.info("toLoc is;"+toLoc)
+            tocoords = self.getfoundloc(toLoc)
         
             prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
             prt.info(str(tocoords))
