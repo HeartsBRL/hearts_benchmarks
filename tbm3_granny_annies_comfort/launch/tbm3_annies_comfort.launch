@@ -12,14 +12,14 @@
     <arg name="map_name" value="brl_feb_comp" />
   </include>
 
-   <param name="robot_in_use"         value="true"  
+   <param name="robot_in_use"         value="true"  />
    <param name="TBM3_objects_file"   value="$(arg TBM3_objects)"   />
    <param name="TBM3_verbs_file"     value="$(arg TBM3_verbs)"     />   
 
 
   <include file="$(find hearts_tts)/launch/hearts_tts.launch" />
 
-  <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort" type="tbm3_granny_annies_comfort_controller.py" output="screen" />
+  <node name="annies_comfort_controller" pkg="tbm3_granny_annies_comfort"  type="tbm3_granny_annies_comfort_controller.py" output="screen" />
 <!-- from EDI Jan 2018
   <node name="motion_player" pkg="hearts_arm_control" type="motion_player.py" />
   <rosparam file="$(find hearts_arm_control)/config/hearts_motions.yaml" command="load" />
