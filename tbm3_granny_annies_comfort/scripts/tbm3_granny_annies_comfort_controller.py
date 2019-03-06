@@ -533,15 +533,17 @@ class ControllerTBM3(GenericController):
     def device_operationsself(self):
         pass
 
-    def move_robot_to_coords(self,coords,trys):
+    def move_robot_to_coords(self,key,coords,trys):
         # indirection code to allow deveopment with no robot attached
 
         if self.IROBOT:
-            prt.warning("ROBOT moving to coords: "+str(coords))
+            prt.warning("ROBOT moving to location of: "+key)
+            prt.warning("Coords are: "+str(coords))
             self.move_to_coords(coords,trys)
         else:
             prt.warning("NO ROBOT available for software to control!")
-            prt.warning("ROBOT will NOT moving to : "+str(coords))
+            prt.warning("ROBOT will NOT moving to Location of: "+key)
+            prt.warning("Coords are: "+str(coords))
         return
 
     def move_robot_to_location(self,location,trys):
@@ -614,7 +616,7 @@ class ControllerTBM3(GenericController):
         self.say("I am on my way to you.")
         prt.todo("Remove comments for navigation to GA")
         trys=5
-        self.move_robot_to_coords(self.user_location,trys)
+        self.move_robot_to_coords('User',self.user_location,trys)
         prt.todo("retries fr GA arriving???")
 
         self.say("How can I help you today? Please give me a command")

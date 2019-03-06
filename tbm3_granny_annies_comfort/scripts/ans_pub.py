@@ -36,6 +36,8 @@ elif arg == "task8":
   speech = "find the pear, get me the pear and find for my glasses"
 elif arg == "task9":
   speech = "close blinds"
+elif arg == "task14":
+  speech =  "search for daniel, lead him to the entrance hall, and give him the coke on the kitchen counter."   
 elif arg == "yes":
   speech = "yes please"
 elif arg == "thk":
