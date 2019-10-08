@@ -102,6 +102,7 @@ class Objective:
         splitList = self.sentence.split()
 
         for word in splitList:
+            prt.debug("splilist word: "+word)
             test = word 
             
             if test in self.analysis.locations:
@@ -120,9 +121,10 @@ class Objective:
 
         #uses modifier words 'to' and 'from' to fill in 'to' and 'from' locations - important in "take thing from x to y" tasks
         count = 0
+        prt.debug("##### - in def parse")
         while len(self.locationModifier) > 0:
             word = self.locationModifier[0]
-            #print "word: " + word
+            prt.debug( "count: "+str(count)+" toLoc: " + word)
             if word == "from":
                 try:
                     self.fromLocation.append(self.location[count])
@@ -137,6 +139,17 @@ class Objective:
                 except IndexError:
                     #print "No location matching 'to' modifier"
                     del self.locationModifier[0]
+            # special case where "me" was previously changed to  "user"    
+            # toLoc needs to be that of the "user"
+            elif word == "user":
+                try:
+                    #self.toLocation.append(self.location[count])
+                    self.toLocation.append("user")
+                    del self.locationModifier[0]
+                except IndexError:
+                    #print "No location matching 'to' modifier"
+                    del self.locationModifier[0]    
+
             count = count + 1
 
     def process_objective(self):
@@ -187,7 +200,8 @@ class Objective:
 
         # if TO location empty assign to person (seems reasonable guess?)
         if len(self.toLocation) == 0 and self.comtype[0] != 's':
-            self.toLocation = self.person
+            self.toLOcation = self.analysis.get_obj_per_loc(self.person[0])
+            #self.toLocation = self.person
 
         if brl_com == 'follow':
             self.toLocation = ''
@@ -457,7 +471,7 @@ class Objective:
             prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
             prt.info(str(tocoords))
         else:
-            prt.error("in get: cannot find TO coords for obj: "+"TO is: " + toLoc)
+            prt.error("in get: cannot find TO coords for "+obj+" - toLoc is: " + toLoc)
 
 
         prt.todo("sortout pickup  logic with user interaction")
@@ -668,7 +682,7 @@ class Analysis(object):
     ##### DAR routines follow ##########################################################################
     ####################################################################################################
     def read_ERL_data(self,filein):
-        # read the ERL object/person versus pronbable locations table 
+        # read the ERL object/person versus location probablity table 
         # ERL Rule book (5 June 2018) page 11 Section 3.3.2
 
         with open(filein,'r') as csvfile:
@@ -761,7 +775,8 @@ class Analysis(object):
 
             else:
                 prt.error('Objects file: not a I or P flag! see file: '+ objects_file)
-
+        for ppp in self.people:
+            prt.debug("Person: "+ppp)
     #*********************************************************************************
     def parse_locations(self):
         ### build a unique list of locations that are pertient to TBM3
@@ -874,16 +889,16 @@ class Analysis(object):
         if missed > 0 :
             prt.error("\nlocations.json file has missing entries required by the competition data")
             prt.info("File is : "+jsonfilein)
-            prt.error("There are "+str(missed)+"entries.  See report above ^^^^\n")
+            prt.error("There are "+str(missed)+" entries.  See report above ^^^^\n")
             prt.error("Program Stopped!\n")
             quit()
 
 
 
-       # for cmd in commands:
+        #for cmd in commands:
         #     print(cmd)
-        # for per in people:
-        #     print("Person  : "+per)
+        #for per in people:
+        #    print("Person  : "+per)
         # for obj in  objects:
         #     print("Object  : "+obj)
         # for loc in locations:

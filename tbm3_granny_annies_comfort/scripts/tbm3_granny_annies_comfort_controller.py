@@ -260,7 +260,7 @@ class ControllerTBM3(GenericController):
         # # check that lookup key was found
         # if self.code2exec != None:
         #     #listen for "answer"
-        ###### NEW CODE for sppech processing        #####
+        ###### NEW CODE for speech processing        #####
         self.analysis = nlp.Analysis(self)
         self.analysis.getcompdata()
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
@@ -627,28 +627,28 @@ class ControllerTBM3(GenericController):
     ### taken from generic controller
     ###
     ### extract content of speech recognition
-    def stt_callback(self,data): #from tbm3
-        '''
-        to use in code use self.speech
-        e.g. answer = self.speech
-        '''
-        speech = str(data.data)
-        speech = speech.lower()
-        prt.debug(" in Dereks sst_callback")
-        prt.debug("in TBM3 : GA controller overloaded stt - unedited speech follows....")
-        prt.debug(str(speech))
-        # remove the ROS msg "Data:" value from speech
-        item = 'data:'
-        if item in speech:
-            speech = speech.replace(item,'')
-            rospy.loginfo('*** Heard speech:\n'+speech+'\n')
+    # def stt_callback(self,data): #from tbm3
+    #     '''
+    #     to use in code use self.speech
+    #     e.g. answer = self.speech
+    #     '''
+    #     speech = str(data.data)
+    #     speech = speech.lower()
+    #     prt.debug(" in Dereks sst_callback")
+    #     prt.debug("in TBM3 : GA controller overloaded stt - unedited speech follows....")
+    #     prt.debug(str(speech))
+    #     # remove the ROS msg "Data:" value from speech
+    #     item = 'data:'
+    #     if item in speech:
+    #         speech = speech.replace(item,'')
+    #         rospy.loginfo('*** Heard speech:\n'+speech+'\n')
 
-        # switch off as already handled by other code
-        # check that text has been returned
-        # if "bad_recognition" in speech:
-        #     self.say("Sorry, no words were recognised.")
+    #     # switch off as already handled by other code
+    #     # check that text has been returned
+    #     # if "bad_recognition" in speech:
+    #     #     self.say("Sorry, no words were recognised.")
 
-        self.speech = speech
+    #    self.speech = speech
 
     ### listen for a specific word in SPEECH
 

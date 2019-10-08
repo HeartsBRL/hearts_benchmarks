@@ -23,7 +23,7 @@ if   arg == "task1":
 elif arg == "task2":
   speech = "Locate the bottle, place it in the bucket, and take John from the bedroom to the exit."
 elif arg == "task3":
-  speech = "Take  me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
+  speech = "guide  me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
 elif arg == "task4":
   speech = "Give me the cup on the coffee table, find John, and follow him."
 elif arg == "task5":
@@ -40,7 +40,7 @@ elif arg == "task14":
   speech =  "search for daniel, lead him to the entrance hall, and give him the coke on the kitchen counter."   
 elif arg == "yes":
   speech = "yes please"
-elif arg == "thk":
+elif arg == "no":
   speech = "No thank you"
 
 try:
