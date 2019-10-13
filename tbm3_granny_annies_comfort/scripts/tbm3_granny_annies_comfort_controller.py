@@ -65,7 +65,12 @@ class ControllerTBM3(GenericController):
 
         #Initialise variables
         self.user_location = None
+        self.FirstCall     = True  #used to store GA's position on once only when first told via tablet
 
+        # speech processing and load up competition data
+        self.analysis = nlp.Analysis(self)
+        self.analysis.getcompdata()
+      
         # Granny Annies position in our map's coord system
         # col 0= bed, col1 = sofa
         # self.ulocx = [ -0.493560373783 ,-2.34082365036]
@@ -260,12 +265,36 @@ class ControllerTBM3(GenericController):
         # # check that lookup key was found
         # if self.code2exec != None:
         #     #listen for "answer"
+
         ###### NEW CODE for speech processing        #####
-        self.analysis = nlp.Analysis(self)
-        self.analysis.getcompdata()
+        #dar1 self.analysis = nlp.Analysis(self)
+        #dar1 self.analysis.getcompdata()
+
+        prt.todo("CHECK GA storing code  or fx it!")
+
+        x =      self.user_location.x
+        y =      self.user_location.y
+        theta =  self.user_location.theta
+        self.analysis.InitialUserLoc("user",[x,y,theta])
+
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
 
+        # use GA's location from her tablet to update the "founditems" list
+        # Only do this on first code execution as user can move somewhere else!
+        # if self.FirstCall == True:
+        #     x =      self.user_location.x
+        #     y =      self.user_location.y
+        #     theta =  self.user_location.theta
+        #     self.theobjectives[0].storefoundloc("user" , [x, y, theta])
+        #     self.FirstCall = False
+
+
         if commandcount == 3 :
+            # prt.debug("***********printme    all fields**************************************")
+            # self.theobjectives[0].printme()
+            # self.theobjectives[1].printme()
+            # self.theobjectives[2].printme()
+            # prt.debug("***********printme    all fields***************************************")
             prt.debug("***********printme_final    *******************************************")
             self.theobjectives[0].printme_final()
             self.theobjectives[1].printme_final()
@@ -474,6 +503,7 @@ class ControllerTBM3(GenericController):
         rospy.loginfo(msg)
 
         self.user_location = msg
+        #####dself.analysis.Objective.storefoundloc("user", msg )
         '''
         print("msg.x     from GA tablet: "+str(msg.x))
         print("msg.x     from GA tablet: "+str(msg.y))

@@ -23,7 +23,7 @@ prt = TC.tc()
 class Objective:
     instances  = 0
     founditems = {} # coords from Tiago of object and/or person found
-                    # data format  {name : [x,y,theta]}
+                    # data format of dict is  {name : [x,y,theta]}
 
     def __init__(self,sentence,com,brlcom,comtype,analysis, tbm3ctrler):
         self.tbm3ctrler = tbm3ctrler
@@ -36,26 +36,25 @@ class Objective:
 
         self.instance   = Objective.instances
 
-        self.sentence   = sentence
-        self.command    = []
-        self.brlcommand = []
-        self.comtype    = []
-        self.person     = []
-        self.object     = []
-        self.location   = []
-        self.fromLocation = []
-        self.toLocation   = []
+        self.sentence   = sentence # words in this objective
+        self.command    = []       # used to store 'command' names found in sentence
+        self.brlcommand = []       # used to store 'brl command' names found in sentence
+        self.comtype    = []       # used to store 'comtype'  names found in sentence
+        self.person     = []       # used to store 'person'  names found in sentence
+        self.object     = []       # used to store 'objects'  names found in sentence
+        self.location   = []       # used to store 'location' names found in sentence
+        self.fromLocation = []     # derived from loc
+        self.toLocation   = []     # derived to   loc
         #self.furniture = []
-        self.reference        = []
-        self.locationModifier = []
-        self.command.append(com)
-        self.brlcommand.append(brlcom)
-        self.comtype.append(comtype)
+        self.reference        = [] # list of possible reference  eg "it"
+        self.locationModifier = [] # list of locmodifiers eg 
+        self.command.append(com)        # ERL command from inst.
+        self.brlcommand.append(brlcom)  # BRL command from inst.
+        self.comtype.append(comtype)    # command type from inst.
         self.confirmationtext = ""
         self.success = False
 
         self.load_json_coords()
-
         #from a ROS parameter in caller
         self.IROBOT = self.tbm3ctrler.IROBOT
 
@@ -90,6 +89,8 @@ class Objective:
             newkey = key.replace('_',' ')
 
             self.storefoundloc(newkey,coordslist)
+            #prt.debug("storefoundloc key: "+key+" coordslist:")
+            #print( coordslist)
  
         return
 
@@ -100,7 +101,7 @@ class Objective:
         self.sentence = self.analysis.process_locations(self.sentence)
         self.sentence = self.analysis.process_objects  (self.sentence)
         splitList = self.sentence.split()
-
+        prt.debug("==== sentence: "+self.sentence)
         for word in splitList:
             prt.debug("splilist word: "+word)
             test = word 
@@ -125,7 +126,7 @@ class Objective:
         while len(self.locationModifier) > 0:
             word = self.locationModifier[0]
             prt.debug( "count: "+str(count)+" toLoc: " + word)
-            if word == "from":
+            if word == "from" :
                 try:
                     self.fromLocation.append(self.location[count])
                     del self.locationModifier[0]
@@ -139,21 +140,21 @@ class Objective:
                 except IndexError:
                     #print "No location matching 'to' modifier"
                     del self.locationModifier[0]
-            # special case where "me" was previously changed to  "user"    
-            # toLoc needs to be that of the "user"
-            elif word == "user":
-                try:
-                    #self.toLocation.append(self.location[count])
-                    self.toLocation.append("user")
-                    del self.locationModifier[0]
-                except IndexError:
-                    #print "No location matching 'to' modifier"
-                    del self.locationModifier[0]    
+            # # special case where "me" was previously changed to  "user"    
+            # # toLoc needs to be that of the "user"
+            # elif word == "user":
+            #     try:
+            #         #self.toLocation.append(self.location[count])
+            #         self.toLocation.append("user")
+            #         del self.locationModifier[0]
+            #     except IndexError:
+            #         #print "No location matching 'to' modifier"
+            #         del self.locationModifier[0]    
 
             count = count + 1
 
     def process_objective(self):
-    
+        prt.debug("\nEnter def : Process_objective")
         #ensure underscore removed from location type lists before data passed on to Tiago
         if len(self.location) > 0:
              self.location[0]  = self.location[0].replace('_',' ')
@@ -177,7 +178,7 @@ class Objective:
         if (brl_com == 'find' or brl_com == 'get') and len(self.object) > 0 and len(self.location) == 0:
             loc0,loc1,loc2 = self.analysis.get_obj_per_loc(self.object[0])
             self.fromLocation.append(loc0)
-            self.fromLocation.append(loc1)            
+            self.fromLocation.append(loc1)      
             self.fromLocation.append(loc2)
 
 
@@ -195,13 +196,14 @@ class Objective:
         #todo     NB the next 2 IF's related to efore I caged the system t loo up all coords in foundtems
         #          so now shoud just throw up errors as the TO & FROM being  tested should be defined.                         
         if (brl_com == 'get' or brl_com == 'guide' or brl_com == 'follow') and  len(self.fromLocation) == 0:
-            self.fromLocation.append('previous task') 
+            self.fromLocation.append('user') 
 
 
         # if TO location empty assign to person (seems reasonable guess?)
+
+
         if len(self.toLocation) == 0 and self.comtype[0] != 's':
-            self.toLOcation = self.analysis.get_obj_per_loc(self.person[0])
-            #self.toLocation = self.person
+            self.toLocation = self.person
 
         if brl_com == 'follow':
             self.toLocation = ''
@@ -388,6 +390,7 @@ class Objective:
                     prt.info("in search: store coords of found location for object")
 
                     self.storefoundloc(obj, frmcoords)
+                    prt.info(str("Found coords for "+obj+" search are:"+str(frmcoords)))
                     self.tbm3ctrler.say("I have found the "+obj+" at tlocation "+frmLoc)
                     break
 
@@ -429,15 +432,21 @@ class Objective:
 
         return
 
-
     def getfoundloc(self, key):
-            
+        prt.debug("=== in get found loc================================ founditems dict")   
+        for keys in Objective.founditems:
+            print(keys+" : "+str(Objective.founditems[keys] ))
+        prt.debug("=== in get found loc================================ founditems dict")   
+
+        prt.debug("Enter: getfoundloc, key= "+key)    
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
+            print (coords)
 
         else:
             coords = []
 
+        print("============ end in getfoundloc ==========")
         return coords
     #######################
     ###### MANIPULATE #####
@@ -461,11 +470,15 @@ class Objective:
             else:
                 prt.error("in get: !!!!! no FROM location available !!!!!")
                 return # can not proceed
-
+        prt.debug("==================================================== founditems dict")   
+        for keys in Objective.founditems:
+            print(keys+" : "+str(Objective.founditems[keys] ))
+ 
+        prt.debug("==================================================== founditems dict")     
         toLoc = self.toLocation[0]
-
+        prt.info("in get:   toLoc is: "+toLoc)
         if Objective.founditems.has_key(toLoc):
-            prt.info("toLoc is: "+toLoc)
+
             tocoords = self.getfoundloc(toLoc)
         
             prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
@@ -540,9 +553,11 @@ class Objective:
 
         if   self.command[0] == 'guide':
             #todo
-            toLoc = self.toLocation[0]
+            frmLoc = self.fromLocation[0]
+            toLoc  = self.toLocation[0]
             prt.info("toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
+                frmcoords= Objective.founditems[frmLoc]
                 tocoords = Objective.founditems[toLoc]
                 self.tbm3ctrler.say("I am moving to meet "+per)
                 ntry  = 5
@@ -584,7 +599,7 @@ class Analysis(object):
         self.commands=None
         self.people=None
         self.objects=None
-        self.references      = ['him', 'her', 'it', 'them' ]
+        self.references      = ['him', 'her', 'it', 'them', 'user']
 
         self.locModifiers    = [ 'from', 'to', 'in']
         
@@ -644,6 +659,7 @@ class Analysis(object):
             objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self, self.tbm3ctrler)
             objective2 = Objective(taskP[taskflags[1]+1:taskflags[2]], coms[1],brlcoms[1],comstype[1],self, self.tbm3ctrler)
             objective3 = Objective(taskP[taskflags[2]+1:len(taskP)]  , coms[2],brlcoms[2],comstype[2],self, self.tbm3ctrler)
+        
             #DAR
             # print("taskflags[0]+1 :"+str(taskflags[0]+1))
             # print("taskflags[1]+1 :"+str(taskflags[1]+1))
@@ -653,19 +669,24 @@ class Analysis(object):
         else:
             return []
 
-        
+    def InitialUserLoc(self,object,coords):
+        # this ia a ittle "fudge" so that GA's location can be added to the 
+        # founditems list before is is used!
+        obj = Objective("dum1", "dum2","dum3","dum4",self, self.tbm3ctrler)
+        obj.storefoundloc(object,coords)
+
 
     def resolveReferences(self,objectives):
         #if an objective references an object or person mentioned earlier, look at the previous objective and copy object or person data into current objective
          for i in range(1,len(objectives)):
             while len(objectives[i].reference) > 0:
                 ref = objectives[i].reference[0]
-                if ref == "him" or ref == "her" or ref == "them":
+                if ref == "him" or ref == "her" or ref == "them" or ref == "user":
                     try:
                         objectives[i].person = objectives[i-1].person
                         del objectives[i].reference[0]
                     except IndexError:
-                        print "Failed to resolve reference for '" + ref + "'"
+                        prt.error( "Failed to resolve reference for '" + ref + "'")
                         del objectives[i].reference[0]
                 elif ref == "it":
                     # if an 'object is defined in current action then don't do this 
@@ -673,10 +694,10 @@ class Analysis(object):
                         objectives[i].object = objectives[i-1].object
                         del objectives[i].reference[0]
                     except IndexError:
-                        print "Failed to resolve reference for '" + ref + "'"
+                        prt.error( "Failed to resolve reference for '" + ref + "'")
                         del objectives[i].reference[0]
                 else:
-                    print "Unknown reference, how did this happen?  ref="+ref
+                    prt.error( "Unknown reference, how did this happen?  ref="+ref)
                     del objectives[i].reference[0]
 
     ##### DAR routines follow ##########################################################################
@@ -776,7 +797,8 @@ class Analysis(object):
             else:
                 prt.error('Objects file: not a I or P flag! see file: '+ objects_file)
         for ppp in self.people:
-            prt.debug("Person: "+ppp)
+            prt.error("***************** Person: "+ppp)
+
     #*********************************************************************************
     def parse_locations(self):
         ### build a unique list of locations that are pertient to TBM3
@@ -810,7 +832,8 @@ class Analysis(object):
 
     #*********************************************************************************
     def process_locations(self,expr):
-        # do in string search for all known locations
+        # do in string search for all known locations and add "_" btween multi-word locatoins
+        # locations in navigation json file are defind with an "_" eg: Kitchen_cabinet
         for loc in self.locations:
             loc_no_ = loc.replace('_',' ')
             #print('loc_no_ :'+loc_no_)
@@ -822,6 +845,8 @@ class Analysis(object):
     #*********************************************************************************
     def process_objects(self,expr):
         # do in string search for all known objects
+        # see process_locations -- at this ime all objects ate single words - 
+        # so this is future proofing.
         for obj in self.objects:
             obj_no_ = obj.replace('_',' ')
             if  obj_no_ in expr:
@@ -863,11 +888,13 @@ class Analysis(object):
         #todo put in launch file
         ERL_objects_file = rospy.get_param("TBM3_objects_file")
         ERL_verbs_file   = rospy.get_param("TBM3_verbs_file")
-
+        prt.debug("in getcompdata Objs  file: \n"+ERL_objects_file)
+        prt.debug("in getcompdata verbs file: \n"+ERL_verbs_file)
+            
         self.ERL_data        = self.read_ERL_data(ERL_objects_file)
 
-        # for line in ERL_data:
-        #     print (line[0],line[1],line[2],line[3],line[4])
+        for line in self.ERL_data:
+            print(line[0],line[1],line[2],line[3],line[4])
 
         self.commands        = self.read_ERL_verb(ERL_verbs_file)
 
@@ -888,8 +915,8 @@ class Analysis(object):
        
         if missed > 0 :
             prt.error("\nlocations.json file has missing entries required by the competition data")
-            prt.info("File is : "+jsonfilein)
-            prt.error("There are "+str(missed)+" entries.  See report above ^^^^\n")
+            prt.error("File is : "+jsonfilein)
+            prt.error("There are "+str(missed)+" missing entries.  See report above ^^^^\n")
             prt.error("Program Stopped!\n")
             quit()
 
