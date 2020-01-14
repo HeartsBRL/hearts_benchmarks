@@ -21,13 +21,13 @@ print("arg: "+arg)
 if   arg == "task1":
   speech = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
 elif arg == "task2":
-  speech = "Locate the bottle, place it in the bucket, and take John from the bedroom to the exit."
+  speech = "Locate the bottle, place it in the bucket, and take John from the bedroom to the kitchen cabinet."
 elif arg == "task3":
   speech = "guide  me to the bedroom, find my glasses, and bring me a pear from the kitchen table."
 elif arg == "task4":
   speech = "Give me the cup on the coffee table, find John, and follow him."
 elif arg == "task5":
-  speech = "Hi Tiago, please will you go and find John, I need you to take him to the exit and then get me a bottle of water from the kitchen cabinet, thanks!"
+  speech = "Hi Tiago, please will you go and find John, I need you to take him to the kitchen and then get me a bottle of water from the kitchen cabinet, thanks!"
 elif arg == "task6":
   speech = "Search for the tea pot, Get my glasses, and Bring me a pear from the coffee table."
 elif arg == "task7":

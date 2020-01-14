@@ -11,6 +11,10 @@
 # Oct 2018 in Madrid:
 #         - generic controller introduced
 #         - new language processor introduced for the June 2018 rule book
+# Jan/Feb 2019 - BRL competition
+#         - more debugging for logic errors
+# Oct 2019 - Revist TBM3 correct logic , add GA postion to data from Tablet
+#         - 
 #############################################################################################
 import rospy
 import time
@@ -25,9 +29,10 @@ from python_support_library.generic_controller import GenericController
 import python_support_library.text_colours as TC
 import language_v2 as nlp
 
-prt = TC.tc()
-
-
+prt = TC.tc() # generally used instead of print stmt to colorise messages appropriately
+######
+# NB "self.speech" is defined by the stt_callback code in the generic controller.
+#####
 
 class ControllerTBM3(GenericController):
 
@@ -167,7 +172,7 @@ class ControllerTBM3(GenericController):
 
             speech2text = self.speech
 
-            prt.debug("CMD speech2text: "+str(speech2text) )
+            prt.debug("CMD speech2text:\n "+str(speech2text)+"\n" )
             self.heardCommand(speech2text)
 
 
@@ -213,15 +218,15 @@ class ControllerTBM3(GenericController):
         words  = speech.split(' ')
         prt.debug("words list in YES/NO section")
         for item in words:
-            prt.debug(">"+item+"<")
+            prt.debug("yes/no words list:>"+item+"<")
         if 'yes' in words:
             self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
 
-            self.say("The tasks are now completed to your satifaction we trust")
+            self.say("The tasks are now completed to your satisfaction we trust")
             prt.todo(" **************Stop Program here!*****************")
-            prt.warning("TBM3 controller: now are quitting python!")
+            prt.warning("TBM3 controller: now quitting python!")
             quit()
             # re-establish subscribers
             self.listen4ans('off')
@@ -266,28 +271,17 @@ class ControllerTBM3(GenericController):
         # if self.code2exec != None:
         #     #listen for "answer"
 
-        ###### NEW CODE for speech processing        #####
-        #dar1 self.analysis = nlp.Analysis(self)
-        #dar1 self.analysis.getcompdata()
+        ###### NEW CODE for speech processing    ######
 
-        prt.todo("CHECK GA storing code  or fx it!")
-
+        # use GA's location from her tablet to update the "founditems" list
         x =      self.user_location.x
         y =      self.user_location.y
         theta =  self.user_location.theta
         self.analysis.InitialUserLoc("user",[x,y,theta])
 
+        prt.info("###START: derive the 3 objectives from the spoken text")
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
-
-        # use GA's location from her tablet to update the "founditems" list
-        # Only do this on first code execution as user can move somewhere else!
-        # if self.FirstCall == True:
-        #     x =      self.user_location.x
-        #     y =      self.user_location.y
-        #     theta =  self.user_location.theta
-        #     self.theobjectives[0].storefoundloc("user" , [x, y, theta])
-        #     self.FirstCall = False
-
+        prt.info("###END  : derive the 3 objectives from the spoken text")
 
         if commandcount == 3 :
             # prt.debug("***********printme    all fields**************************************")
@@ -303,13 +297,10 @@ class ControllerTBM3(GenericController):
 
             talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-            prt.debug("command count rtn to GA controller = "+str(commandcount))
-            prt.info("***** Tiago confirmation to Granny Annie: \n"+talkback+"\n")
+            prt.info("command count rtn to GA controller = "+str(commandcount))
+            prt.info("***** Tiago's confirmation to Granny Annie is: \n"+talkback+"\n")
             self.say("You requested that I "+talkback+'. Shall I do this now?')
-            ###### end of code for NEW speech processing #####
 
-            # self.code2exec = executeobjectives(theobjectives)
-            #get confirmation of command
             self.listen4cmd('off')
             self.listen4ans('on')
         else:
@@ -452,14 +443,15 @@ class ControllerTBM3(GenericController):
 
         return
 
-    ### When receiving a message from the "roah_rsbb/benchmark/state" topic, will then publish the corresponding state to "roah_rsbb/messages_save"
+    ### When receiving a message from the "roah_rsbb/benchmark/state" topic, 
+    ### will then publish the corresponding state to "roah_rsbb/messages_save"
     def benchmark_state_callback(self, data):
         if data.benchmark_state == BenchmarkState.STOP:
             rospy.loginfo("STOP")
         elif data.benchmark_state == BenchmarkState.PREPARE:
             rospy.loginfo("PREPARE")
             try:
-                time.sleep(0.1)
+                rospy.sleep(0.1)
                 self.prepare() # END of PREPARE msg to service
             except:
                 rospy.loginfo("Failed to reply PREPARE")

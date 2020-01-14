@@ -46,27 +46,19 @@ class Objective:
         self.fromLocation = []     # derived from loc
         self.toLocation   = []     # derived to   loc
         #self.furniture = []
-        self.reference        = [] # list of possible reference  eg "it"
-        self.locationModifier = [] # list of locmodifiers eg 
+        self.reference        = [] # list of possible references  eg "it"
+        self.locationModifier = [] # list of locmodifiers eg to, from
         self.command.append(com)        # ERL command from inst.
         self.brlcommand.append(brlcom)  # BRL command from inst.
         self.comtype.append(comtype)    # command type from inst.
-        self.confirmationtext = ""
-        self.success = False
+        self.confirmationtext = ""      # rebuild instruction to Tiago so it is in reasonable english
 
+        # read all known locations from the navigation json file
         self.load_json_coords()
-        #from a ROS parameter in caller
+
+        #from a ROS parameter in caller - True if using robot, False if not
+        # ie for development when Navigation calls cannot carried out, and hangs the computer
         self.IROBOT = self.tbm3ctrler.IROBOT
-
-
-    # def say(self, text):
-    #     ''' Publish text to tts_pub where text is then spoken aloud by tiago'''
-    #     rospy.loginfo("saying \"" + text + "\"")
-    #     rospy.sleep(1)
-    #     self.tts_pub.publish(text)
-    #     rospy.sleep(5)
-
-
     
     def load_json_coords(self): 
 
@@ -89,8 +81,6 @@ class Objective:
             newkey = key.replace('_',' ')
 
             self.storefoundloc(newkey,coordslist)
-            #prt.debug("storefoundloc key: "+key+" coordslist:")
-            #print( coordslist)
  
         return
 
@@ -101,9 +91,9 @@ class Objective:
         self.sentence = self.analysis.process_locations(self.sentence)
         self.sentence = self.analysis.process_objects  (self.sentence)
         splitList = self.sentence.split()
-        prt.debug("==== sentence: "+self.sentence)
+
         for word in splitList:
-            prt.debug("splilist word: "+word)
+
             test = word 
             
             if test in self.analysis.locations:
@@ -122,10 +112,10 @@ class Objective:
 
         #uses modifier words 'to' and 'from' to fill in 'to' and 'from' locations - important in "take thing from x to y" tasks
         count = 0
-        prt.debug("##### - in def parse")
+
         while len(self.locationModifier) > 0:
             word = self.locationModifier[0]
-            prt.debug( "count: "+str(count)+" toLoc: " + word)
+
             if word == "from" :
                 try:
                     self.fromLocation.append(self.location[count])
@@ -154,7 +144,7 @@ class Objective:
             count = count + 1
 
     def process_objective(self):
-        prt.debug("\nEnter def : Process_objective")
+
         #ensure underscore removed from location type lists before data passed on to Tiago
         if len(self.location) > 0:
              self.location[0]  = self.location[0].replace('_',' ')
@@ -391,7 +381,7 @@ class Objective:
 
                     self.storefoundloc(obj, frmcoords)
                     prt.info(str("Found coords for "+obj+" search are:"+str(frmcoords)))
-                    self.tbm3ctrler.say("I have found the "+obj+" at tlocation "+frmLoc)
+                    self.tbm3ctrler.say("I have found the "+obj+" at location "+frmLoc)
                     break
 
             ##### PERSON type SEARCH
@@ -414,7 +404,7 @@ class Objective:
                     self.storefoundloc(per, frmcoords)
 
                     prt.info(str("Found coords for "+per+" search are:"+str(frmcoords)))
-                    self.tbm3ctrler.say("I have found "+per+" in the"+frmLoc)
+                    self.tbm3ctrler.say("I have found "+per+" in the "+frmLoc)
                     break
 
         #todo store status   
@@ -433,12 +423,11 @@ class Objective:
         return
 
     def getfoundloc(self, key):
-        prt.debug("=== in get found loc================================ founditems dict")   
-        for keys in Objective.founditems:
-            print(keys+" : "+str(Objective.founditems[keys] ))
-        prt.debug("=== in get found loc================================ founditems dict")   
-
-        prt.debug("Enter: getfoundloc, key= "+key)    
+        # prt.debug("=== in get found loc================================ founditems dict")   
+        # for keys in Objective.founditems:
+        #     print(keys+" : "+str(Objective.founditems[keys] ))
+        # prt.debug("=== in get found loc================================ founditems dict")   
+   
         if Objective.founditems.has_key(key):
             coords = Objective.founditems[key]
             print (coords)
@@ -470,11 +459,11 @@ class Objective:
             else:
                 prt.error("in get: !!!!! no FROM location available !!!!!")
                 return # can not proceed
-        prt.debug("==================================================== founditems dict")   
-        for keys in Objective.founditems:
-            print(keys+" : "+str(Objective.founditems[keys] ))
+        # prt.debug("==================================================== founditems dict")   
+        # for keys in Objective.founditems:
+        #     print(keys+" : "+str(Objective.founditems[keys] ))
  
-        prt.debug("==================================================== founditems dict")     
+        # prt.debug("==================================================== founditems dict")     
         toLoc = self.toLocation[0]
         prt.info("in get:   toLoc is: "+toLoc)
         if Objective.founditems.has_key(toLoc):
@@ -562,7 +551,7 @@ class Objective:
                 self.tbm3ctrler.say("I am moving to meet "+per)
                 ntry  = 5
                 rcfrm = self.tbm3ctrler.move_robot_to_coords(per,frmcoords,ntry)
-                self.tbm3ctrler.say(per+"Hello "+per+" please follow me to the "+toLoc)
+                self.tbm3ctrler.say("Hello "+per+" please follow me to the "+toLoc)
                 prt.info("in accompany: Say follow  me " +"to the "+toLoc)
                 prt.info("in accompany: TO location is " + toLoc)
                 ntry = 5
@@ -645,7 +634,6 @@ class Analysis(object):
                     comstype.append(cmd[0])
                     brlcoms.append(cmd[2])
                     coms.append(word) 
-                    #prt.debug("taskP[start:]"+taskP[start:]+str(start))
 
                     index = taskP[start:].find(test)
                     if index >-1:
@@ -888,8 +876,8 @@ class Analysis(object):
         #todo put in launch file
         ERL_objects_file = rospy.get_param("TBM3_objects_file")
         ERL_verbs_file   = rospy.get_param("TBM3_verbs_file")
-        prt.debug("in getcompdata Objs  file: \n"+ERL_objects_file)
-        prt.debug("in getcompdata verbs file: \n"+ERL_verbs_file)
+        # prt.debug("in getcompdata Objs  file: \n"+ERL_objects_file)
+        # prt.debug("in getcompdata verbs file: \n"+ERL_verbs_file)
             
         self.ERL_data        = self.read_ERL_data(ERL_objects_file)
 
