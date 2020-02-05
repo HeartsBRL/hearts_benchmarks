@@ -29,7 +29,7 @@
 import rospy
 import time
 import std_srvs.srv
-from   std_msgs.msg           import Empty, String
+from   std_msgs.msg           import Empty, String, Bool
 from   geometry_msgs.msg      import Pose2D, Pose, Twist, PoseStamped
 from   roah_rsbb_comm_ros.msg import BenchmarkState
 from   roah_rsbb_comm_ros.srv import Percentage
@@ -94,7 +94,8 @@ class ControllerTBM3(GenericController):
     def listen4ans(self,status):
         if status == 'on' :
             prt.info('***** Listening for an ANSWER revised code')
-            #self.toggle_stt('on')
+            self.toggle_stt('on') #this makes mic work ...why???
+
             prt.debug("##### In listen4ans: before subscriber")
             self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.heardAnswer_callback)
             prt.debug("##### In listen4ans: after  subscriber")
