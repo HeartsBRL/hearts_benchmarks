@@ -337,15 +337,15 @@ class Objective:
         return
 
     def execute(self, actionnum):
-        prt.info("\n\n***** EXECUTE ACTION No: "+str(actionnum))
+        prt.info("\n\n***TBM3LP: ***** EXECUTE ACTION No: "+str(actionnum))
         if   self.comtype[0] == 's':
-            prt.info("***** Action Type is: SEARCHING")
+            prt.info("***TBM3LP: ***** Action Type is: SEARCHING")
             self.search()
         elif self.comtype[0] == 'm':
-            prt.info("***** Action Type is: MANIPULATING")
+            prt.info("***TBM3LP: ***** Action Type is: MANIPULATING")
             self.get()
         elif self.comtype[0] == 'a': 
-            prt.info("***** Action Type is: ACCOMPANY")
+            prt.info("***TBM3LP: ***** Action Type is: ACCOMPANY")
             self.accompany()  
 
         return
@@ -357,30 +357,30 @@ class Objective:
         for i in range(0,len(self.fromLocation)):
             frmLoc    = self.fromLocation[i]
             frmcoords = self.getfoundloc(frmLoc)
-            prt.info("in search: FROM loc  = "+frmLoc)  
-            prt.info("in Search: From coords:"+str(frmcoords))
+            prt.info("***TBM3LP: in search: FROM loc  = "+frmLoc)  
+            prt.info("***TBM3LP: in Search: From coords:"+str(frmcoords))
 
             ##### OBJECT type SEARCH
             if len(self.object) >0:
                 
                 obj    = self.object[0]
-                prt.info("in search: find object: "+ obj+" on the "+frmLoc)
+                prt.info("***TBM3LP: in search: find object: "+ obj+" on the "+frmLoc)
                 
                 self.tbm3ctrler.say("I am looking for object "+ obj +" on the "+frmLoc)
                 ntrys = 5
                 rc = self.tbm3ctrler.move_robot_to_coords(frmLoc,frmcoords,ntrys)
 
-                prt.todo("!!! remove forcing logic for ojbect & replace with OBJECT SEARCHING code !!!")
+                prt.todo("***TBM3LP: !!! remove forcing logic for ojbect & replace with OBJECT SEARCHING code !!!")
                 if i == 1:
                     found = True
 
                 if found:
                     found = True
-                    prt.info("Returned coords from object search code are:"+str(frmcoords))
-                    prt.info("in search: store coords of found location for object")
+                    prt.info("***TBM3LP: Returned coords from object search code are:"+str(frmcoords))
+                    prt.info("***TBM3LP: in search: store coords of found location for object")
 
                     self.storefoundloc(obj, frmcoords)
-                    prt.info(str("Found coords for "+obj+" search are:"+str(frmcoords)))
+                    prt.info("***TBM3LP: "+str("Found coords for "+obj+" search are:"+str(frmcoords)))
                     self.tbm3ctrler.say("I have found the "+obj+" at location "+frmLoc)
                     break
 
@@ -388,13 +388,13 @@ class Objective:
             if len(self.person) >0:  
 
                 per       =  self.person[0]
-                prt.info("in search: look    for "+per+" in  location: "+frmLoc)
+                prt.info("***TBM3LP: in search: look    for "+per+" in  location: "+frmLoc)
 
                 ntrys = 5
                 rcfrm = self.tbm3ctrler.move_robot_to_coords(frmLoc,frmcoords,ntrys)
                 self.tbm3ctrler.say("I am looking for a person called  "+ per +" in the "+frmLoc)
 
-                prt.todo("!!! remove forcing logic for person & replace with PERSON SEARCHING code !!!")
+                prt.todo("***TBM3LP: !!! remove forcing logic for person & replace with PERSON SEARCHING code !!!")
                 if i == 1:
                     found = True
 
@@ -403,16 +403,16 @@ class Objective:
 
                     self.storefoundloc(per, frmcoords)
 
-                    prt.info(str("Found coords for "+per+" search are:"+str(frmcoords)))
+                    prt.info(str("***TBM3LP: ound coords for "+per+" search are:"+str(frmcoords)))
                     self.tbm3ctrler.say("I have found "+per+" in the "+frmLoc)
                     break
 
         #todo store status   
         if not found:
-            prt.error("in search: !!!!! 'FROM' Location NOT FOUND !!!!!")   
+            prt.error("***TBM3LP: in search: !!!!! 'FROM' Location NOT FOUND !!!!!")   
 
-        prt.todo("in search: store status of task")           
-        prt.info("in search: ALL DONE")
+        prt.todo("***TBM3LP: in search: store status of task")           
+        prt.info("***TBM3LP: in search: ALL DONE")
 
         return        
 
@@ -445,19 +445,19 @@ class Objective:
 
         if Objective.founditems.has_key(obj):
             coords = self.getfoundloc(obj)
-            prt.info("in get: FROM location coords for: " + obj)
-            prt.info(str(coords))
+            prt.info("***TBM3LP: in get: FROM location coords for: " + obj)
+            prt.info("***TBM3LP: "+str(coords))
         else:
             # use FROM field 
             frmLoc = self.fromLocation[0]
 
             if Objective.founditems.has_key(frmLoc):
                 frmcoords = Objective.founditems[frmLoc]
-                prt.info("in get: use FROM location to find coords: " + frmLoc)
-                prt.info(str(frmcoords))
+                prt.info("***TBM3LP: in get: use FROM location to find coords: " + frmLoc)
+                prt.info("***TBM3LP: "+str(frmcoords))
 
             else:
-                prt.error("in get: !!!!! no FROM location available !!!!!")
+                prt.error("***TBM3LP: in get: !!!!! no FROM location available !!!!!")
                 return # can not proceed
         # prt.debug("==================================================== founditems dict")   
         # for keys in Objective.founditems:
@@ -465,32 +465,32 @@ class Objective:
  
         # prt.debug("==================================================== founditems dict")     
         toLoc = self.toLocation[0]
-        prt.info("in get:   toLoc is: "+toLoc)
+        prt.info("***TBM3LP: in get:   toLoc is: "+toLoc)
         if Objective.founditems.has_key(toLoc):
 
             tocoords = self.getfoundloc(toLoc)
         
-            prt.info("in get: coords for TO location for "+obj+" at "+toLoc )
-            prt.info(str(tocoords))
+            prt.info("***TBM3LP:  get: coords for TO location for "+obj+" at "+toLoc )
+            prt.info("***TBM3LP: "+str(tocoords))
         else:
-            prt.error("in get: cannot find TO coords for "+obj+" - toLoc is: " + toLoc)
+            prt.error("***TBM3LP: in get: cannot find TO coords for "+obj+" - toLoc is: " + toLoc)
 
 
-        prt.todo("sortout pickup  logic with user interaction")
+        prt.todo("***TBM3LP: sortout pickup  logic with user interaction")
         pickupOK = True
 
 
 
         if pickupOK == True:
             #todo 
-            prt.info("in get: goto FROM location: "+frmLoc)
+            prt.info("***TBM3LP: in get: goto FROM location: "+frmLoc)
             self.tbm3ctrler.say("I am going to the "+frmLoc)
-            prt.info("in get: ########## Navigate to the FROM coords to pick up "+obj)
+            prt.info("***TBM3LP: in get: ########## Navigate to the FROM coords to pick up "+obj)
 
             ntrys = 5
             rcfrm = self.tbm3ctrler.move_robot_to_coords(frmLoc,frmcoords,ntrys) 
             self.tbm3ctrler.say("I have arrived at the "+frmLoc)
-            prt.todo("\n!!! Manipulation code goes here !!!\n")
+            prt.todo("\n***TBM3LP: !!! Manipulation code goes here !!!\n")
             self.tbm3ctrler.say("I now going to pick up the "+obj)
 
             ntrys = 5
@@ -499,7 +499,7 @@ class Objective:
             self.tbm3ctrler.say("please take the "+obj+ " from me" )
 
         else:
-            prt.warning("in get: goto TO without object:" + obj)   
+            prt.warning("***TBM3LP: in get: goto TO without object:" + obj)   
             self.tbm3ctrler.say("now going to "+toLoc+" without the "+obj ) 
             ntrys = 5
             rcfrm =  self.tbm3ctrler.move_robot_to_coords(toLoc,tocoords,ntrys)
@@ -508,8 +508,8 @@ class Objective:
  
 
         #todo store status
-        prt.todo("in get: store status of task")    
-        prt.info("in get: ALL DONE")
+        prt.todo("***TBM3LP: in get: store status of task")    
+        prt.info("***TBM3LP: in get: ALL DONE")
 
         return
 
@@ -521,22 +521,22 @@ class Objective:
 
         if Objective.founditems.has_key(per):
             frmcoords = Objective.founditems[per]
-            prt.info("in get: coords for person " + per)
-            prt.info(str(frmcoords))
+            prt.info("***TBM3LP: in get: coords for person " + per)
+            prt.info("***TBM3LP: "+str(frmcoords))
         else:
-            prt.error("in accompany: cannot find coords for: " + per + " so check FROM loc")
+            prt.error("***TBM3LP: in accompany: cannot find coords for: " + per + " so check FROM loc")
         
             # if location of person not previously known    
             if self.fromLocation:
                 #todo
-                prt.info("in accompany: FROM Location defined")
+                prt.info("***TBM3LP: in accompany: FROM Location defined")
                 frmLoc  = self.fromLocation
                 lenfrom = len(frmLoc)
                 if lenfrom == 1:
-                    prt.info("in accompany: use FROM location as a single value ie loc is known is: "+str(frmLoc))
+                    prt.info("***TBM3LP: in accompany: use FROM location as a single value ie loc is known is: "+str(frmLoc))
             else:              
                 #todo abort if FROM not available
-                prt.error("in accompany: FROM not available so abort task")
+                prt.error("***TBM3LP: in accompany: FROM not available so abort task")
 
         ###################################################################################       
 
@@ -544,7 +544,7 @@ class Objective:
             #todo
             frmLoc = self.fromLocation[0]
             toLoc  = self.toLocation[0]
-            prt.info("toLoc is: "+toLoc)
+            prt.info("***TBM3LP: toLoc is: "+toLoc)
             if Objective.founditems.has_key(toLoc):
                 frmcoords= Objective.founditems[frmLoc]
                 tocoords = Objective.founditems[toLoc]
@@ -552,27 +552,27 @@ class Objective:
                 ntry  = 5
                 rcfrm = self.tbm3ctrler.move_robot_to_coords(per,frmcoords,ntry)
                 self.tbm3ctrler.say("Hello "+per+" please follow me to the "+toLoc)
-                prt.info("in accompany: Say follow  me " +"to the "+toLoc)
-                prt.info("in accompany: TO location is " + toLoc)
+                prt.info("***TBM3LP: in accompany: Say follow  me " +"to the "+toLoc)
+                prt.info("***TBM3LP: in accompany: TO location is " + toLoc)
                 ntry = 5
                 rcto = self.tbm3ctrler.move_robot_to_coords(toLoc,tocoords,ntry)
                 self.tbm3ctrler.say(per+" We have arrived at the "+toLoc)
                 #update persons location to their new location
                 self.storefoundloc(per, tocoords)
        
-                prt.todo("in accompany: for guiding -- allow for user too far behind tiago??")
+                prt.todo("***TBM3LP: in accompany: for guiding -- allow for user too far behind tiago??")
             else:
-                prt.error("in accompany: for guiding -- The goto TO location not found")
+                prt.error("***TBM3LP: in accompany: for guiding -- The goto TO location not found")
 
         elif self.brlcommand[0] == 'follow':           
             #todo
-            prt.info("in accomapny: Say Ready to follow you " + per)
+            prt.info("***TBM3LP: in accomapny: Say Ready to follow you " + per)
             self.tbm3ctrler.say("Hello "+per+" please lead on and I will follow ")
-            prt.todo("in accompany: listen for stop  command from user")
+            prt.todo("***TBM3LP: in accompany: listen for stop  command from user")
 
         #todo store status
-        prt.todo("in accompany: store status of task")    
-        prt.info("in accompany: ALL DONE")
+        prt.todo("***TBM3LP: in accompany: store status of task")    
+        prt.info("***TBM3LP: in accompany: ALL DONE")
 
         return
 
@@ -641,7 +641,7 @@ class Analysis(object):
                         start = taskflags[ptr]
                         ptr  += 1
 
-        prt.info("Objectify Command count = "+str(self.commandcount))       
+        prt.info("***TBM3LP: Objectify Command count = "+str(self.commandcount))       
         if self.commandcount == 3:         
             #use the indices of commands to split task into objectives
             objective1 = Objective(taskP[taskflags[0]+1:taskflags[1]], coms[0],brlcoms[0],comstype[0],self, self.tbm3ctrler)
@@ -674,7 +674,7 @@ class Analysis(object):
                         objectives[i].person = objectives[i-1].person
                         del objectives[i].reference[0]
                     except IndexError:
-                        prt.error( "Failed to resolve reference for '" + ref + "'")
+                        prt.error( "***TBM3LP: Failed to resolve reference for '" + ref + "'")
                         del objectives[i].reference[0]
                 elif ref == "it":
                     # if an 'object is defined in current action then don't do this 
@@ -682,10 +682,10 @@ class Analysis(object):
                         objectives[i].object = objectives[i-1].object
                         del objectives[i].reference[0]
                     except IndexError:
-                        prt.error( "Failed to resolve reference for '" + ref + "'")
+                        prt.error( "***TBM3LP: Failed to resolve reference for '" + ref + "'")
                         del objectives[i].reference[0]
                 else:
-                    prt.error( "Unknown reference, how did this happen?  ref="+ref)
+                    prt.error( "***TBM3LP: Unknown reference, how did this happen?  ref="+ref)
                     del objectives[i].reference[0]
 
     ##### DAR routines follow ##########################################################################
@@ -783,9 +783,10 @@ class Analysis(object):
                 self.people.append(word)
 
             else:
-                prt.error('Objects file: not a I or P flag! see file: '+ objects_file)
+                prt.error('***TBM3LP: Objects file: not a I or P flag! see file: '+ objects_file)
+                
         for ppp in self.people:
-            prt.error("***************** Person: "+ppp)
+            prt.info("***TBM3LP: Person found: "+ppp)
 
     #*********************************************************************************
     def parse_locations(self):
@@ -868,7 +869,7 @@ class Analysis(object):
                 #prt.result(loc_with_)   
             else:
                 missed += 1
-                prt.error(loc_with_)
+                prt.error("***TBM3LP: "+str(loc_with_))
 
         return (found,missed)
     #*********************************************************************************
@@ -897,15 +898,15 @@ class Analysis(object):
     def checklocations(self):
         #check that all "ERL competition locations" found are in the Navigation locations.json file
         jsonfilein = rospy.get_param("locations_json")
-        prt.todo("add json file exisits check in def language_v2.py")
+        prt.todo("***TBM3LP: add json file exisits check in def language_v2.py")
         found,missed = self.check_locations(jsonfilein)
-        prt.result("\nERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
+        prt.result("\n***TBM3LP: ERL Locations checked against our map file\n - found: "+str(found)+" - Missed: "+str(missed)+"\n")
        
         if missed > 0 :
-            prt.error("\nlocations.json file has missing entries required by the competition data")
-            prt.error("File is : "+jsonfilein)
-            prt.error("There are "+str(missed)+" missing entries.  See report above ^^^^\n")
-            prt.error("Program Stopped!\n")
+            prt.error("\n***TBM3LP: locations.json file has missing entries required by the competition data")
+            prt.error("***TBM3LP: File is : "+jsonfilein)
+            prt.error("***TBM3LP: There are "+str(missed)+" missing entries.  See report above ^^^^\n")
+            prt.error("***TBM3LP: Program Stopped!\n")
             quit()
 
 

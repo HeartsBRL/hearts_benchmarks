@@ -19,7 +19,7 @@ def talker(speech):
 arg = sys.argv[1]
 print("arg: "+arg)
 if   arg == "task1":
-  speech = "Locate Tracy, lead her to the bedroom, and bring me an apple from the kitchen cabinet."
+  speech = "Locate Tracy lead her to the bedroom and bring me an apple from the kitchen cabinet"
 elif arg == "task2":
   speech = "Locate the bottle, place it in the bucket, and take John from the bedroom to the kitchen cabinet."
 elif arg == "task3":
