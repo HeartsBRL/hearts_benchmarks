@@ -79,53 +79,68 @@ class ControllerTBM3(GenericController):
     def listen4cmd(self,status):
 
         if status == 'on' :
-            prt.info('***** Listening for a COMMAND')
-            #self.toggle_stt('on')
+            prt.info('***TBM3:Listening for a COMMAND')
             self.sub_cmd=rospy.Subscriber("/hearts/stt", String, self.heardCommand_callback)
-            #self.toggle_stt('off')
+           
+            msg = Bool()
+            msg.data = True
+            self.pub_stt_toggle.publish(msg)
+            rospy.sleep(0.5)
 
         else:
-            #self.toggle_stt('off')
-            prt.info('***** NOT! Listening for a COMMAND')
             self.sub_cmd.unregister()
+
+            msg = Bool()
+            msg.data = False
+            self.pub_stt_toggle.publish(msg)
+            rospy.sleep(0.5)
+
+            prt.info('***TBM3: NOT! Listening for a COMMAND')
 
         return
 
+
     def listen4ans(self,status):
         if status == 'on' :
-            prt.info('***** Listening for an ANSWER revised code')
-            self.toggle_stt('on') #this makes mic work ...why???
-
-            prt.debug("##### In listen4ans: before subscriber")
+            prt.info('***TBM3: Listening for an ANSWER revised code')
             self.sub_ans=rospy.Subscriber("/hearts/stt", String, self.heardAnswer_callback)
-            prt.debug("##### In listen4ans: after  subscriber")
-            #self.toggle_stt("off")
+
+            msg = Bool()
+            msg.data = True
+            self.pub_stt_toggle.publish(msg)
+            rospy.sleep(0.5)
 
         else:
-            #self.toggle_stt('off')
             self.sub_ans.unregister()
-            prt.info('***** NOT! Listening for an ANSWER')
+
+            msg = Bool()
+            msg.data = False
+            self.pub_stt_toggle.publish(msg)
+            rospy.sleep(0.5)
+
+            prt.info('***TBM3: NOT! Listening for an ANSWER')
 
         return
 
     def heardAnswer_callback(self,data):
+        self.listen4ans('off')
         speech = str(data)
         speech = speech.lower()
         speech = speech.replace('"','')
-        rospy.loginfo('*** Heard an answer : '+speech+'\n')
+        rospy.loginfo('***TBM3: *** Heard an answer : '+speech+'\n')
 
         words  = speech.split(' ')
-        prt.debug("words list in YES/NO section")
+        prt.debug("***TBM3: words list in YES/NO section")
         for item in words:
-            prt.debug("yes/no words list:>"+item+"<")
+            prt.debug("***TBM3: yes/no words list:>"+item+"<")
         if 'yes' in words:
             self.say("OK then I will do that now")
 
             self.analysis.executeobjectives(self.theobjectives)
 
             self.say("The tasks are now completed to your satisfaction we trust")
-            prt.todo(" **************Stop Program nicely  here!*****************")
-            prt.warning("TBM3 controller: now quitting python!")
+            prt.todo(" ***TBM3: **************Stop Program nicely  here!*****************")
+            prt.warning("***TBM3:  controller: now quitting python!")
             quit()
             # Turn off subscribing to any /hearts/stt topics
             self.listen4ans('off')
@@ -145,10 +160,10 @@ class ControllerTBM3(GenericController):
 
     def heardCommand_callback(self,data):
         self.listen4cmd('off')
-        prt.debug("in heardcommand_callback - speech: "+str(data))
+        prt.debug("***TBM3: in heardcommand_callback - speech: "+str(data))
         speech = str(data)
         speech = speech.lower()
-        rospy.loginfo('*** Heard a command\n'+speech+'\n')
+        rospy.loginfo('***TBM3:  Heard a command\n'+speech+'\n')
 
         # remove the ROS msg "Data:" value from speech
         item = 'data:'
@@ -169,9 +184,9 @@ class ControllerTBM3(GenericController):
         theta =  self.user_location.theta
         self.analysis.InitialUserLoc("user",[x,y,theta])
 
-        prt.info("###START: derive the 3 objectives from the spoken text")
+        prt.info("***TBM3: START: derive the 3 objectives from the spoken text")
         commandcount, self.theobjectives = self.analysis.defineobjectives(speech)
-        prt.info("###END  : derive the 3 objectives from the spoken text")
+        prt.info("***TBM3: END  : derive the 3 objectives from the spoken text")
 
         if commandcount == 3 :
             # prt.debug("***********printme    all fields**************************************")
@@ -179,19 +194,19 @@ class ControllerTBM3(GenericController):
             # self.theobjectives[1].printme()
             # self.theobjectives[2].printme()
             # prt.debug("***********printme    all fields***************************************")
-            prt.debug("***********printme_final    *******************************************")
+            prt.debug("***TBM3: ***********printme_final    *******************************************")
             self.theobjectives[0].printme_final()
             self.theobjectives[1].printme_final()
             self.theobjectives[2].printme_final()
-            prt.debug("***********printme_final END*******************************************")
+            prt.debug("***TBM3: ***********printme_final END*******************************************")
 
             talkback      = self.analysis.getconfirmationtext(self.theobjectives)
 
-            prt.info("command count rtn to GA controller = "+str(commandcount))
-            prt.info("***** Tiago's confirmation to Granny Annie is: \n"+talkback+"\n")
+            prt.info("***TBM3: command count rtn to GA controller = "+str(commandcount))
+            prt.info("***TBM3: Tiago's confirmation to Granny Annie is: \n"+talkback+"\n")
             self.say("You requested that I "+talkback)
 
-            prt.info("Asking for YES or NO now!")
+            prt.info("***TBM3: Asking for YES or NO now!")
             self.say("Shall I do this now?")
             self.listen4ans('on')
 
@@ -199,7 +214,7 @@ class ControllerTBM3(GenericController):
 
 
         else:
-            prt.info("command count = "+str(commandcount)+" so cannot proceed")
+            prt.info("***TBM3: command count = "+str(commandcount)+" so cannot proceed")
             txtcmds = self.num2text(commandcount)
             self.say("I have received "+txtcmds+" but expected three. Please repeat command.")
             self.listen4cmd('on')
@@ -222,21 +237,21 @@ class ControllerTBM3(GenericController):
     ### will then publish the corresponding state to "roah_rsbb/messages_save"
     def benchmark_state_callback(self, data):
         if data.benchmark_state == BenchmarkState.STOP:
-            rospy.loginfo("STOP")
+            rospy.loginfo("***TBM3: STOP")
         elif data.benchmark_state == BenchmarkState.PREPARE:
-            rospy.loginfo("PREPARE")
+            rospy.loginfo("***TBM3: PREPARE")
             try:
                 rospy.sleep(0.1)
                 self.prepare() # END of PREPARE msg to service
             except:
-                rospy.loginfo("Failed to reply PREPARE")
+                rospy.loginfo("***TBM3: Failed to reply PREPARE")
 
         elif data.benchmark_state == BenchmarkState.EXECUTE:
-            rospy.loginfo("EXECUTE")
+            rospy.loginfo("***TBM3: EXECUTE")
             self.main()
 
     def wait_for_call(self):
-        rospy.loginfo("***** Waiting for call from GA")
+        rospy.loginfo("***TBM3: Waiting for call from GA")
         self.wait = False
         sub = rospy.Subscriber("/roah_rsbb/tablet/call", Empty, self.tablet_callback)
         while self.wait == False:
@@ -245,16 +260,16 @@ class ControllerTBM3(GenericController):
         sub.unregister()
 
     def wait_for_user_location(self):
-        rospy.loginfo("Waiting for user location")
+        rospy.loginfo("***TBM3: Waiting for user location")
         self.user_location = None
         sub = rospy.Subscriber("/roah_rsbb/tablet/position", Pose2D, self.user_location_callback)
         rospy.wait_for_service('/roah_rsbb/tablet/map')
 
         self.user_location_service()
-        rospy.loginfo("going to while loop")
+        rospy.loginfo("***TBM3: going to while loop")
         while self.user_location is None:
             rospy.sleep(0.1)
-            rospy.loginfo("Waiting for user location in while loop")
+            rospy.loginfo("***TBM3: Waiting for user location in while loop")
         sub.unregister()
 
 
@@ -266,7 +281,7 @@ class ControllerTBM3(GenericController):
     def user_location_callback(self, msg):
         # this is Granny Annie's location being the 'user'!
 
-        rospy.loginfo("Waiting for user location callback")
+        rospy.loginfo("***TBM3: Waiting for user location callback")
         rospy.loginfo(msg)
 
         self.user_location = msg
@@ -295,17 +310,17 @@ class ControllerTBM3(GenericController):
             print("\n***** STOPPING PROGRAM *****\n")
             quit()
         '''
-        prt.result(" Granny Annies location:")
-        prt.result(" X     : "+str(self.user_location.x))
-        prt.result(" Y     : "+str(self.user_location.y))
-        prt.result(" theta : "+str(self.user_location.theta))
+        prt.result("***TBM3: Granny Annies location:")
+        prt.result("***TBM3: X     : "+str(self.user_location.x))
+        prt.result("***TBM3: Y     : "+str(self.user_location.y))
+        prt.result("***TBM3: theta : "+str(self.user_location.theta))
 
         return
 
     ## Navigation Functions
     def move_to_pose2D(self, target_location_2D):
         ##publish granny annie's location
-        rospy.loginfo("Moving to Pose2D")
+        rospy.loginfo("***TBM3: Moving to Pose2D")
 
         self.pose_2d_pub.publish(target_location_2D)
 
@@ -318,24 +333,24 @@ class ControllerTBM3(GenericController):
         # indirection code to allow deveopment with no robot attached
 
         if self.IROBOT:
-            prt.warning("ROBOT moving to location of: "+key)
-            prt.warning("Coords are: "+str(coords))
+            prt.warning("***TBM3: ROBOT moving to location of: "+key)
+            prt.warning("***TBM3: Coords are: "+str(coords))
             self.move_to_coords(coords,trys)
         else:
-            prt.warning("NO ROBOT available for software to control!")
-            prt.warning("ROBOT will NOT moving to Location of: "+key)
-            prt.warning("Coords are: "+str(coords))
+            prt.warning("***TBM3: NO ROBOT available for software to control!")
+            prt.warning("***TBM3: ROBOT will NOT moving to Location of: "+key)
+            prt.warning("***TBM3: Coords are: "+str(coords))
         return
 
     def move_robot_to_location(self,location,trys):
         # indirection code to allow deveopment with no robot attached
 
         if self.IROBOT:
-            prt.warning("ROBOT moving to location : "+location)
+            prt.warning("***TBM3: ROBOT moving to location : "+location)
             self.move_to_location(location,trys)
         else:
-            prt.warning("NO ROBOT available for software to control!")
-            prt.warning("ROBOT will NOT moving to : "+location+" with "+str(trys) )
+            prt.warning("***TBM3: NO ROBOT available for software to control!")
+            prt.warning("***TBM3: ROBOT will NOT moving to : "+location+" with "+str(trys) )
 
     def move_to_coords(self, coords, num_retries):
         #copied from move_to_location #Derek
@@ -347,9 +362,9 @@ class ControllerTBM3(GenericController):
         by 1 radian on each retry.
         '''
         #self.cost_clear()
-        rospy.loginfo("moving to coords \"" + str(coords) + "\" (" + str(num_retries) + ")")
+        rospy.loginfo("***TBM3: moving to coords \"" + str(coords) + "\" (" + str(num_retries) + ")")
         msg = Pose2D()
-        prt.debug("######## COORDS HERE ########")
+        prt.debug("***TBM3: ######## COORDS HERE ########")
         print coords
         print type(coords)
 
@@ -369,7 +384,7 @@ class ControllerTBM3(GenericController):
         arrive_success = self.wait_to_arrive(num_retries)
 
         if arrive_success == False:
-            rospy.loginfo("ERROR movement has failed")
+            rospy.loginfo("***TBM3: ERROR movement has failed")
             self.say("Sorry, I am unable to move to get there")
             #TODO should an actual error be thrown here?
             print coords
@@ -381,36 +396,36 @@ class ControllerTBM3(GenericController):
 
     def main(self):
         print ("\n***** MAIN Executing *****\n")
-        prt.debug(" I-Robot :"+str(self.IROBOT))
+        prt.debug("***TBM3:  I-Robot :"+str(self.IROBOT))
         #go to home position
         self.move_robot_to_location("home",1) #TODO check number of retries?
 
         #wait for call
         self.say("Waiting to be called by granny annie.")
         self.wait_for_call()
-        prt.debug("------  IROBOT : "+str(self.IROBOT))
+        prt.debug("***TBM3: ------  IROBOT : "+str(self.IROBOT))
         #request location
         #self.say("Waiting for granny annie's location") - removed as delay seems to prevent user location callback from firing
         self.wait_for_user_location()
 
         #navigate to the user's location
         self.say("I am on my way to you.")
-        prt.todo("Remove comments for navigation to GA")
+        prt.todo("***TBM3: Remove comments for navigation to GA")
         trys=5
         self.move_robot_to_coords('User',self.user_location,trys)
-        prt.todo("retries fr GA arriving???")
+        prt.todo("***TBM3: retries fr GA arriving???")
 
         self.say("How can I help you today? Please give me a command")
 
         self.listen4cmd('on')
-        prt.error("dropped out of def main")
-        rospy.loginfo("End of MAIN programme")
+        prt.info("***TBM3: at END of def main")
+        rospy.loginfo("***TBM3: End of MAIN programme")
 
 
 if __name__ == '__main__':
 
 
     rospy.init_node('annies_comfort', anonymous=False)
-    rospy.loginfo("annies comfort controller has started")
+    rospy.loginfo("***TBM3: annies comfort controller has started")
     controller = ControllerTBM3()
     rospy.spin()
